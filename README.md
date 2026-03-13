@@ -16,3 +16,9 @@ PostgreSQL-first modernization workspace for the legacy recruitment system.
 - Phase 0: foundation bootstrap
 - Goal: local PostgreSQL + API + Web startup verification
 
+## Development Admin Account
+
+- Default account: `admin`
+- Default password: `admin`
+- Login API: `POST /api/v1/admin/auth/login`
+- This account is upserted on API startup from `app.admin.dev-account.*`

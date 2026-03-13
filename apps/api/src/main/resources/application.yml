@@ -32,3 +32,12 @@ info:
   app:
     name: vibe-rec-api
     phase: foundation
+
+app:
+  admin:
+    dev-account:
+      enabled: true
+      username: admin
+      password: admin
+      display-name: Dev Admin
+      role: SUPER_ADMIN
