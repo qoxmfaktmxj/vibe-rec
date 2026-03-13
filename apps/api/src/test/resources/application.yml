@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5435/vibe_rec_test
+    username: vibe_rec
+    password: vibe_rec
