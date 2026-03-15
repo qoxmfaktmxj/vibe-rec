@@ -8,6 +8,8 @@ public record AdminLoginResponse(
         String username,
         String displayName,
         AdminRole role,
-        OffsetDateTime authenticatedAt
+        OffsetDateTime authenticatedAt,
+        OffsetDateTime expiresAt,
+        String sessionToken
 ) {
 }

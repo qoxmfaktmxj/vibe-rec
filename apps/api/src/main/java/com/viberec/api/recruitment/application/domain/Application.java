@@ -41,6 +41,16 @@ public class Application {
     @Column(nullable = false, length = 20)
     private ApplicationStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "review_status", nullable = false, length = 20)
+    private ApplicationReviewStatus reviewStatus;
+
+    @Column(name = "review_note", columnDefinition = "text")
+    private String reviewNote;
+
+    @Column(name = "reviewed_at")
+    private OffsetDateTime reviewedAt;
+
     @Column(name = "draft_saved_at", nullable = false)
     private OffsetDateTime draftSavedAt;
 
@@ -62,6 +72,7 @@ public class Application {
         this.applicantEmail = applicantEmail;
         this.applicantPhone = applicantPhone;
         this.status = ApplicationStatus.DRAFT;
+        this.reviewStatus = ApplicationReviewStatus.NEW;
         this.draftSavedAt = OffsetDateTime.now();
     }
 
@@ -87,6 +98,21 @@ public class Application {
         this.draftSavedAt = OffsetDateTime.now();
     }
 
+    public void submit(String applicantName, String applicantPhone) {
+        this.applicantName = applicantName;
+        this.applicantPhone = applicantPhone;
+        this.status = ApplicationStatus.SUBMITTED;
+        OffsetDateTime now = OffsetDateTime.now();
+        this.draftSavedAt = now;
+        this.submittedAt = now;
+    }
+
+    public void updateReviewStatus(ApplicationReviewStatus reviewStatus, String reviewNote) {
+        this.reviewStatus = reviewStatus;
+        this.reviewNote = reviewNote;
+        this.reviewedAt = reviewStatus == ApplicationReviewStatus.NEW ? null : OffsetDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -95,16 +121,43 @@ public class Application {
         return jobPosting;
     }
 
+    public String getApplicantName() {
+        return applicantName;
+    }
+
     public String getApplicantEmail() {
         return applicantEmail;
+    }
+
+    public String getApplicantPhone() {
+        return applicantPhone;
     }
 
     public ApplicationStatus getStatus() {
         return status;
     }
 
+    public ApplicationReviewStatus getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public String getReviewNote() {
+        return reviewNote;
+    }
+
     public OffsetDateTime getDraftSavedAt() {
         return draftSavedAt;
     }
-}
 
+    public OffsetDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public OffsetDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public boolean isSubmitted() {
+        return status == ApplicationStatus.SUBMITTED;
+    }
+}

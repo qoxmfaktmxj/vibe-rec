@@ -7,6 +7,11 @@ export type JobPostingStepType =
   | "OFFER";
 
 export type ApplicationStatus = "DRAFT" | "SUBMITTED";
+export type ApplicationReviewStatus =
+  | "NEW"
+  | "IN_REVIEW"
+  | "PASSED"
+  | "REJECTED";
 
 export interface JobPostingSummary {
   id: number;
@@ -57,4 +62,5 @@ export interface ApplicationDraftResponse {
   applicantEmail: string;
   status: ApplicationStatus;
   draftSavedAt: string;
+  submittedAt: string | null;
 }

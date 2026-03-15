@@ -8,6 +8,7 @@ public record ApplicationDraftResponse(
         Long jobPostingId,
         String applicantEmail,
         ApplicationStatus status,
-        OffsetDateTime draftSavedAt
+        OffsetDateTime draftSavedAt,
+        OffsetDateTime submittedAt
 ) {
 }

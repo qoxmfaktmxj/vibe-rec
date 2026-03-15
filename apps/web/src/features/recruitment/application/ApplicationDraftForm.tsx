@@ -28,6 +28,8 @@ interface DraftFormValues {
   careerYears: string;
 }
 
+type FormActionMode = "draft" | "submit";
+
 const inputClassName =
   "mt-2 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-primary focus:ring-4 focus:ring-primary/10";
 
@@ -40,7 +42,7 @@ const initialFormValues: DraftFormValues = {
   careerYears: "",
 };
 
-function validateDraftFields(values: DraftFormValues) {
+function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
   const fieldErrors: DraftActionState["fieldErrors"] = {};
 
   if (values.applicantName.trim().length < 2) {
@@ -63,6 +65,16 @@ function validateDraftFields(values: DraftFormValues) {
       "Introduction must be at least 20 characters long.";
   }
 
+  if (mode === "submit" && values.introduction.trim().length < 20) {
+    fieldErrors.introduction =
+      "Introduction must be at least 20 characters long before submit.";
+  }
+
+  if (mode === "submit" && values.coreStrength.trim().length < 10) {
+    fieldErrors.coreStrength =
+      "Core strength must be at least 10 characters long before submit.";
+  }
+
   if (
     values.careerYears.trim() &&
     (!/^\d+$/.test(values.careerYears.trim()) ||
@@ -82,7 +94,11 @@ export function ApplicationDraftForm({
 }: ApplicationDraftFormProps) {
   const [formValues, setFormValues] = useState(initialFormValues);
   const [state, setState] = useState(initialDraftActionState);
-  const [isPending, setIsPending] = useState(false);
+  const [pendingAction, setPendingAction] = useState<FormActionMode | null>(
+    null,
+  );
+  const isPending = pendingAction !== null;
+  const isSubmitted = state.currentStatus === "SUBMITTED";
 
   function updateField(fieldName: DraftFieldName, value: string) {
     setFormValues((current) => ({
@@ -91,33 +107,39 @@ export function ApplicationDraftForm({
     }));
   }
 
-  async function submitDraft() {
+  function buildPayload() {
+    return {
+      applicantName: formValues.applicantName.trim(),
+      applicantEmail: formValues.applicantEmail.trim(),
+      applicantPhone: formValues.applicantPhone.trim(),
+      resumePayload: {
+        ...(formValues.introduction.trim()
+          ? { introduction: formValues.introduction.trim() }
+          : {}),
+        ...(formValues.coreStrength.trim()
+          ? { coreStrength: formValues.coreStrength.trim() }
+          : {}),
+        ...(formValues.careerYears.trim()
+          ? { careerYears: Number(formValues.careerYears.trim()) }
+          : {}),
+      },
+    };
+  }
+
+  async function submitDraft(mode: FormActionMode) {
+    const endpoint =
+      mode === "draft"
+        ? `/api/job-postings/${jobPostingId}/application-draft`
+        : `/api/job-postings/${jobPostingId}/application-submit`;
+
     try {
-      const response = await fetch(
-        `/api/job-postings/${jobPostingId}/application-draft`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            applicantName: formValues.applicantName.trim(),
-            applicantEmail: formValues.applicantEmail.trim(),
-            applicantPhone: formValues.applicantPhone.trim(),
-            resumePayload: {
-              ...(formValues.introduction.trim()
-                ? { introduction: formValues.introduction.trim() }
-                : {}),
-              ...(formValues.coreStrength.trim()
-                ? { coreStrength: formValues.coreStrength.trim() }
-                : {}),
-              ...(formValues.careerYears.trim()
-                ? { careerYears: Number(formValues.careerYears.trim()) }
-                : {}),
-            },
-          }),
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(buildPayload()),
+      });
 
       const responseBody = (await response.json()) as
         | ApplicationDraftResponse
@@ -130,10 +152,17 @@ export function ApplicationDraftForm({
             : undefined;
         setState({
           status: "error",
-          message: errorMessage ?? "Failed to save the application draft.",
+          message:
+            errorMessage ??
+            (mode === "submit"
+              ? "Failed to submit the application."
+              : "Failed to save the application draft."),
           fieldErrors: {},
           savedAt: null,
+          submittedAt: null,
           applicationId: null,
+          currentStatus:
+            errorMessage?.includes("already submitted") ? "SUBMITTED" : null,
         });
         return;
       }
@@ -141,50 +170,67 @@ export function ApplicationDraftForm({
       if (!("applicantEmail" in responseBody)) {
         setState({
           status: "error",
-          message: "The save response did not contain draft details.",
+          message: "The application response did not contain details.",
           fieldErrors: {},
           savedAt: null,
+          submittedAt: null,
           applicationId: null,
+          currentStatus: null,
         });
         return;
       }
 
       setState({
         status: "success",
-        message: `Draft saved for ${responseBody.applicantEmail}.`,
+        message:
+          responseBody.status === "SUBMITTED"
+            ? `Application submitted for ${responseBody.applicantEmail}.`
+            : `Draft saved for ${responseBody.applicantEmail}.`,
         fieldErrors: {},
         savedAt: responseBody.draftSavedAt,
+        submittedAt: responseBody.submittedAt,
         applicationId: responseBody.applicationId,
+        currentStatus: responseBody.status,
       });
     } catch {
       setState({
         status: "error",
-        message: "An unexpected error occurred while saving the draft.",
+        message:
+          mode === "submit"
+            ? "An unexpected error occurred while submitting the application."
+            : "An unexpected error occurred while saving the draft.",
         fieldErrors: {},
         savedAt: null,
+        submittedAt: null,
         applicationId: null,
+        currentStatus: null,
       });
     } finally {
-      setIsPending(false);
+      setPendingAction(null);
     }
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const nativeEvent = event.nativeEvent as SubmitEvent;
+    const submitter = nativeEvent.submitter as HTMLButtonElement | null;
+    const mode = submitter?.value === "submit" ? "submit" : "draft";
 
-    const fieldErrors = validateDraftFields(formValues);
+    const fieldErrors = validateDraftFields(formValues, mode);
     if (Object.keys(fieldErrors).length > 0) {
       setState({
         status: "error",
         message: "Review the highlighted fields and try again.",
         fieldErrors,
         savedAt: null,
+        submittedAt: null,
         applicationId: null,
+        currentStatus: null,
       });
       return;
     }
 
-    setIsPending(true);
+    setPendingAction(mode);
     setState((current) => ({
       ...current,
       status: "idle",
@@ -193,7 +239,7 @@ export function ApplicationDraftForm({
     }));
 
     startTransition(() => {
-      void submitDraft();
+      void submitDraft(mode);
     });
   }
 
@@ -218,8 +264,12 @@ export function ApplicationDraftForm({
           <p>{state.message}</p>
           {state.status === "success" && state.savedAt ? (
             <p className="mt-2 text-xs">
-              Status: {getApplicationStatusLabel("DRAFT")} | Saved at:{" "}
-              {formatDateTime(state.savedAt)}
+              Status:{" "}
+              {getApplicationStatusLabel(state.currentStatus ?? "DRAFT")} |
+              Saved at: {formatDateTime(state.savedAt)}
+              {state.submittedAt
+                ? ` | Submitted at: ${formatDateTime(state.submittedAt)}`
+                : ""}
               {state.applicationId ? ` | application #${state.applicationId}` : ""}
             </p>
           ) : null}
@@ -228,7 +278,14 @@ export function ApplicationDraftForm({
 
       {!canSave ? (
         <div className="mt-5 rounded-[1.5rem] border border-dashed border-stone-300 bg-stone-100 px-4 py-4 text-sm text-stone-600">
-          Draft save is disabled because the posting window is not active.
+          Draft save and submit are disabled because the posting window is not active.
+        </div>
+      ) : null}
+
+      {isSubmitted ? (
+        <div className="mt-5 rounded-[1.5rem] border border-dashed border-emerald-300 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
+          This application is already submitted. Further edits are locked by the
+          backend status rule.
         </div>
       ) : null}
 
@@ -243,7 +300,7 @@ export function ApplicationDraftForm({
               placeholder="Kim Recruit"
               required
               minLength={2}
-              disabled={!canSave || isPending}
+              disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.applicantName)}
               className={inputClassName}
               value={formValues.applicantName}
@@ -266,7 +323,7 @@ export function ApplicationDraftForm({
               autoComplete="email"
               placeholder="applicant@example.com"
               required
-              disabled={!canSave || isPending}
+              disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.applicantEmail)}
               className={inputClassName}
               value={formValues.applicantEmail}
@@ -289,7 +346,7 @@ export function ApplicationDraftForm({
               autoComplete="tel"
               placeholder="010-1234-5678"
               required
-              disabled={!canSave || isPending}
+              disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.applicantPhone)}
               className={inputClassName}
               value={formValues.applicantPhone}
@@ -310,7 +367,7 @@ export function ApplicationDraftForm({
               name="introduction"
               rows={5}
               placeholder="Summarize relevant experience and motivation."
-              disabled={!canSave || isPending}
+              disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.introduction)}
               className={`${inputClassName} resize-y`}
               value={formValues.introduction}
@@ -331,13 +388,18 @@ export function ApplicationDraftForm({
               name="coreStrength"
               rows={4}
               placeholder="Describe the strongest capability you bring to this role."
-              disabled={!canSave || isPending}
+              disabled={!canSave || isPending || isSubmitted}
               className={`${inputClassName} resize-y`}
               value={formValues.coreStrength}
               onChange={(event) =>
                 updateField("coreStrength", event.target.value)
               }
             />
+            {state.fieldErrors.coreStrength ? (
+              <span className="mt-2 block text-xs text-rose-700">
+                {state.fieldErrors.coreStrength}
+              </span>
+            ) : null}
           </label>
 
           <label className="block text-sm font-medium text-stone-700">
@@ -348,7 +410,7 @@ export function ApplicationDraftForm({
               min={0}
               max={40}
               placeholder="6"
-              disabled={!canSave || isPending}
+              disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.careerYears)}
               className={inputClassName}
               value={formValues.careerYears}
@@ -364,13 +426,28 @@ export function ApplicationDraftForm({
           </label>
         </div>
 
-        <button
-          type="submit"
-          disabled={!canSave || isPending}
-          className="inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isPending ? "Saving draft..." : "Save application draft"}
-        </button>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            type="submit"
+            value="draft"
+            disabled={!canSave || isPending || isSubmitted}
+            className="inline-flex w-full items-center justify-center rounded-full border border-primary/20 bg-white px-5 py-3 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pendingAction === "draft"
+              ? "Saving draft..."
+              : "Save application draft"}
+          </button>
+          <button
+            type="submit"
+            value="submit"
+            disabled={!canSave || isPending || isSubmitted}
+            className="inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {pendingAction === "submit"
+              ? "Submitting..."
+              : "Submit application"}
+          </button>
+        </div>
       </form>
     </section>
   );

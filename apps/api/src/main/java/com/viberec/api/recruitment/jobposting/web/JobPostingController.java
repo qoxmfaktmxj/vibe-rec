@@ -42,4 +42,12 @@ public class JobPostingController {
     ) {
         return applicationDraftService.saveDraft(id, request);
     }
+
+    @PostMapping("/{id}/application-submit")
+    public ApplicationDraftResponse submitApplication(
+            @PathVariable Long id,
+            @Valid @RequestBody SaveApplicationDraftRequest request
+    ) {
+        return applicationDraftService.submit(id, request);
+    }
 }

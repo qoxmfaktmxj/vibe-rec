@@ -41,7 +41,7 @@ export default async function JobPostingDetailPage({
             Back to list
           </Link>
           <p className="text-sm text-stone-500">
-            MVP flow: detail read - input validation - draft save
+            MVP flow: detail read - draft save - final submit
           </p>
         </div>
 

@@ -2,9 +2,21 @@ package com.viberec.api.admin.auth.service;
 
 import com.viberec.api.admin.auth.domain.AdminAccount;
 import com.viberec.api.admin.auth.domain.AdminRole;
+import com.viberec.api.admin.auth.domain.AdminSession;
 import com.viberec.api.admin.auth.repository.AdminAccountRepository;
+import com.viberec.api.admin.auth.repository.AdminSessionRepository;
 import com.viberec.api.admin.auth.web.AdminLoginRequest;
 import com.viberec.api.admin.auth.web.AdminLoginResponse;
+import com.viberec.api.admin.auth.web.AdminSessionResponse;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.OffsetDateTime;
+import java.util.Base64;
+import java.util.HexFormat;
+import java.util.Objects;
+import java.util.Optional;
+import java.security.SecureRandom;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,9 +31,18 @@ import org.springframework.web.server.ResponseStatusException;
 public class AdminAuthService {
 
     private final AdminAccountRepository adminAccountRepository;
+    private final AdminSessionRepository adminSessionRepository;
+    private final SecureRandom secureRandom = new SecureRandom();
+    private final long sessionDurationHours;
 
-    public AdminAuthService(AdminAccountRepository adminAccountRepository) {
+    public AdminAuthService(
+            AdminAccountRepository adminAccountRepository,
+            AdminSessionRepository adminSessionRepository,
+            @Value("${app.admin.session.duration-hours:12}") long sessionDurationHours
+    ) {
         this.adminAccountRepository = adminAccountRepository;
+        this.adminSessionRepository = adminSessionRepository;
+        this.sessionDurationHours = sessionDurationHours;
     }
 
     @Transactional
@@ -31,18 +52,77 @@ public class AdminAuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid admin credentials."));
 
         adminAccountRepository.markAuthenticated(account.getId());
+        OffsetDateTime authenticatedAt = OffsetDateTime.now();
+        OffsetDateTime expiresAt = authenticatedAt.plusHours(sessionDurationHours);
+        String sessionToken = generateSessionToken();
+
+        adminSessionRepository.save(new AdminSession(account, hashSessionToken(sessionToken), expiresAt));
 
         return new AdminLoginResponse(
                 account.getId(),
                 account.getUsername(),
                 account.getDisplayName(),
                 account.getRole(),
-                java.time.OffsetDateTime.now()
+                authenticatedAt,
+                expiresAt,
+                sessionToken
         );
+    }
+
+    @Transactional
+    public AdminSessionResponse getSession(String sessionToken) {
+        AdminSession session = findActiveSession(sessionToken);
+        OffsetDateTime now = OffsetDateTime.now();
+        adminSessionRepository.touch(session.getId(), now);
+
+        return new AdminSessionResponse(
+                session.getAdminAccount().getId(),
+                session.getAdminAccount().getUsername(),
+                session.getAdminAccount().getDisplayName(),
+                session.getAdminAccount().getRole(),
+                Objects.requireNonNullElse(session.getAdminAccount().getLastAuthenticatedAt(), now),
+                session.getExpiresAt()
+        );
+    }
+
+    @Transactional
+    public void logout(String sessionToken) {
+        String normalizedToken = normalizeSessionToken(sessionToken);
+        adminSessionRepository.invalidateByTokenHash(hashSessionToken(normalizedToken), OffsetDateTime.now());
     }
 
     private String normalizeUsername(String username) {
         return username.trim().toLowerCase();
+    }
+
+    private AdminSession findActiveSession(String sessionToken) {
+        String normalizedToken = normalizeSessionToken(sessionToken);
+        return adminSessionRepository.findActiveSessionByTokenHash(hashSessionToken(normalizedToken), OffsetDateTime.now())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is missing or expired."));
+    }
+
+    private String normalizeSessionToken(String sessionToken) {
+        if (sessionToken == null || sessionToken.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is missing or expired.");
+        }
+
+        return sessionToken.trim();
+    }
+
+    private String generateSessionToken() {
+        byte[] bytes = new byte[32];
+        secureRandom.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    private String hashSessionToken(String sessionToken) {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            byte[] digest = messageDigest.digest(sessionToken.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 hashing is unavailable.", exception);
+        }
     }
 }
 

@@ -64,8 +64,62 @@ class RecruitmentMvpTests {
 
         assertThat(response.jobPostingId()).isEqualTo(1001L);
         assertThat(response.applicantEmail()).isEqualTo("kim.recruit@example.com");
+        assertThat(response.submittedAt()).isNull();
         assertThat(applicationRepository.findByJobPostingIdAndApplicantEmailIgnoreCase(1001L, "kim.recruit@example.com")).isPresent();
         assertThat(applicationResumeRawRepository.findById(response.applicationId())).isPresent();
+    }
+
+    @Test
+    void submitsApplicationForOpenJobPosting() {
+        var response = applicationDraftService.submit(
+                1001L,
+                new SaveApplicationDraftRequest(
+                        "Kim Recruit",
+                        "kim.submit@example.com",
+                        "010-1234-5678",
+                        Map.of(
+                                "introduction", "I have led recruitment workflow modernization projects for enterprise hiring teams.",
+                                "coreStrength", "I translate hiring operations into resilient platform workflows.",
+                                "careerYears", 6
+                        )
+                )
+        );
+
+        assertThat(response.status().name()).isEqualTo("SUBMITTED");
+        assertThat(response.submittedAt()).isNotNull();
+        assertThat(applicationRepository.findByJobPostingIdAndApplicantEmailIgnoreCase(1001L, "kim.submit@example.com"))
+                .isPresent()
+                .get()
+                .extracting("status")
+                .hasToString("SUBMITTED");
+    }
+
+    @Test
+    void rejectsDraftSaveAfterSubmission() {
+        applicationDraftService.submit(
+                1001L,
+                new SaveApplicationDraftRequest(
+                        "Locked Applicant",
+                        "locked@example.com",
+                        "010-5555-7777",
+                        Map.of(
+                                "introduction", "I have managed several applicant pipelines and legacy modernization programs.",
+                                "coreStrength", "I maintain strong delivery discipline across hiring operations."
+                        )
+                )
+        );
+
+        assertThatThrownBy(() -> applicationDraftService.saveDraft(
+                1001L,
+                new SaveApplicationDraftRequest(
+                        "Locked Applicant",
+                        "locked@example.com",
+                        "010-5555-7777",
+                        Map.of("introduction", "Trying to edit after submit.")
+                )
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Application is already submitted for this posting.");
     }
 
     @Test
@@ -80,6 +134,6 @@ class RecruitmentMvpTests {
                 )
         ))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Draft save is available only for open job postings.");
+                .hasMessageContaining("Applications are available only for open job postings.");
     }
 }

@@ -95,3 +95,19 @@ export async function saveApplicationDraft(
     },
   );
 }
+
+export async function submitApplication(
+  jobPostingId: number,
+  payload: SaveApplicationDraftPayload,
+) {
+  return apiFetch<ApplicationDraftResponse>(
+    `/v1/job-postings/${jobPostingId}/application-submit`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+}

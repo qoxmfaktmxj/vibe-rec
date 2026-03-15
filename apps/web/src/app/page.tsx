@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
 import { getJobPostings } from "@/shared/api/recruitment";
 import { getJobPostingStatusLabel } from "@/shared/lib/recruitment";
@@ -21,9 +23,10 @@ export default async function Home() {
                 PostgreSQL-first recruitment MVP
               </h1>
               <p className="max-w-3xl text-base leading-8 text-stone-700 md:text-lg">
-                This slice covers job posting list, posting detail, and
-                application draft save. Reads run in Server Components and the
-                save flow uses a Server Action that calls the Spring Boot API.
+                This slice covers job posting list, posting detail, and the
+                application draft-to-submit flow. Reads run in Server
+                Components and writes go through Next.js route handlers into the
+                Spring Boot API.
               </p>
             </div>
           </div>
@@ -65,6 +68,25 @@ export default async function Home() {
                 ))}
               </div>
             </div>
+
+            <div className="rounded-[2rem] border border-black/8 bg-white/82 p-6 shadow-[0_18px_60px_rgba(43,35,18,0.08)]">
+              <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
+                Admin
+              </p>
+              <h2 className="mt-3 text-xl font-semibold text-stone-950">
+                Protected recruiter shell
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-stone-600">
+                Sign in with the development admin account to verify the session
+                flow and protected admin layout.
+              </p>
+              <Link
+                href="/login"
+                className="mt-5 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              >
+                Open admin login
+              </Link>
+            </div>
           </aside>
         </section>
 
@@ -80,7 +102,7 @@ export default async function Home() {
             </div>
             <p className="max-w-md text-right text-sm leading-7 text-stone-600">
               Move into the detail view to verify recruitment steps and the
-              application draft save flow together.
+              draft-to-submit application flow together.
             </p>
           </div>
 

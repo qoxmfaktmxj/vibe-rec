@@ -11,7 +11,9 @@ export interface DraftActionState {
   message: string | null;
   fieldErrors: Partial<Record<DraftFieldName, string>>;
   savedAt: string | null;
+  submittedAt: string | null;
   applicationId: number | null;
+  currentStatus: "DRAFT" | "SUBMITTED" | null;
 }
 
 export const initialDraftActionState: DraftActionState = {
@@ -19,5 +21,7 @@ export const initialDraftActionState: DraftActionState = {
   message: null,
   fieldErrors: {},
   savedAt: null,
+  submittedAt: null,
   applicationId: null,
+  currentStatus: null,
 };

@@ -17,6 +17,8 @@ server:
   port: ${SERVER_PORT:8080}
   servlet:
     context-path: /api
+  error:
+    include-message: always
 
 management:
   endpoints:
@@ -31,7 +33,7 @@ management:
 info:
   app:
     name: vibe-rec-api
-    phase: foundation
+    phase: mvp-read-write-auth
 
 app:
   admin:

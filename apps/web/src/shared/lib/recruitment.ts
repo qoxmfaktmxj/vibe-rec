@@ -1,4 +1,5 @@
 import type {
+  ApplicationReviewStatus,
   ApplicationStatus,
   JobPostingStatus,
   JobPostingStepType,
@@ -90,6 +91,51 @@ export function getApplicationStatusLabel(status: ApplicationStatus) {
   }
 }
 
+export function getApplicationStatusClassName(status: ApplicationStatus) {
+  switch (status) {
+    case "SUBMITTED":
+      return "bg-emerald-100 text-emerald-900";
+    case "DRAFT":
+      return "bg-amber-100 text-amber-900";
+    default:
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
+export function getApplicationReviewStatusLabel(
+  reviewStatus: ApplicationReviewStatus,
+) {
+  switch (reviewStatus) {
+    case "NEW":
+      return "신규";
+    case "IN_REVIEW":
+      return "검토 중";
+    case "PASSED":
+      return "통과";
+    case "REJECTED":
+      return "보류/탈락";
+    default:
+      return reviewStatus;
+  }
+}
+
+export function getApplicationReviewStatusClassName(
+  reviewStatus: ApplicationReviewStatus,
+) {
+  switch (reviewStatus) {
+    case "NEW":
+      return "bg-stone-200 text-stone-700";
+    case "IN_REVIEW":
+      return "bg-sky-100 text-sky-900";
+    case "PASSED":
+      return "bg-emerald-100 text-emerald-900";
+    case "REJECTED":
+      return "bg-rose-100 text-rose-900";
+    default:
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
 export function getDraftAvailability(posting: {
   status: JobPostingStatus;
   opensAt: string;
@@ -122,6 +168,7 @@ export function getDraftAvailability(posting: {
 
   return {
     canSave: true,
-    reason: "Saved data is stored as an application draft in PostgreSQL.",
+    reason:
+      "You can save a draft first and then submit the application while the posting remains open.",
   };
 }
