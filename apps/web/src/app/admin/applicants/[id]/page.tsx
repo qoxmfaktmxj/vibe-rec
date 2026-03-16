@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ApplicantAttachmentList } from "@/features/admin/applicants/ApplicantAttachmentList";
 import { ApplicantReviewForm } from "@/features/admin/applicants/ApplicantReviewForm";
 import { getAdminApplicant } from "@/shared/api/admin-applicants";
+import { getAdminAttachments } from "@/shared/api/attachments";
 import {
   formatDateTime,
   getApplicationReviewStatusClassName,
@@ -27,7 +29,10 @@ export default async function AdminApplicantDetailPage({
     notFound();
   }
 
-  const applicant = await getAdminApplicant(applicationId);
+  const [applicant, attachments] = await Promise.all([
+    getAdminApplicant(applicationId),
+    getAdminAttachments(applicationId).catch(() => []),
+  ]);
 
   if (!applicant) {
     notFound();
@@ -92,6 +97,17 @@ export default async function AdminApplicantDetailPage({
               </dd>
             </div>
           </div>
+        </section>
+
+        {/* Attachments */}
+        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
+          <h2 className="mb-5 font-headline text-2xl font-bold text-on-surface">
+            첨부파일
+            <span className="ml-2 text-base font-normal text-outline">
+              {attachments.length}개
+            </span>
+          </h2>
+          <ApplicantAttachmentList attachments={attachments} />
         </section>
 
         {/* Resume Payload */}
