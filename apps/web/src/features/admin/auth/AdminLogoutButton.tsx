@@ -30,9 +30,9 @@ export function AdminLogoutButton() {
       type="button"
       onClick={handleLogout}
       disabled={isPending}
-      className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+      className="rounded-lg bg-gradient-primary px-5 py-2 text-sm font-semibold text-white transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {isPending ? "Signing out..." : "Sign out"}
+      {isPending ? "Signing out..." : "Sign Out"}
     </button>
   );
 }

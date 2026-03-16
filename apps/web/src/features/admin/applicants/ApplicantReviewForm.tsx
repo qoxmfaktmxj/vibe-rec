@@ -23,7 +23,7 @@ const reviewOptions: Array<{
 ];
 
 const inputClassName =
-  "mt-2 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10";
+  "mt-2 w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
 
 export function ApplicantReviewForm({
   applicant,
@@ -82,28 +82,25 @@ export function ApplicantReviewForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-[2rem] border border-black/8 bg-white/88 p-7 shadow-[0_24px_80px_rgba(43,35,18,0.08)]"
+      className="ambient-shadow rounded-xl bg-surface-container-lowest p-7"
     >
-      <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
+      <h2 className="font-headline text-2xl font-bold text-on-surface">
         Recruiter Review
-      </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-stone-950">
-        검토 상태 변경
       </h2>
-      <p className="mt-3 text-sm leading-7 text-stone-600">
+      <p className="mt-3 text-sm leading-7 text-on-surface-variant">
         제출된 지원서만 검토 대상으로 올릴 수 있습니다. 현재 규칙은{" "}
-        <code className="rounded bg-stone-100 px-1 py-0.5 text-xs text-stone-800">
-          NEW -&gt; IN_REVIEW -&gt; PASSED/REJECTED
+        <code className="rounded bg-surface-container-high px-1.5 py-0.5 text-xs font-semibold text-on-surface">
+          NEW &rarr; IN_REVIEW &rarr; PASSED/REJECTED
         </code>{" "}
         순서입니다.
       </p>
 
       {message ? (
         <div
-          className={`mt-5 rounded-[1.5rem] px-4 py-3 text-sm ${
+          className={`mt-5 rounded-lg px-4 py-3 text-sm ${
             isError
-              ? "bg-rose-100 text-rose-900"
-              : "bg-emerald-100 text-emerald-900"
+              ? "bg-error-container text-destructive"
+              : "bg-secondary-container text-[#00731e]"
           }`}
         >
           {message}
@@ -111,7 +108,7 @@ export function ApplicantReviewForm({
       ) : null}
 
       <div className="mt-6 space-y-5">
-        <label className="block text-sm font-medium text-stone-700">
+        <label className="block text-sm font-semibold text-on-surface-variant">
           검토 상태
           <select
             value={reviewStatus}
@@ -129,7 +126,7 @@ export function ApplicantReviewForm({
           </select>
         </label>
 
-        <label className="block text-sm font-medium text-stone-700">
+        <label className="block text-sm font-semibold text-on-surface-variant">
           검토 메모
           <textarea
             rows={5}
@@ -145,7 +142,7 @@ export function ApplicantReviewForm({
       <button
         type="submit"
         disabled={isPending}
-        className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-gradient-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "검토 상태 저장"}
       </button>

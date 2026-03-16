@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
 import { getJobPostings } from "@/shared/api/recruitment";
-import { getJobPostingStatusLabel } from "@/shared/lib/recruitment";
 
 export default async function Home() {
   const jobPostings = await getJobPostings();
@@ -11,104 +10,154 @@ export default async function Home() {
   ).length;
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.18),_transparent_36%),linear-gradient(180deg,_#fcfbf7_0%,_#f3efe5_48%,_#ebe5d8_100%)] text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-10 px-6 py-10 lg:px-10">
-        <section className="grid gap-6 lg:grid-cols-[1.45fr_0.95fr]">
-          <div className="rounded-[2.25rem] border border-black/8 bg-white/82 p-8 shadow-[0_24px_80px_rgba(43,35,18,0.08)] backdrop-blur">
-            <div className="inline-flex rounded-full bg-teal-950 px-4 py-1.5 font-mono text-xs tracking-[0.24em] text-teal-50 uppercase">
-              Recruitment MVP
-            </div>
-            <div className="mt-6 space-y-5">
-              <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-stone-950 md:text-6xl">
-                PostgreSQL-first recruitment MVP
+    <div className="min-h-screen bg-background text-on-surface">
+      {/* Nav */}
+      <nav className="glass-nav sticky top-0 z-50 flex items-center justify-between border-b border-outline-variant/15 px-8 py-4">
+        <div className="flex items-center gap-12">
+          <span className="font-headline text-2xl font-extrabold tracking-tight text-primary">
+            Vibe Rec
+          </span>
+          <div className="hidden items-center gap-8 md:flex">
+            <Link
+              href="/"
+              className="font-medium text-on-surface transition-colors hover:text-primary"
+            >
+              Jobs
+            </Link>
+          </div>
+        </div>
+        <Link
+          href="/login"
+          className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+        >
+          Sign In
+        </Link>
+      </nav>
+
+      <main>
+        {/* Hero Section */}
+        <section className="relative overflow-hidden px-8 pb-32 pt-20">
+          <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
+            <div className="z-10">
+              <span className="mb-6 inline-block rounded-full bg-secondary-fixed px-4 py-1 text-sm font-bold text-[#005313]">
+                {openJobPostingCount} OPEN POSITIONS
+              </span>
+              <h1 className="mb-8 font-headline text-5xl font-extrabold leading-[1.1] tracking-tight text-on-surface lg:text-6xl">
+                Find Your Next{" "}
+                <span className="text-primary">Career Move.</span>
               </h1>
-              <p className="max-w-3xl text-base leading-8 text-stone-700 md:text-lg">
-                This slice covers job posting list, posting detail, and the
-                application draft-to-submit flow. Reads run in Server
-                Components and writes go through Next.js route handlers into the
-                Spring Boot API.
+              <p className="mb-12 max-w-lg text-xl leading-relaxed text-on-surface-variant">
+                Browse curated job postings and apply with a streamlined,
+                modern recruitment experience.
               </p>
+            </div>
+
+            {/* Stats card */}
+            <div className="relative hidden lg:block">
+              <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-primary-fixed opacity-30 blur-3xl" />
+              <div className="ambient-shadow relative z-10 rounded-2xl bg-surface-container-lowest p-8">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <p className="font-headline text-4xl font-bold text-primary">
+                      {jobPostings.length}
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-on-surface-variant">
+                      Total postings
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-headline text-4xl font-bold text-secondary">
+                      {openJobPostingCount}
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-on-surface-variant">
+                      Open positions
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </section>
 
-          <aside className="grid gap-4">
-            <div className="rounded-[2rem] border border-black/8 bg-stone-950 p-6 text-stone-50 shadow-[0_18px_60px_rgba(15,23,42,0.22)]">
-              <p className="font-mono text-xs tracking-[0.24em] text-teal-300 uppercase">
-                Current Slice
-              </p>
-              <dl className="mt-5 grid gap-4">
-                <div>
-                  <dt className="text-sm text-stone-400">Job postings</dt>
-                  <dd className="text-3xl font-semibold">{jobPostings.length}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-stone-400">Open postings</dt>
-                  <dd className="text-3xl font-semibold">
-                    {openJobPostingCount}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-stone-400">Validation scope</dt>
-                  <dd className="text-sm leading-7 text-stone-200">
-                    Listing, detail view, draft save, and save guard rules
-                  </dd>
-                </div>
-              </dl>
-            </div>
-
-            <div className="rounded-[2rem] border border-black/8 bg-[#d8efe7] p-6 text-stone-900 shadow-[0_18px_60px_rgba(45,95,85,0.14)]">
-              <p className="font-mono text-xs tracking-[0.24em] uppercase text-teal-900/75">
-                Status Snapshot
-              </p>
-              <div className="mt-4 space-y-3 text-sm leading-7 text-stone-700">
-                {jobPostings.map((jobPosting) => (
-                  <p key={jobPosting.id}>
-                    {jobPosting.title}: {getJobPostingStatusLabel(jobPosting.status)}
-                  </p>
-                ))}
+        {/* Job Listings */}
+        <section className="bg-surface-container-low px-8 py-24">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-16 flex items-end justify-between">
+              <div>
+                <h2 className="mb-4 font-headline text-4xl font-bold">
+                  Current Openings
+                </h2>
+                <p className="text-on-surface-variant">
+                  Explore available positions and start your application.
+                </p>
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-black/8 bg-white/82 p-6 shadow-[0_18px_60px_rgba(43,35,18,0.08)]">
-              <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-                Admin
-              </p>
-              <h2 className="mt-3 text-xl font-semibold text-stone-950">
-                Protected recruiter shell
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-stone-600">
-                Sign in with the development admin account to verify the session
-                flow and protected admin layout.
-              </p>
-              <Link
-                href="/login"
-                className="mt-5 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-              >
-                Open admin login
-              </Link>
-            </div>
-          </aside>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-                Job Posting
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-stone-950">
-                Job posting list
-              </h2>
-            </div>
-            <p className="max-w-md text-right text-sm leading-7 text-stone-600">
-              Move into the detail view to verify recruitment steps and the
-              draft-to-submit application flow together.
-            </p>
+            <JobPostingList jobPostings={jobPostings} />
           </div>
-
-          <JobPostingList jobPostings={jobPostings} />
         </section>
-      </div>
-    </main>
+
+        {/* CTA Section */}
+        <section className="px-8 py-24">
+          <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-3">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-primary p-12 text-white md:col-span-2">
+              <div className="relative z-10">
+                <h2 className="mb-6 font-headline text-4xl font-bold">
+                  Ready to find
+                  <br />
+                  your next hire?
+                </h2>
+                <p className="mb-8 max-w-md text-lg text-primary-fixed">
+                  Sign in to the recruiter dashboard to manage applicants and
+                  review submissions.
+                </p>
+                <Link
+                  href="/login"
+                  className="inline-flex rounded-lg bg-surface-container-lowest px-8 py-4 font-bold text-primary transition-transform hover:scale-105"
+                >
+                  Open Dashboard
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-2xl bg-secondary-container p-12 text-[#00731e]">
+              <svg
+                className="mb-6 h-10 w-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <h3 className="mb-4 font-headline text-2xl font-bold">
+                Modern &amp; Reliable
+              </h3>
+              <p className="text-sm leading-relaxed">
+                Built on PostgreSQL, Spring Boot, and Next.js for a robust,
+                scalable recruitment platform.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-outline-variant/15 bg-surface-container-low px-8 pb-10 pt-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col items-center justify-between gap-6 border-t border-outline-variant/15 pt-10 md:flex-row">
+            <p className="text-xs text-on-surface-variant">
+              &copy; 2024 Vibe Rec. All rights reserved.
+            </p>
+            <span className="font-headline text-lg font-extrabold tracking-tight text-primary">
+              Vibe Rec
+            </span>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

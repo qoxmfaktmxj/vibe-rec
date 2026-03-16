@@ -17,56 +17,76 @@ export default async function AdminLayout({
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.18),_transparent_36%),linear-gradient(180deg,_#fcfbf7_0%,_#f3efe5_48%,_#ebe5d8_100%)] text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-6 py-10 lg:px-10">
-        <header className="grid gap-4 rounded-[2rem] border border-black/8 bg-white/86 p-6 shadow-[0_24px_80px_rgba(43,35,18,0.08)] lg:grid-cols-[1.3fr_0.7fr]">
-          <div>
-            <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-              Recruiter Shell
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-stone-950">
-              Admin session is active
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-stone-600">
-              This layout is protected by the persisted admin session stored in
-              PostgreSQL and mirrored to a Next.js HTTP-only cookie.
-            </p>
-          </div>
+    <div className="min-h-screen bg-background text-on-surface">
+      {/* Glass Navigation */}
+      <nav className="glass-nav sticky top-0 z-50 border-b border-outline-variant/15 px-8 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex items-center gap-12">
+            <Link
+              href="/admin"
+              className="flex items-center gap-2"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
+                <svg
+                  className="h-4 w-4 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <span className="font-headline text-xl font-extrabold tracking-tight text-primary">
+                Vibe Rec
+              </span>
+            </Link>
 
-          <div className="rounded-[1.5rem] bg-stone-950 px-5 py-5 text-sm text-stone-100">
-            <p className="font-medium">{session.displayName}</p>
-            <p className="mt-1 text-stone-300">
-              {session.username} · {session.role}
-            </p>
-            <p className="mt-3 text-xs text-stone-400">
-              Expires {formatDateTime(session.expiresAt)}
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="hidden items-center gap-6 md:flex">
               <Link
                 href="/admin"
-                className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-900 transition hover:opacity-90"
+                className="font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
                 Dashboard
               </Link>
               <Link
                 href="/admin/applicants"
-                className="inline-flex items-center justify-center rounded-full border border-stone-700 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-stone-500 hover:text-white"
+                className="font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
                 Applicants
               </Link>
               <Link
                 href="/"
-                className="inline-flex items-center justify-center rounded-full border border-stone-700 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-stone-500 hover:text-white"
+                className="font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
-                Public MVP
+                Public Site
               </Link>
-              <AdminLogoutButton />
             </div>
           </div>
-        </header>
 
-        {children}
-      </div>
-    </main>
+          <div className="flex items-center gap-4">
+            <div className="hidden text-right text-sm md:block">
+              <p className="font-semibold text-on-surface">
+                {session.displayName}
+              </p>
+              <p className="text-xs text-on-surface-variant">
+                {session.role} &bull; expires{" "}
+                {formatDateTime(session.expiresAt)}
+              </p>
+            </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-fixed font-headline text-sm font-bold text-primary">
+              {session.displayName?.charAt(0)?.toUpperCase() ?? "A"}
+            </div>
+            <AdminLogoutButton />
+          </div>
+        </div>
+      </nav>
+
+      <main className="mx-auto max-w-7xl px-8 py-10">{children}</main>
+    </div>
   );
 }
