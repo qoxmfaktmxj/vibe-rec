@@ -26,18 +26,18 @@ export default function Error({
           </svg>
         </div>
         <h1 className="font-headline text-3xl font-bold text-on-surface">
-          Something went wrong
+          문제가 발생했습니다
         </h1>
         <p className="mt-4 text-sm leading-7 text-on-surface-variant">
           {error.message ||
-            "The API or UI failed while processing the request."}
+            "요청 처리 중 오류가 발생했습니다."}
         </p>
         <button
           type="button"
           onClick={() => reset()}
           className="mt-8 inline-flex items-center justify-center rounded-lg bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0"
         >
-          Try again
+          다시 시도
         </button>
       </div>
     </main>

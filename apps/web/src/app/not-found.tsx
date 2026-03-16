@@ -20,16 +20,16 @@ export default function NotFound() {
           </svg>
         </div>
         <h1 className="font-headline text-3xl font-bold text-on-surface">
-          Page Not Found
+          페이지를 찾을 수 없습니다
         </h1>
         <p className="mt-4 text-sm leading-7 text-on-surface-variant">
-          The record may not exist or may not be published yet.
+          존재하지 않거나 아직 게시되지 않은 페이지입니다.
         </p>
         <Link
           href="/"
           className="mt-8 inline-flex items-center justify-center rounded-lg bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0"
         >
-          Go to job postings
+          채용 공고로 이동
         </Link>
       </div>
     </main>

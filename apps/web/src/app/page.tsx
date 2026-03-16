@@ -22,7 +22,7 @@ export default async function Home() {
               href="/"
               className="font-medium text-on-surface transition-colors hover:text-primary"
             >
-              Jobs
+              공고
             </Link>
           </div>
         </div>
@@ -30,7 +30,7 @@ export default async function Home() {
           href="/login"
           className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
         >
-          Sign In
+          로그인
         </Link>
       </nav>
 
@@ -40,15 +40,14 @@ export default async function Home() {
           <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
             <div className="z-10">
               <span className="mb-6 inline-block rounded-full bg-secondary-fixed px-4 py-1 text-sm font-bold text-[#005313]">
-                {openJobPostingCount} OPEN POSITIONS
+                {openJobPostingCount}개 모집 중
               </span>
               <h1 className="mb-8 font-headline text-5xl font-extrabold leading-[1.1] tracking-tight text-on-surface lg:text-6xl">
-                Find Your Next{" "}
-                <span className="text-primary">Career Move.</span>
+                다음 커리어를{" "}
+                <span className="text-primary">여기서 시작하세요.</span>
               </h1>
               <p className="mb-12 max-w-lg text-xl leading-relaxed text-on-surface-variant">
-                Browse curated job postings and apply with a streamlined,
-                modern recruitment experience.
+                검증된 채용 공고를 탐색하고 간편하게 지원하세요.
               </p>
             </div>
 
@@ -62,7 +61,7 @@ export default async function Home() {
                       {jobPostings.length}
                     </p>
                     <p className="mt-1 text-sm font-medium text-on-surface-variant">
-                      Total postings
+                      전체 공고
                     </p>
                   </div>
                   <div>
@@ -70,7 +69,7 @@ export default async function Home() {
                       {openJobPostingCount}
                     </p>
                     <p className="mt-1 text-sm font-medium text-on-surface-variant">
-                      Open positions
+                      모집 중
                     </p>
                   </div>
                 </div>
@@ -85,10 +84,10 @@ export default async function Home() {
             <div className="mb-16 flex items-end justify-between">
               <div>
                 <h2 className="mb-4 font-headline text-4xl font-bold">
-                  Current Openings
+                  현재 채용 공고
                 </h2>
                 <p className="text-on-surface-variant">
-                  Explore available positions and start your application.
+                  지금 지원 가능한 포지션을 확인하세요.
                 </p>
               </div>
             </div>
@@ -103,19 +102,18 @@ export default async function Home() {
             <div className="relative overflow-hidden rounded-2xl bg-gradient-primary p-12 text-white md:col-span-2">
               <div className="relative z-10">
                 <h2 className="mb-6 font-headline text-4xl font-bold">
-                  Ready to find
+                  채용을 시작할
                   <br />
-                  your next hire?
+                  준비가 됐나요?
                 </h2>
                 <p className="mb-8 max-w-md text-lg text-primary-fixed">
-                  Sign in to the recruiter dashboard to manage applicants and
-                  review submissions.
+                  운영자 대시보드에서 지원자를 관리하고 제출 현황을 검토하세요.
                 </p>
                 <Link
                   href="/login"
                   className="inline-flex rounded-lg bg-surface-container-lowest px-8 py-4 font-bold text-primary transition-transform hover:scale-105"
                 >
-                  Open Dashboard
+                  대시보드 열기
                 </Link>
               </div>
             </div>
@@ -134,11 +132,11 @@ export default async function Home() {
                 />
               </svg>
               <h3 className="mb-4 font-headline text-2xl font-bold">
-                Modern &amp; Reliable
+                모던 &amp; 안정적
               </h3>
               <p className="text-sm leading-relaxed">
-                Built on PostgreSQL, Spring Boot, and Next.js for a robust,
-                scalable recruitment platform.
+                PostgreSQL, Spring Boot, Next.js 기반의 안정적이고 확장 가능한
+                채용 플랫폼.
               </p>
             </div>
           </div>

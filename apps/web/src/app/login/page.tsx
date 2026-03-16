@@ -37,13 +37,12 @@ export default async function LoginPage() {
             </span>
           </div>
           <h1 className="mb-4 font-headline text-4xl font-extrabold leading-tight text-on-surface lg:text-5xl">
-            Welcome back to
+            당신의 미래가
             <br />
-            your <span className="text-primary">future</span>.
+            여기 <span className="text-primary">있습니다</span>.
           </h1>
           <p className="max-w-md text-lg leading-relaxed text-on-surface-variant">
-            Login to access your recruiter dashboard and manage ongoing
-            applications.
+            운영자 대시보드에 로그인하여 채용 현황을 관리하세요.
           </p>
         </div>
 
@@ -52,12 +51,12 @@ export default async function LoginPage() {
 
           <div className="mt-8 border-t border-outline-variant/20 pt-8">
             <p className="text-center text-on-surface-variant">
-              Back to job postings?{" "}
+              채용 공고 보기?{" "}
               <Link
                 href="/"
                 className="ml-1 font-bold text-primary hover:underline"
               >
-                Browse openings
+                공고 확인하기
               </Link>
             </p>
           </div>
@@ -87,17 +86,17 @@ export default async function LoginPage() {
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
               </svg>
               <span className="text-xs font-bold uppercase tracking-widest text-[#005313]">
-                Trusted Platform
+                검증된 플랫폼
               </span>
             </div>
 
             <h2 className="font-headline text-3xl font-extrabold leading-tight text-on-surface">
-              Recruitment shouldn&apos;t feel like a chore.
+              채용이 번거로울 필요 없습니다.
             </h2>
 
             <p className="leading-relaxed text-on-surface-variant">
-              Modern recruitment tools designed to streamline your hiring
-              process from posting to onboarding.
+              공고 등록부터 온보딩까지, 채용 프로세스를 간소화하는 현대적인
+              도구.
             </p>
 
             <div className="flex items-center justify-center gap-4 pt-4">
@@ -114,10 +113,10 @@ export default async function LoginPage() {
               </div>
               <div className="text-left">
                 <p className="text-sm font-bold text-on-surface">
-                  Built for recruiters
+                  채용 담당자를 위해
                 </p>
                 <p className="text-xs text-on-surface-variant">
-                  Streamlined workflow
+                  간소화된 워크플로우
                 </p>
               </div>
             </div>
@@ -140,7 +139,7 @@ export default async function LoginPage() {
             />
           </svg>
           <span className="text-xs font-bold text-on-surface">
-            Hire rate +24%
+            채용률 +24%
           </span>
         </div>
       </section>

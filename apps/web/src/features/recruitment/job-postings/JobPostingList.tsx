@@ -15,7 +15,7 @@ export function JobPostingList({ jobPostings }: JobPostingListProps) {
   if (jobPostings.length === 0) {
     return (
       <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-10 text-center text-sm text-on-surface-variant">
-        No job postings are available yet.
+        현재 등록된 채용 공고가 없습니다.
       </section>
     );
   }
@@ -69,14 +69,14 @@ export function JobPostingList({ jobPostings }: JobPostingListProps) {
                 {formatDateRange(jobPosting.opensAt, jobPosting.closesAt)}
               </p>
               <p className="text-xs text-on-surface-variant">
-                {jobPosting.stepCount} steps
+                {jobPosting.stepCount}단계
               </p>
             </div>
             <Link
               href={`/job-postings/${jobPosting.id}`}
               className="rounded-lg bg-gradient-primary px-6 py-3 font-bold text-white transition-all hover:opacity-90"
             >
-              View Details
+              상세 보기
             </Link>
           </div>
         </article>

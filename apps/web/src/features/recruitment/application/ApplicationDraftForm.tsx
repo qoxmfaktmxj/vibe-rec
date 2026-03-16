@@ -46,15 +46,15 @@ function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
   const fieldErrors: DraftActionState["fieldErrors"] = {};
 
   if (values.applicantName.trim().length < 2) {
-    fieldErrors.applicantName = "Enter at least two characters for the name.";
+    fieldErrors.applicantName = "이름은 두 글자 이상 입력해주세요.";
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.applicantEmail.trim())) {
-    fieldErrors.applicantEmail = "Enter a valid email address.";
+    fieldErrors.applicantEmail = "올바른 이메일 주소를 입력해주세요.";
   }
 
   if (!/^[0-9+\-() ]{8,40}$/.test(values.applicantPhone.trim())) {
-    fieldErrors.applicantPhone = "Enter a valid phone number.";
+    fieldErrors.applicantPhone = "올바른 연락처를 입력해주세요.";
   }
 
   if (
@@ -62,17 +62,17 @@ function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
     values.introduction.trim().length < 20
   ) {
     fieldErrors.introduction =
-      "Introduction must be at least 20 characters long.";
+      "자기소개는 20자 이상 입력해주세요.";
   }
 
   if (mode === "submit" && values.introduction.trim().length < 20) {
     fieldErrors.introduction =
-      "Introduction must be at least 20 characters long before submit.";
+      "최종 제출 전 자기소개를 20자 이상 입력해주세요.";
   }
 
   if (mode === "submit" && values.coreStrength.trim().length < 10) {
     fieldErrors.coreStrength =
-      "Core strength must be at least 10 characters long before submit.";
+      "최종 제출 전 핵심 역량을 10자 이상 입력해주세요.";
   }
 
   if (
@@ -81,7 +81,7 @@ function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
       Number(values.careerYears.trim()) > 40)
   ) {
     fieldErrors.careerYears =
-      "Career years must be a number between 0 and 40.";
+      "경력 연수는 0~40 사이의 숫자로 입력해주세요.";
   }
 
   return fieldErrors;
@@ -155,8 +155,8 @@ export function ApplicationDraftForm({
           message:
             errorMessage ??
             (mode === "submit"
-              ? "Failed to submit the application."
-              : "Failed to save the application draft."),
+              ? "지원서 제출에 실패했습니다."
+              : "임시저장에 실패했습니다."),
           fieldErrors: {},
           savedAt: null,
           submittedAt: null,
@@ -170,7 +170,7 @@ export function ApplicationDraftForm({
       if (!("applicantEmail" in responseBody)) {
         setState({
           status: "error",
-          message: "The application response did not contain details.",
+          message: "지원서 응답 데이터가 올바르지 않습니다.",
           fieldErrors: {},
           savedAt: null,
           submittedAt: null,
@@ -184,8 +184,8 @@ export function ApplicationDraftForm({
         status: "success",
         message:
           responseBody.status === "SUBMITTED"
-            ? `Application submitted for ${responseBody.applicantEmail}.`
-            : `Draft saved for ${responseBody.applicantEmail}.`,
+            ? `${responseBody.applicantEmail} 님의 지원서가 최종 제출되었습니다.`
+            : `${responseBody.applicantEmail} 님의 지원서가 임시저장되었습니다.`,
         fieldErrors: {},
         savedAt: responseBody.draftSavedAt,
         submittedAt: responseBody.submittedAt,
@@ -197,8 +197,8 @@ export function ApplicationDraftForm({
         status: "error",
         message:
           mode === "submit"
-            ? "An unexpected error occurred while submitting the application."
-            : "An unexpected error occurred while saving the draft.",
+            ? "지원서 제출 중 예기치 않은 오류가 발생했습니다."
+            : "임시저장 중 예기치 않은 오류가 발생했습니다.",
         fieldErrors: {},
         savedAt: null,
         submittedAt: null,
@@ -220,7 +220,7 @@ export function ApplicationDraftForm({
     if (Object.keys(fieldErrors).length > 0) {
       setState({
         status: "error",
-        message: "Review the highlighted fields and try again.",
+        message: "입력 내용을 확인하고 다시 시도해주세요.",
         fieldErrors,
         savedAt: null,
         submittedAt: null,
@@ -246,7 +246,7 @@ export function ApplicationDraftForm({
   return (
     <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-7">
       <h2 className="font-headline text-2xl font-bold text-on-surface">
-        Apply Now
+        지원하기
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
         {helperText}
@@ -263,14 +263,14 @@ export function ApplicationDraftForm({
           <p>{state.message}</p>
           {state.status === "success" && state.savedAt ? (
             <p className="mt-2 text-xs opacity-80">
-              Status:{" "}
+              상태:{" "}
               {getApplicationStatusLabel(state.currentStatus ?? "DRAFT")} |
-              Saved at: {formatDateTime(state.savedAt)}
+              저장 시각: {formatDateTime(state.savedAt)}
               {state.submittedAt
-                ? ` | Submitted at: ${formatDateTime(state.submittedAt)}`
+                ? ` | 제출 시각: ${formatDateTime(state.submittedAt)}`
                 : ""}
               {state.applicationId
-                ? ` | application #${state.applicationId}`
+                ? ` | 지원서 #${state.applicationId}`
                 : ""}
             </p>
           ) : null}
@@ -279,26 +279,25 @@ export function ApplicationDraftForm({
 
       {!canSave ? (
         <div className="mt-5 rounded-lg bg-surface-container-high px-4 py-4 text-sm text-on-surface-variant">
-          Draft save and submit are disabled because the posting window is not
-          active.
+          현재 지원 기간이 아니라 임시저장 및 제출이 비활성화되어 있습니다.
         </div>
       ) : null}
 
       {isSubmitted ? (
         <div className="mt-5 rounded-lg bg-secondary-container/50 px-4 py-4 text-sm text-[#00731e]">
-          This application is already submitted. Further edits are locked.
+          이미 최종 제출된 지원서입니다. 추가 수정이 불가합니다.
         </div>
       ) : null}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div className="grid gap-5">
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Applicant name
+            지원자 이름
             <input
               name="applicantName"
               type="text"
               autoComplete="name"
-              placeholder="Kim Recruit"
+              placeholder="김지원"
               required
               minLength={2}
               disabled={!canSave || isPending || isSubmitted}
@@ -317,7 +316,7 @@ export function ApplicationDraftForm({
           </label>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Email
+            이메일
             <input
               name="applicantEmail"
               type="email"
@@ -340,7 +339,7 @@ export function ApplicationDraftForm({
           </label>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Phone
+            연락처
             <input
               name="applicantPhone"
               type="tel"
@@ -363,11 +362,11 @@ export function ApplicationDraftForm({
           </label>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Introduction
+            자기소개
             <textarea
               name="introduction"
               rows={5}
-              placeholder="Summarize relevant experience and motivation."
+              placeholder="관련 경험과 지원 동기를 간략히 소개해주세요."
               disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.introduction)}
               className={`mt-2 resize-y ${inputClassName}`}
@@ -384,11 +383,11 @@ export function ApplicationDraftForm({
           </label>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Core strength
+            핵심 역량
             <textarea
               name="coreStrength"
               rows={4}
-              placeholder="Describe the strongest capability you bring to this role."
+              placeholder="이 직무에서 발휘할 수 있는 가장 강점을 설명해주세요."
               disabled={!canSave || isPending || isSubmitted}
               className={`mt-2 resize-y ${inputClassName}`}
               value={formValues.coreStrength}
@@ -404,7 +403,7 @@ export function ApplicationDraftForm({
           </label>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Career years
+            경력 연수
             <input
               name="careerYears"
               type="number"
@@ -435,8 +434,8 @@ export function ApplicationDraftForm({
             className="inline-flex w-full items-center justify-center rounded-lg bg-surface-container-high px-5 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pendingAction === "draft"
-              ? "Saving draft..."
-              : "Save application draft"}
+              ? "저장 중..."
+              : "임시저장"}
           </button>
           <button
             type="submit"
@@ -445,8 +444,8 @@ export function ApplicationDraftForm({
             className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pendingAction === "submit"
-              ? "Submitting..."
-              : "Submit application"}
+              ? "제출 중..."
+              : "최종 제출"}
           </button>
         </div>
       </form>

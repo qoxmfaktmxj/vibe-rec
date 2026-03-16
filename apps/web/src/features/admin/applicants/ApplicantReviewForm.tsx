@@ -85,7 +85,7 @@ export function ApplicantReviewForm({
       className="ambient-shadow rounded-xl bg-surface-container-lowest p-7"
     >
       <h2 className="font-headline text-2xl font-bold text-on-surface">
-        Recruiter Review
+        채용 담당자 검토
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">
         제출된 지원서만 검토 대상으로 올릴 수 있습니다. 현재 규칙은{" "}

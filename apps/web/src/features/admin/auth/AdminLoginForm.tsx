@@ -28,14 +28,14 @@ export function AdminLoginForm() {
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "Failed to sign in.");
+        setErrorMessage(responseBody.message ?? "로그인에 실패했습니다.");
         return;
       }
 
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("An unexpected error occurred while signing in.");
+      setErrorMessage("로그인 중 예기치 않은 오류가 발생했습니다.");
     } finally {
       setIsPending(false);
     }
@@ -45,7 +45,7 @@ export function AdminLoginForm() {
     event.preventDefault();
 
     if (!username.trim() || !password) {
-      setErrorMessage("Enter both username and password.");
+      setErrorMessage("아이디와 비밀번호를 모두 입력해주세요.");
       return;
     }
 
@@ -70,7 +70,7 @@ export function AdminLoginForm() {
           className="ml-1 block text-sm font-semibold text-on-surface-variant"
           htmlFor="username"
         >
-          Username
+          아이디
         </label>
         <input
           id="username"
@@ -90,7 +90,7 @@ export function AdminLoginForm() {
           className="ml-1 block text-sm font-semibold text-on-surface-variant"
           htmlFor="password"
         >
-          Password
+          비밀번호
         </label>
         <input
           id="password"
@@ -110,7 +110,7 @@ export function AdminLoginForm() {
         disabled={isPending}
         className="w-full rounded-lg bg-gradient-primary py-4 font-bold text-white shadow-xl shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isPending ? "Signing in..." : "Sign In"}
+        {isPending ? "로그인 중..." : "로그인"}
       </button>
     </form>
   );

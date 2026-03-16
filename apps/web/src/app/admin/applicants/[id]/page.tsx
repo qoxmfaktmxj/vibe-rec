@@ -69,7 +69,7 @@ export default async function AdminApplicantDetailPage({
           <div className="mt-8 grid gap-4 rounded-xl bg-surface-container-low px-6 py-5 text-sm md:grid-cols-3">
             <div>
               <dt className="font-semibold text-on-surface-variant">
-                Draft 저장
+                임시저장
               </dt>
               <dd className="mt-1 font-medium text-on-surface">
                 {formatDateTime(applicant.draftSavedAt)}
@@ -98,7 +98,7 @@ export default async function AdminApplicantDetailPage({
         <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
           <div className="flex items-center justify-between gap-4">
             <h2 className="font-headline text-2xl font-bold text-on-surface">
-              Resume Payload
+              지원서 원문
             </h2>
             <Link
               href="/admin/applicants"
@@ -119,10 +119,10 @@ export default async function AdminApplicantDetailPage({
 
         <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-7">
           <h2 className="font-headline text-xl font-bold text-on-surface">
-            Review Note
+            검토 메모
           </h2>
           <p className="mt-4 whitespace-pre-line text-sm leading-7 text-on-surface-variant">
-            {applicant.reviewNote ?? "아직 저장된 검토 메모가 없다."}
+            {applicant.reviewNote ?? "아직 저장된 검토 메모가 없습니다."}
           </p>
         </section>
       </aside>

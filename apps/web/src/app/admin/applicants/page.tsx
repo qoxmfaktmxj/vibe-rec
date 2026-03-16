@@ -47,17 +47,17 @@ export default async function AdminApplicantsPage({
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
           <h1 className="font-headline text-3xl font-bold text-on-surface">
-            Applicant Management
+            지원자 관리
           </h1>
           <p className="mt-4 text-sm leading-7 text-on-surface-variant">
             공고, 제출 상태, 검토 상태, 이름/이메일 검색으로 현재 지원서를 빠르게
-            좁힐 수 있다.
+            좁힐 수 있습니다.
           </p>
         </div>
 
         <form className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
           <p className="text-sm font-semibold text-on-surface-variant">
-            Filters
+            필터
           </p>
           <div className="mt-4 grid gap-4">
             <label className="text-sm font-semibold text-on-surface-variant">

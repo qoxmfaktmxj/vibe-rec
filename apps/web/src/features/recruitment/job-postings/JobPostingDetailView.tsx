@@ -45,7 +45,7 @@ export function JobPostingDetailView({
           <div className="mt-8 grid gap-4 rounded-xl bg-surface-container-low px-6 py-5 text-sm md:grid-cols-3">
             <div>
               <dt className="font-semibold text-on-surface-variant">
-                Employment
+                고용 형태
               </dt>
               <dd className="mt-1 font-medium text-on-surface">
                 {jobPosting.employmentType}
@@ -53,7 +53,7 @@ export function JobPostingDetailView({
             </div>
             <div>
               <dt className="font-semibold text-on-surface-variant">
-                Location
+                근무지
               </dt>
               <dd className="mt-1 font-medium text-on-surface">
                 {jobPosting.location}
@@ -61,7 +61,7 @@ export function JobPostingDetailView({
             </div>
             <div>
               <dt className="font-semibold text-on-surface-variant">
-                Apply window
+                지원 기간
               </dt>
               <dd className="mt-1 font-medium text-on-surface">
                 {formatDateRange(jobPosting.opensAt, jobPosting.closesAt)}
@@ -73,7 +73,7 @@ export function JobPostingDetailView({
         {/* Description */}
         <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
           <h2 className="font-headline text-2xl font-bold text-on-surface">
-            Role Summary
+            직무 소개
           </h2>
           <p className="mt-4 whitespace-pre-line text-sm leading-8 text-on-surface-variant md:text-base">
             {jobPosting.description}
@@ -84,10 +84,10 @@ export function JobPostingDetailView({
         <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
           <div className="flex items-center justify-between gap-4">
             <h2 className="font-headline text-2xl font-bold text-on-surface">
-              Hiring Steps
+              채용 단계
             </h2>
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              {jobPosting.steps.length} steps
+              {jobPosting.steps.length}단계
             </span>
           </div>
 

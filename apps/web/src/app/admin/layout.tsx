@@ -51,19 +51,19 @@ export default async function AdminLayout({
                 href="/admin"
                 className="font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
-                Dashboard
+                대시보드
               </Link>
               <Link
                 href="/admin/applicants"
                 className="font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
-                Applicants
+                지원자
               </Link>
               <Link
                 href="/"
                 className="font-medium text-on-surface-variant transition-colors hover:text-primary"
               >
-                Public Site
+                공개 사이트
               </Link>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default async function AdminLayout({
                 {session.displayName}
               </p>
               <p className="text-xs text-on-surface-variant">
-                {session.role} &bull; expires{" "}
+                {session.role} &bull; 만료{" "}
                 {formatDateTime(session.expiresAt)}
               </p>
             </div>
