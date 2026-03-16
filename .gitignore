@@ -22,3 +22,4 @@ target/
 apps/web/.git.create-next-app.backup/
 
 infra/postgres/data/
+uploads/

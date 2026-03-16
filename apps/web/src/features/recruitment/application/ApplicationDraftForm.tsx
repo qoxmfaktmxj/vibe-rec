@@ -1,7 +1,8 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useRef, useState } from "react";
 
+import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import type { ApplicationDraftResponse } from "@/entities/recruitment/model";
 import {
   type DraftActionState,
@@ -97,8 +98,85 @@ export function ApplicationDraftForm({
   const [pendingAction, setPendingAction] = useState<FormActionMode | null>(
     null,
   );
+
+  const [attachments, setAttachments] = useState<AttachmentSummary[]>([]);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const isPending = pendingAction !== null;
   const isSubmitted = state.currentStatus === "SUBMITTED";
+  const hasApplicationId = state.applicationId !== null;
+
+  async function handleFileUpload(file: File) {
+    if (!state.applicationId) {
+      setFileError("파일을 첨부하려면 먼저 지원서를 임시저장해주세요.");
+      return;
+    }
+
+    if (attachments.length >= 3) {
+      setFileError("첨부파일은 최대 3개까지 업로드할 수 있습니다.");
+      return;
+    }
+
+    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+    if (!allowedTypes.includes(file.type)) {
+      setFileError("PDF, PNG, JPEG 파일만 업로드 가능합니다.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setFileError("파일 크기는 10MB를 초과할 수 없습니다.");
+      return;
+    }
+
+    setUploadingFile(true);
+    setFileError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(
+        `/api/applications/${state.applicationId}/attachments`,
+        { method: "POST", body: formData },
+      );
+
+      const body = (await response.json()) as
+        | AttachmentSummary
+        | { message?: string };
+
+      if (!response.ok) {
+        setFileError(
+          "message" in body
+            ? (body.message ?? "파일 업로드에 실패했습니다.")
+            : "파일 업로드에 실패했습니다.",
+        );
+        return;
+      }
+
+      if ("id" in body) {
+        setAttachments((prev) => [...prev, body]);
+      }
+    } catch {
+      setFileError("파일 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }
+
+  function handleDeleteAttachment(attachmentId: number) {
+    setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+  }
+
+  function formatFileSize(bytes: number) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
 
   function updateField(fieldName: DraftFieldName, value: string) {
     setFormValues((current) => ({
@@ -424,6 +502,100 @@ export function ApplicationDraftForm({
               </span>
             ) : null}
           </label>
+        </div>
+
+        {/* 첨부파일 */}
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-on-surface-variant">
+            첨부파일
+            <span className="ml-2 font-normal text-outline">
+              (PDF, PNG, JPEG / 최대 10MB, 3개)
+            </span>
+          </p>
+
+          {hasApplicationId && !isSubmitted ? (
+            <div className="space-y-3">
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-surface-container-high px-4 py-3 text-sm font-medium text-on-surface transition hover:bg-surface-container-highest">
+                <svg
+                  className="h-5 w-5 text-outline"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                {uploadingFile ? "업로드 중..." : "파일 선택"}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  disabled={uploadingFile || isSubmitted || attachments.length >= 3}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      void handleFileUpload(file);
+                    }
+                  }}
+                />
+              </label>
+            </div>
+          ) : !isSubmitted ? (
+            <p className="text-xs text-outline">
+              파일을 첨부하려면 먼저 임시저장을 해주세요.
+            </p>
+          ) : null}
+
+          {fileError ? (
+            <p className="text-xs text-destructive">{fileError}</p>
+          ) : null}
+
+          {attachments.length > 0 ? (
+            <ul className="space-y-2">
+              {attachments.map((attachment) => (
+                <li
+                  key={attachment.id}
+                  className="flex items-center justify-between rounded-lg bg-surface-container-low px-4 py-2.5 text-sm"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <svg
+                      className="h-4 w-4 shrink-0 text-primary"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                      />
+                    </svg>
+                    <span className="truncate text-on-surface">
+                      {attachment.originalFilename}
+                    </span>
+                    <span className="shrink-0 text-xs text-outline">
+                      {formatFileSize(attachment.fileSizeBytes)}
+                    </span>
+                  </div>
+                  {!isSubmitted ? (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAttachment(attachment.id)}
+                      className="ml-2 shrink-0 text-xs text-outline transition hover:text-destructive"
+                    >
+                      삭제
+                    </button>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
