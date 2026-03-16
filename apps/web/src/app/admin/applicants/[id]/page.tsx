@@ -3,9 +3,15 @@ import { notFound } from "next/navigation";
 
 import { ApplicantAttachmentList } from "@/features/admin/applicants/ApplicantAttachmentList";
 import { ApplicantReviewForm } from "@/features/admin/applicants/ApplicantReviewForm";
+import { HireDecisionSection } from "@/features/admin/applicants/HireDecisionSection";
 import { InterviewSection } from "@/features/admin/applicants/InterviewSection";
 import { getAdminApplicant } from "@/shared/api/admin-applicants";
 import { getAdminAttachments } from "@/shared/api/attachments";
+import {
+  getHireDecision,
+  getNotificationHistory,
+  getNotificationTemplates,
+} from "@/shared/api/admin-hire";
 import { getAdminInterviews } from "@/shared/api/admin-interviews";
 import {
   formatDateTime,
@@ -31,11 +37,15 @@ export default async function AdminApplicantDetailPage({
     notFound();
   }
 
-  const [applicant, attachments, interviews] = await Promise.all([
-    getAdminApplicant(applicationId),
-    getAdminAttachments(applicationId).catch(() => []),
-    getAdminInterviews(applicationId).catch(() => []),
-  ]);
+  const [applicant, attachments, interviews, hireDecision, templates, notifHistory] =
+    await Promise.all([
+      getAdminApplicant(applicationId),
+      getAdminAttachments(applicationId).catch(() => []),
+      getAdminInterviews(applicationId).catch(() => []),
+      getHireDecision(applicationId).catch(() => null),
+      getNotificationTemplates().catch(() => []),
+      getNotificationHistory(applicationId).catch(() => []),
+    ]);
 
   if (!applicant) {
     notFound();
@@ -228,6 +238,14 @@ export default async function AdminApplicantDetailPage({
           applicationId={applicationId}
           interviews={interviews}
           canSchedule={applicant.reviewStatus === "PASSED"}
+        />
+
+        {/* 최종 결정 및 통지 */}
+        <HireDecisionSection
+          applicationId={applicationId}
+          decision={hireDecision ?? null}
+          templates={templates}
+          notificationHistory={notifHistory}
         />
 
         {/* Resume Payload (원문) */}
