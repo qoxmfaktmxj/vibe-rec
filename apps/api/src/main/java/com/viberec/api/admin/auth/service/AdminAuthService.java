@@ -8,12 +8,14 @@ import com.viberec.api.admin.auth.repository.AdminSessionRepository;
 import com.viberec.api.admin.auth.web.AdminLoginRequest;
 import com.viberec.api.admin.auth.web.AdminLoginResponse;
 import com.viberec.api.admin.auth.web.AdminSessionResponse;
+import com.viberec.api.platform.permission.service.PermissionService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.security.SecureRandom;
@@ -32,16 +34,19 @@ public class AdminAuthService {
 
     private final AdminAccountRepository adminAccountRepository;
     private final AdminSessionRepository adminSessionRepository;
+    private final PermissionService permissionService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final long sessionDurationHours;
 
     public AdminAuthService(
             AdminAccountRepository adminAccountRepository,
             AdminSessionRepository adminSessionRepository,
+            PermissionService permissionService,
             @Value("${app.admin.session.duration-hours:12}") long sessionDurationHours
     ) {
         this.adminAccountRepository = adminAccountRepository;
         this.adminSessionRepository = adminSessionRepository;
+        this.permissionService = permissionService;
         this.sessionDurationHours = sessionDurationHours;
     }
 
@@ -58,6 +63,8 @@ public class AdminAuthService {
 
         adminSessionRepository.save(new AdminSession(account, hashSessionToken(sessionToken), expiresAt));
 
+        List<String> permissions = permissionService.getPermissionCodes(account.getRole().name());
+
         return new AdminLoginResponse(
                 account.getId(),
                 account.getUsername(),
@@ -65,7 +72,8 @@ public class AdminAuthService {
                 account.getRole(),
                 authenticatedAt,
                 expiresAt,
-                sessionToken
+                sessionToken,
+                permissions
         );
     }
 
@@ -75,13 +83,16 @@ public class AdminAuthService {
         OffsetDateTime now = OffsetDateTime.now();
         adminSessionRepository.touch(session.getId(), now);
 
+        List<String> permissions = permissionService.getPermissionCodes(session.getAdminAccount().getRole().name());
+
         return new AdminSessionResponse(
                 session.getAdminAccount().getId(),
                 session.getAdminAccount().getUsername(),
                 session.getAdminAccount().getDisplayName(),
                 session.getAdminAccount().getRole(),
                 Objects.requireNonNullElse(session.getAdminAccount().getLastAuthenticatedAt(), now),
-                session.getExpiresAt()
+                session.getExpiresAt(),
+                permissions
         );
     }
 

@@ -1,4 +1,4 @@
-export type AdminRole = "SUPER_ADMIN";
+export type AdminRole = "ADMIN" | "SUPER_ADMIN";
 
 export interface AdminSession {
   adminAccountId: number;
@@ -7,6 +7,7 @@ export interface AdminSession {
   role: AdminRole;
   authenticatedAt: string;
   expiresAt: string;
+  permissions: string[];
 }
 
 export interface AdminLoginPayload {

@@ -116,3 +116,94 @@ export interface ApplicationDraftResponse {
   draftSavedAt: string;
   submittedAt: string | null;
 }
+
+// 첨부파일
+export type ApplicationAttachment = {
+  id: number;
+  applicationId: number;
+  originalName: string;
+  contentType: string;
+  fileSize: number;
+  createdAt: string;
+};
+
+// 정규화 - 교육 이력
+export type ApplicationEducation = {
+  id?: number;
+  schoolName: string;
+  major: string;
+  degree: string;
+  graduatedAt: string;
+  sortOrder: number;
+};
+
+// 정규화 - 경력 이력
+export type ApplicationCareer = {
+  id?: number;
+  companyName: string;
+  position: string;
+  startedAt: string;
+  endedAt: string;
+  description: string;
+  sortOrder: number;
+};
+
+// 면접
+export type InterviewStatus =
+  | "SCHEDULED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "NO_SHOW";
+
+export type EvaluationResult = "PENDING" | "PASS" | "FAIL" | "HOLD";
+
+export type EvaluationResponse = {
+  id: number;
+  interviewId: number;
+  evaluatorId: number;
+  evaluatorName: string;
+  score: number | null;
+  comment: string | null;
+  result: EvaluationResult;
+  createdAt: string;
+};
+
+export type InterviewResponse = {
+  id: number;
+  applicationId: number;
+  jobPostingStepId: number;
+  stepTitle: string;
+  stepType: string;
+  scheduledAt: string | null;
+  status: InterviewStatus;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+  evaluations: EvaluationResponse[];
+};
+
+// 최종 결정
+export type ApplicationFinalStatus =
+  | "OFFER_MADE"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "WITHDRAWN";
+
+export type FinalDecisionResponse = {
+  applicationId: number;
+  finalStatus: ApplicationFinalStatus;
+  finalDecidedAt: string;
+  finalNote: string | null;
+};
+
+// 통지 이력
+export type NotificationResponse = {
+  id: number;
+  applicationId: number;
+  type: string;
+  title: string;
+  content: string;
+  sentBy: number | null;
+  sentByName: string | null;
+  createdAt: string;
+};

@@ -36,6 +36,12 @@ export interface AdminApplicantDetail extends AdminApplicantSummary {
   skills: ResumeSkill[];
   certifications: ResumeCertification[];
   languages: ResumeLanguage[];
+  introduction: string | null;
+  coreStrength: string | null;
+  careerYears: number | null;
+  finalStatus: string | null;
+  finalDecidedAt: string | null;
+  finalNote: string | null;
 }
 
 export interface AdminApplicantFilters {

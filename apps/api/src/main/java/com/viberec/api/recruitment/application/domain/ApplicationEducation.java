@@ -8,11 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "application_education", schema = "recruit")
@@ -26,79 +23,58 @@ public class ApplicationEducation {
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @Column(nullable = false, length = 200)
-    private String institution;
+    @Column(name = "school_name", nullable = false, length = 200)
+    private String schoolName;
 
-    @Column(length = 100)
+    @Column(length = 200)
+    private String major;
+
+    @Column(length = 40)
     private String degree;
 
-    @Column(name = "field_of_study", length = 200)
-    private String fieldOfStudy;
-
-    @Column(name = "start_date")
-    private LocalDate startDate;
-
-    @Column(name = "end_date")
-    private LocalDate endDate;
-
-    @Column(columnDefinition = "text")
-    private String description;
+    @Column(name = "graduated_at")
+    private LocalDate graduatedAt;
 
     @Column(name = "sort_order", nullable = false)
-    private int sortOrder;
-
-    @Column(name = "created_at", nullable = false)
-    private OffsetDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private OffsetDateTime updatedAt;
+    private short sortOrder;
 
     protected ApplicationEducation() {
     }
 
-    public ApplicationEducation(Application application, String institution, String degree,
-                                String fieldOfStudy, LocalDate startDate, LocalDate endDate,
-                                String description, int sortOrder) {
+    public ApplicationEducation(Application application, String schoolName, String major, String degree, LocalDate graduatedAt, short sortOrder) {
         this.application = application;
-        this.institution = institution;
+        this.schoolName = schoolName;
+        this.major = major;
         this.degree = degree;
-        this.fieldOfStudy = fieldOfStudy;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.description = description;
+        this.graduatedAt = graduatedAt;
         this.sortOrder = sortOrder;
     }
 
-    @PrePersist
-    void onCreate() {
-        OffsetDateTime now = OffsetDateTime.now();
-        createdAt = now;
-        updatedAt = now;
+    public Long getId() {
+        return id;
     }
 
-    @PreUpdate
-    void onUpdate() {
-        updatedAt = OffsetDateTime.now();
+    public Application getApplication() {
+        return application;
     }
 
-    public Long getId() { return id; }
-    public Application getApplication() { return application; }
-    public String getInstitution() { return institution; }
-    public String getDegree() { return degree; }
-    public String getFieldOfStudy() { return fieldOfStudy; }
-    public LocalDate getStartDate() { return startDate; }
-    public LocalDate getEndDate() { return endDate; }
-    public String getDescription() { return description; }
-    public int getSortOrder() { return sortOrder; }
+    public String getSchoolName() {
+        return schoolName;
+    }
 
-    public void update(String institution, String degree, String fieldOfStudy,
-                       LocalDate startDate, LocalDate endDate, String description, int sortOrder) {
-        this.institution = institution;
-        this.degree = degree;
-        this.fieldOfStudy = fieldOfStudy;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.description = description;
-        this.sortOrder = sortOrder;
+    public String getMajor() {
+        return major;
+    }
+
+    public String getDegree() {
+        return degree;
+    }
+
+    public LocalDate getGraduatedAt() {
+        return graduatedAt;
+    }
+
+    public short getSortOrder() {
+        return sortOrder;
     }
 }

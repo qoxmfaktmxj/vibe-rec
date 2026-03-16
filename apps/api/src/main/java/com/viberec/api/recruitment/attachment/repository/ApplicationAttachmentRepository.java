@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApplicationAttachmentRepository extends JpaRepository<ApplicationAttachment, Long> {
 
-    List<ApplicationAttachment> findByApplicationIdOrderByUploadedAtAsc(Long applicationId);
+    List<ApplicationAttachment> findByApplicationId(Long applicationId);
 
     long countByApplicationId(Long applicationId);
 }
