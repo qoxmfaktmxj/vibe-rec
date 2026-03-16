@@ -5,13 +5,13 @@ import type {
   JobPostingStepType,
 } from "@/entities/recruitment/model";
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
+const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
   month: "short",
   day: "numeric",
 });
 
-const dateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+const dateTimeFormatter = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
   month: "short",
   day: "numeric",
@@ -42,11 +42,11 @@ export function formatDateRange(startAt: string | null, endAt: string | null) {
 export function getJobPostingStatusLabel(status: JobPostingStatus) {
   switch (status) {
     case "DRAFT":
-      return "Draft";
+      return "준비 중";
     case "OPEN":
-      return "Open";
+      return "모집 중";
     case "CLOSED":
-      return "Closed";
+      return "마감";
     default:
       return status;
   }
@@ -68,13 +68,13 @@ export function getJobPostingStatusClassName(status: JobPostingStatus) {
 export function getStepTypeLabel(stepType: JobPostingStepType) {
   switch (stepType) {
     case "DOCUMENT":
-      return "Document";
+      return "서류";
     case "ASSIGNMENT":
-      return "Assignment";
+      return "과제";
     case "INTERVIEW":
-      return "Interview";
+      return "면접";
     case "OFFER":
-      return "Offer";
+      return "오퍼";
     default:
       return stepType;
   }
@@ -83,9 +83,9 @@ export function getStepTypeLabel(stepType: JobPostingStepType) {
 export function getApplicationStatusLabel(status: ApplicationStatus) {
   switch (status) {
     case "DRAFT":
-      return "Draft saved";
+      return "임시저장";
     case "SUBMITTED":
-      return "Submitted";
+      return "제출 완료";
     default:
       return status;
   }
@@ -148,27 +148,26 @@ export function getDraftAvailability(posting: {
   if (posting.status !== "OPEN") {
     return {
       canSave: false,
-      reason: "This posting is not accepting application drafts right now.",
+      reason: "현재 지원을 받지 않는 공고입니다.",
     };
   }
 
   if (now < opensAt) {
     return {
       canSave: false,
-      reason: "Draft save will open when the posting window starts.",
+      reason: "지원 기간이 시작되면 임시저장이 가능합니다.",
     };
   }
 
   if (now > closesAt) {
     return {
       canSave: false,
-      reason: "Draft save is blocked because the posting window has closed.",
+      reason: "지원 기간이 마감되어 임시저장이 불가합니다.",
     };
   }
 
   return {
     canSave: true,
-    reason:
-      "You can save a draft first and then submit the application while the posting remains open.",
+    reason: "지원서를 임시저장한 뒤, 지원 기간 내에 최종 제출할 수 있습니다.",
   };
 }

@@ -21,7 +21,7 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Vibe Rec",
-  description: "Recruitment modernization platform",
+  description: "채용 현대화 플랫폼",
 };
 
 export default function RootLayout({
