@@ -8,6 +8,12 @@ import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationResumeRawRepository;
+import com.viberec.api.recruitment.application.service.ResumeNormalizationService;
+import com.viberec.api.recruitment.application.web.ResumeCertificationDto;
+import com.viberec.api.recruitment.application.web.ResumeEducationDto;
+import com.viberec.api.recruitment.application.web.ResumeExperienceDto;
+import com.viberec.api.recruitment.application.web.ResumeLanguageDto;
+import com.viberec.api.recruitment.application.web.ResumeSkillDto;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -21,13 +27,16 @@ public class AdminApplicantService {
 
     private final ApplicationRepository applicationRepository;
     private final ApplicationResumeRawRepository applicationResumeRawRepository;
+    private final ResumeNormalizationService resumeNormalizationService;
 
     public AdminApplicantService(
             ApplicationRepository applicationRepository,
-            ApplicationResumeRawRepository applicationResumeRawRepository
+            ApplicationResumeRawRepository applicationResumeRawRepository,
+            ResumeNormalizationService resumeNormalizationService
     ) {
         this.applicationRepository = applicationRepository;
         this.applicationResumeRawRepository = applicationResumeRawRepository;
+        this.resumeNormalizationService = resumeNormalizationService;
     }
 
     public List<AdminApplicantSummaryResponse> getApplicants(
@@ -132,8 +141,15 @@ public class AdminApplicantService {
     }
 
     private AdminApplicantDetailResponse toDetailResponse(Application application, Map<String, Object> resumePayload) {
+        Long applicationId = application.getId();
+        List<ResumeEducationDto> educations = resumeNormalizationService.getEducations(applicationId);
+        List<ResumeExperienceDto> experiences = resumeNormalizationService.getExperiences(applicationId);
+        List<ResumeSkillDto> skills = resumeNormalizationService.getSkills(applicationId);
+        List<ResumeCertificationDto> certifications = resumeNormalizationService.getCertifications(applicationId);
+        List<ResumeLanguageDto> languages = resumeNormalizationService.getLanguages(applicationId);
+
         return new AdminApplicantDetailResponse(
-                application.getId(),
+                applicationId,
                 application.getJobPosting().getId(),
                 application.getJobPosting().getPublicKey(),
                 application.getJobPosting().getTitle(),
@@ -146,7 +162,12 @@ public class AdminApplicantService {
                 application.getDraftSavedAt(),
                 application.getSubmittedAt(),
                 application.getReviewedAt(),
-                resumePayload
+                resumePayload,
+                educations,
+                experiences,
+                skills,
+                certifications,
+                languages
         );
     }
 }

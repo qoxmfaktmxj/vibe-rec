@@ -21,15 +21,18 @@ public class ApplicationDraftService {
     private final JobPostingRepository jobPostingRepository;
     private final ApplicationRepository applicationRepository;
     private final ApplicationResumeRawRepository applicationResumeRawRepository;
+    private final ResumeNormalizationService resumeNormalizationService;
 
     public ApplicationDraftService(
             JobPostingRepository jobPostingRepository,
             ApplicationRepository applicationRepository,
-            ApplicationResumeRawRepository applicationResumeRawRepository
+            ApplicationResumeRawRepository applicationResumeRawRepository,
+            ResumeNormalizationService resumeNormalizationService
     ) {
         this.jobPostingRepository = jobPostingRepository;
         this.applicationRepository = applicationRepository;
         this.applicationResumeRawRepository = applicationResumeRawRepository;
+        this.resumeNormalizationService = resumeNormalizationService;
     }
 
     @Transactional
@@ -51,6 +54,9 @@ public class ApplicationDraftService {
 
         Application savedApplication = applicationRepository.save(application);
         saveResumeRaw(savedApplication, request.resumePayload());
+        resumeNormalizationService.saveNormalizedResume(
+                savedApplication, request.educations(), request.experiences(),
+                request.skills(), request.certifications(), request.languages());
         return toResponse(savedApplication, jobPostingId);
     }
 
@@ -79,6 +85,9 @@ public class ApplicationDraftService {
 
         Application savedApplication = applicationRepository.save(application);
         saveResumeRaw(savedApplication, request.resumePayload());
+        resumeNormalizationService.saveNormalizedResume(
+                savedApplication, request.educations(), request.experiences(),
+                request.skills(), request.certifications(), request.languages());
         return toResponse(savedApplication, jobPostingId);
     }
 
