@@ -1,10 +1,14 @@
 import Link from "next/link";
 
 import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
+import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 
 export default async function Home() {
-  const jobPostings = await getJobPostings();
+  const [jobPostings, session] = await Promise.all([
+    getJobPostings(),
+    getCurrentAdminSession(),
+  ]);
   const openJobPostingCount = jobPostings.filter(
     (jobPosting) => jobPosting.status === "OPEN",
   ).length;
@@ -26,12 +30,21 @@ export default async function Home() {
             </Link>
           </div>
         </div>
-        <Link
-          href="/login"
-          className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
-        >
-          로그인
-        </Link>
+        {session ? (
+          <Link
+            href="/admin"
+            className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+          >
+            대시보드
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
+          >
+            로그인
+          </Link>
+        )}
       </nav>
 
       <main>
