@@ -31,20 +31,39 @@ export default async function JobPostingDetailPage({
   const draftAvailability = getDraftAvailability(jobPosting);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.18),_transparent_36%),linear-gradient(180deg,_#fcfbf7_0%,_#f3efe5_48%,_#ebe5d8_100%)] text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-6 py-10 lg:px-10">
-        <div className="flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-background text-on-surface">
+      {/* Nav */}
+      <nav className="glass-nav sticky top-0 z-50 flex items-center justify-between border-b border-outline-variant/15 px-8 py-4">
+        <div className="flex items-center gap-12">
           <Link
             href="/"
-            className="inline-flex items-center rounded-full border border-stone-300 bg-white/80 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-white"
+            className="font-headline text-2xl font-extrabold tracking-tight text-primary"
           >
-            Back to list
+            Vibe Rec
           </Link>
-          <p className="text-sm text-stone-500">
-            MVP flow: detail read - draft save - final submit
-          </p>
         </div>
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-medium text-on-surface-variant transition-colors hover:text-primary"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to list
+        </Link>
+      </nav>
 
+      <main className="mx-auto max-w-7xl px-8 py-10">
         <JobPostingDetailView
           jobPosting={jobPosting}
           applicationSlot={
@@ -55,7 +74,7 @@ export default async function JobPostingDetailPage({
             />
           }
         />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

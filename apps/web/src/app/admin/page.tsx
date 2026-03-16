@@ -10,60 +10,108 @@ export default async function AdminPage() {
   ).length;
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-      <article className="rounded-[2rem] border border-black/8 bg-white/82 p-7 shadow-[0_24px_80px_rgba(43,35,18,0.08)]">
-        <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-          Phase Progress
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-stone-950">
-          Current migration slice
-        </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-[1.5rem] bg-stone-950 px-5 py-5 text-stone-50">
-            <p className="text-sm text-stone-400">Published postings</p>
-            <p className="mt-2 text-4xl font-semibold">{jobPostings.length}</p>
-          </div>
-          <div className="rounded-[1.5rem] bg-[#d8efe7] px-5 py-5 text-stone-900">
-            <p className="text-sm text-teal-900/70">Open postings</p>
-            <p className="mt-2 text-4xl font-semibold">{openJobPostingCount}</p>
-          </div>
+    <div className="space-y-8">
+      {/* Stats Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-6">
+          <p className="text-sm font-semibold text-on-surface-variant">
+            Total Postings
+          </p>
+          <p className="mt-2 font-headline text-4xl font-bold text-primary">
+            {jobPostings.length}
+          </p>
         </div>
-        <div className="mt-6 space-y-3 text-sm leading-7 text-stone-700">
-          <p>Done: foundation bootstrap, job posting read side, draft save.</p>
-          <p>Done: admin session login, protected admin shell.</p>
-          <p>Done: final submit flow and stricter application status rules.</p>
-          <p>Done: applicant management list, detail, and recruiter review status.</p>
-          <p>Next: file upload, normalized resume expansion, and interview workflows.</p>
+        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-6">
+          <p className="text-sm font-semibold text-on-surface-variant">
+            Open Positions
+          </p>
+          <p className="mt-2 font-headline text-4xl font-bold text-secondary">
+            {openJobPostingCount}
+          </p>
         </div>
-        <Link
-          href="/admin/applicants"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
-        >
-          지원자 관리 열기
-        </Link>
-      </article>
-
-      <aside className="rounded-[2rem] border border-black/8 bg-white/82 p-7 shadow-[0_24px_80px_rgba(43,35,18,0.08)]">
-        <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-          Posting Snapshot
-        </p>
-        <div className="mt-5 space-y-4">
-          {jobPostings.map((jobPosting) => (
-            <div
-              key={jobPosting.id}
-              className="rounded-[1.5rem] border border-stone-200 bg-stone-50 px-4 py-4"
+        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-6 sm:col-span-2">
+          <p className="text-sm font-semibold text-on-surface-variant">
+            Quick Actions
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href="/admin/applicants"
+              className="rounded-lg bg-gradient-primary px-5 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10"
             >
-              <p className="text-base font-semibold text-stone-950">
-                {jobPosting.title}
-              </p>
-              <p className="mt-1 text-sm text-stone-600">
-                {getJobPostingStatusLabel(jobPosting.status)} ·{" "}
-                {jobPosting.stepCount} steps
-              </p>
-            </div>
-          ))}
+              Manage Applicants
+            </Link>
+            <Link
+              href="/"
+              className="rounded-lg bg-surface-container-high px-5 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
+            >
+              View Public Site
+            </Link>
+          </div>
         </div>
-      </aside>
-    </section>
+      </div>
+
+      {/* Progress & Snapshot */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
+          <h2 className="font-headline text-2xl font-bold text-on-surface">
+            Migration Progress
+          </h2>
+          <div className="mt-6 space-y-3 text-sm leading-7 text-on-surface-variant">
+            <p className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
+                &#10003;
+              </span>
+              Foundation bootstrap, job posting read side, draft save
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
+                &#10003;
+              </span>
+              Admin session login, protected admin shell
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
+                &#10003;
+              </span>
+              Submit flow and application status rules
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
+                &#10003;
+              </span>
+              Applicant management and recruiter review
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-surface-container-high text-xs text-outline">
+                &rarr;
+              </span>
+              File upload, normalized resume, interview workflows
+            </p>
+          </div>
+        </section>
+
+        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
+          <h2 className="font-headline text-2xl font-bold text-on-surface">
+            Posting Snapshot
+          </h2>
+          <div className="mt-6 space-y-4">
+            {jobPostings.map((jobPosting) => (
+              <div
+                key={jobPosting.id}
+                className="rounded-lg bg-surface-container-low px-5 py-4"
+              >
+                <p className="font-headline font-bold text-on-surface">
+                  {jobPosting.title}
+                </p>
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  {getJobPostingStatusLabel(jobPosting.status)} &bull;{" "}
+                  {jobPosting.stepCount} steps
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
   );
 }

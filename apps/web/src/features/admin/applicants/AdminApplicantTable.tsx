@@ -18,65 +18,87 @@ export function AdminApplicantTable({
 }: AdminApplicantTableProps) {
   if (applicants.length === 0) {
     return (
-      <section className="rounded-[2rem] border border-dashed border-stone-300 bg-white/80 p-10 text-center text-sm text-stone-600">
+      <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-10 text-center text-sm text-on-surface-variant">
         조회 조건에 맞는 지원자가 없습니다.
       </section>
     );
   }
 
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-black/8 bg-white/84 shadow-[0_24px_80px_rgba(43,35,18,0.08)]">
+    <section className="ambient-shadow overflow-hidden rounded-xl bg-surface-container-lowest">
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-left text-sm">
-          <thead className="bg-stone-950 text-stone-100">
+          <thead className="bg-surface-container-low">
             <tr>
-              <th className="px-5 py-4 font-medium">지원자</th>
-              <th className="px-5 py-4 font-medium">공고</th>
-              <th className="px-5 py-4 font-medium">지원 상태</th>
-              <th className="px-5 py-4 font-medium">검토 상태</th>
-              <th className="px-5 py-4 font-medium">제출 시각</th>
-              <th className="px-5 py-4 font-medium">상세</th>
+              <th className="px-6 py-4 font-semibold text-on-surface-variant">
+                지원자
+              </th>
+              <th className="px-6 py-4 font-semibold text-on-surface-variant">
+                공고
+              </th>
+              <th className="px-6 py-4 font-semibold text-on-surface-variant">
+                지원 상태
+              </th>
+              <th className="px-6 py-4 font-semibold text-on-surface-variant">
+                검토 상태
+              </th>
+              <th className="px-6 py-4 font-semibold text-on-surface-variant">
+                제출 시각
+              </th>
+              <th className="px-6 py-4 font-semibold text-on-surface-variant">
+                상세
+              </th>
             </tr>
           </thead>
           <tbody>
-            {applicants.map((applicant) => (
+            {applicants.map((applicant, index) => (
               <tr
                 key={applicant.applicationId}
-                className="border-t border-stone-200 bg-white align-top"
+                className={`align-top ${
+                  index % 2 === 0
+                    ? "bg-surface-container-lowest"
+                    : "bg-surface-container-low/50"
+                }`}
               >
-                <td className="px-5 py-4">
-                  <p className="font-semibold text-stone-950">
+                <td className="px-6 py-4">
+                  <p className="font-semibold text-on-surface">
                     {applicant.applicantName}
                   </p>
-                  <p className="mt-1 text-stone-600">{applicant.applicantEmail}</p>
-                  <p className="text-stone-500">{applicant.applicantPhone}</p>
+                  <p className="mt-1 text-xs text-on-surface-variant">
+                    {applicant.applicantEmail}
+                  </p>
+                  <p className="text-xs text-outline">
+                    {applicant.applicantPhone}
+                  </p>
                 </td>
-                <td className="px-5 py-4">
-                  <p className="font-medium text-stone-900">
+                <td className="px-6 py-4">
+                  <p className="font-medium text-on-surface">
                     {applicant.jobPostingTitle}
                   </p>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-6 py-4">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getApplicationStatusClassName(applicant.applicationStatus)}`}
                   >
                     {getApplicationStatusLabel(applicant.applicationStatus)}
                   </span>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-6 py-4">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getApplicationReviewStatusClassName(applicant.reviewStatus)}`}
                   >
                     {getApplicationReviewStatusLabel(applicant.reviewStatus)}
                   </span>
                 </td>
-                <td className="px-5 py-4 text-stone-600">
-                  {formatDateTime(applicant.submittedAt ?? applicant.draftSavedAt)}
+                <td className="px-6 py-4 text-on-surface-variant">
+                  {formatDateTime(
+                    applicant.submittedAt ?? applicant.draftSavedAt,
+                  )}
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-6 py-4">
                   <Link
                     href={`/admin/applicants/${applicant.applicationId}`}
-                    className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+                    className="rounded-lg bg-gradient-primary px-4 py-2 text-xs font-bold text-white transition hover:opacity-90"
                   >
                     보기
                   </Link>

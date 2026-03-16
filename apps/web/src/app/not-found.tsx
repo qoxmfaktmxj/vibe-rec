@@ -2,22 +2,34 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,_#fcfbf7_0%,_#f3efe5_48%,_#ebe5d8_100%)] px-6">
-      <div className="w-full max-w-xl rounded-[2rem] border border-black/8 bg-white/88 p-10 text-center shadow-[0_24px_80px_rgba(43,35,18,0.08)]">
-        <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-          Not Found
-        </p>
-        <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-stone-950">
-          The requested posting was not found.
+    <main className="flex min-h-screen items-center justify-center bg-background px-6">
+      <div className="ambient-shadow w-full max-w-xl rounded-xl bg-surface-container-lowest p-10 text-center">
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-surface-container-high">
+          <svg
+            className="h-7 w-7 text-outline"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+        </div>
+        <h1 className="font-headline text-3xl font-bold text-on-surface">
+          Page Not Found
         </h1>
-        <p className="mt-4 text-sm leading-7 text-stone-600">
+        <p className="mt-4 text-sm leading-7 text-on-surface-variant">
           The record may not exist or may not be published yet.
         </p>
         <Link
           href="/"
-          className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+          className="mt-8 inline-flex items-center justify-center rounded-lg bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0"
         >
-          Go to job posting list
+          Go to job postings
         </Link>
       </div>
     </main>

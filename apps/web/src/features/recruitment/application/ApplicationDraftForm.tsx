@@ -31,7 +31,7 @@ interface DraftFormValues {
 type FormActionMode = "draft" | "submit";
 
 const inputClassName =
-  "mt-2 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-primary focus:ring-4 focus:ring-primary/10";
+  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
 
 const initialFormValues: DraftFormValues = {
   applicantName: "",
@@ -244,54 +244,55 @@ export function ApplicationDraftForm({
   }
 
   return (
-    <section className="rounded-[2rem] border border-black/8 bg-white/88 p-7 shadow-[0_24px_80px_rgba(43,35,18,0.1)]">
-      <p className="font-mono text-xs tracking-[0.24em] text-stone-500 uppercase">
-        Application Draft
-      </p>
-      <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-stone-950">
-        Save draft
+    <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-7">
+      <h2 className="font-headline text-2xl font-bold text-on-surface">
+        Apply Now
       </h2>
-      <p className="mt-3 text-sm leading-7 text-stone-600">{helperText}</p>
+      <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
+        {helperText}
+      </p>
 
       {state.message ? (
         <div
-          className={`mt-5 rounded-[1.5rem] px-4 py-3 text-sm ${
+          className={`mt-5 rounded-lg px-4 py-3 text-sm ${
             state.status === "success"
-              ? "bg-emerald-100 text-emerald-900"
-              : "bg-rose-100 text-rose-900"
+              ? "bg-secondary-container text-[#00731e]"
+              : "bg-error-container text-destructive"
           }`}
         >
           <p>{state.message}</p>
           {state.status === "success" && state.savedAt ? (
-            <p className="mt-2 text-xs">
+            <p className="mt-2 text-xs opacity-80">
               Status:{" "}
               {getApplicationStatusLabel(state.currentStatus ?? "DRAFT")} |
               Saved at: {formatDateTime(state.savedAt)}
               {state.submittedAt
                 ? ` | Submitted at: ${formatDateTime(state.submittedAt)}`
                 : ""}
-              {state.applicationId ? ` | application #${state.applicationId}` : ""}
+              {state.applicationId
+                ? ` | application #${state.applicationId}`
+                : ""}
             </p>
           ) : null}
         </div>
       ) : null}
 
       {!canSave ? (
-        <div className="mt-5 rounded-[1.5rem] border border-dashed border-stone-300 bg-stone-100 px-4 py-4 text-sm text-stone-600">
-          Draft save and submit are disabled because the posting window is not active.
+        <div className="mt-5 rounded-lg bg-surface-container-high px-4 py-4 text-sm text-on-surface-variant">
+          Draft save and submit are disabled because the posting window is not
+          active.
         </div>
       ) : null}
 
       {isSubmitted ? (
-        <div className="mt-5 rounded-[1.5rem] border border-dashed border-emerald-300 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
-          This application is already submitted. Further edits are locked by the
-          backend status rule.
+        <div className="mt-5 rounded-lg bg-secondary-container/50 px-4 py-4 text-sm text-[#00731e]">
+          This application is already submitted. Further edits are locked.
         </div>
       ) : null}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div className="grid gap-5">
-          <label className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-semibold text-on-surface-variant">
             Applicant name
             <input
               name="applicantName"
@@ -302,20 +303,20 @@ export function ApplicationDraftForm({
               minLength={2}
               disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.applicantName)}
-              className={inputClassName}
+              className={`mt-2 ${inputClassName}`}
               value={formValues.applicantName}
               onChange={(event) =>
                 updateField("applicantName", event.target.value)
               }
             />
             {state.fieldErrors.applicantName ? (
-              <span className="mt-2 block text-xs text-rose-700">
+              <span className="mt-2 block text-xs text-destructive">
                 {state.fieldErrors.applicantName}
               </span>
             ) : null}
           </label>
 
-          <label className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-semibold text-on-surface-variant">
             Email
             <input
               name="applicantEmail"
@@ -325,20 +326,20 @@ export function ApplicationDraftForm({
               required
               disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.applicantEmail)}
-              className={inputClassName}
+              className={`mt-2 ${inputClassName}`}
               value={formValues.applicantEmail}
               onChange={(event) =>
                 updateField("applicantEmail", event.target.value)
               }
             />
             {state.fieldErrors.applicantEmail ? (
-              <span className="mt-2 block text-xs text-rose-700">
+              <span className="mt-2 block text-xs text-destructive">
                 {state.fieldErrors.applicantEmail}
               </span>
             ) : null}
           </label>
 
-          <label className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-semibold text-on-surface-variant">
             Phone
             <input
               name="applicantPhone"
@@ -348,20 +349,20 @@ export function ApplicationDraftForm({
               required
               disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.applicantPhone)}
-              className={inputClassName}
+              className={`mt-2 ${inputClassName}`}
               value={formValues.applicantPhone}
               onChange={(event) =>
                 updateField("applicantPhone", event.target.value)
               }
             />
             {state.fieldErrors.applicantPhone ? (
-              <span className="mt-2 block text-xs text-rose-700">
+              <span className="mt-2 block text-xs text-destructive">
                 {state.fieldErrors.applicantPhone}
               </span>
             ) : null}
           </label>
 
-          <label className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-semibold text-on-surface-variant">
             Introduction
             <textarea
               name="introduction"
@@ -369,40 +370,40 @@ export function ApplicationDraftForm({
               placeholder="Summarize relevant experience and motivation."
               disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.introduction)}
-              className={`${inputClassName} resize-y`}
+              className={`mt-2 resize-y ${inputClassName}`}
               value={formValues.introduction}
               onChange={(event) =>
                 updateField("introduction", event.target.value)
               }
             />
             {state.fieldErrors.introduction ? (
-              <span className="mt-2 block text-xs text-rose-700">
+              <span className="mt-2 block text-xs text-destructive">
                 {state.fieldErrors.introduction}
               </span>
             ) : null}
           </label>
 
-          <label className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-semibold text-on-surface-variant">
             Core strength
             <textarea
               name="coreStrength"
               rows={4}
               placeholder="Describe the strongest capability you bring to this role."
               disabled={!canSave || isPending || isSubmitted}
-              className={`${inputClassName} resize-y`}
+              className={`mt-2 resize-y ${inputClassName}`}
               value={formValues.coreStrength}
               onChange={(event) =>
                 updateField("coreStrength", event.target.value)
               }
             />
             {state.fieldErrors.coreStrength ? (
-              <span className="mt-2 block text-xs text-rose-700">
+              <span className="mt-2 block text-xs text-destructive">
                 {state.fieldErrors.coreStrength}
               </span>
             ) : null}
           </label>
 
-          <label className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-semibold text-on-surface-variant">
             Career years
             <input
               name="careerYears"
@@ -412,14 +413,14 @@ export function ApplicationDraftForm({
               placeholder="6"
               disabled={!canSave || isPending || isSubmitted}
               aria-invalid={Boolean(state.fieldErrors.careerYears)}
-              className={inputClassName}
+              className={`mt-2 ${inputClassName}`}
               value={formValues.careerYears}
               onChange={(event) =>
                 updateField("careerYears", event.target.value)
               }
             />
             {state.fieldErrors.careerYears ? (
-              <span className="mt-2 block text-xs text-rose-700">
+              <span className="mt-2 block text-xs text-destructive">
                 {state.fieldErrors.careerYears}
               </span>
             ) : null}
@@ -431,7 +432,7 @@ export function ApplicationDraftForm({
             type="submit"
             value="draft"
             disabled={!canSave || isPending || isSubmitted}
-            className="inline-flex w-full items-center justify-center rounded-full border border-primary/20 bg-white px-5 py-3 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-surface-container-high px-5 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pendingAction === "draft"
               ? "Saving draft..."
@@ -441,7 +442,7 @@ export function ApplicationDraftForm({
             type="submit"
             value="submit"
             disabled={!canSave || isPending || isSubmitted}
-            className="inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pendingAction === "submit"
               ? "Submitting..."
