@@ -49,11 +49,63 @@ export interface JobPostingDetail {
   steps: JobPostingStep[];
 }
 
+export interface ResumeEducation {
+  id?: number;
+  institution: string;
+  degree: string;
+  fieldOfStudy: string;
+  startDate: string | null;
+  endDate: string | null;
+  description: string;
+  sortOrder: number;
+}
+
+export interface ResumeExperience {
+  id?: number;
+  company: string;
+  position: string;
+  startDate: string | null;
+  endDate: string | null;
+  description: string;
+  sortOrder: number;
+}
+
+export interface ResumeSkill {
+  id?: number;
+  skillName: string;
+  proficiency: string;
+  years: number | null;
+  sortOrder: number;
+}
+
+export interface ResumeCertification {
+  id?: number;
+  certificationName: string;
+  issuer: string;
+  issuedDate: string | null;
+  expiryDate: string | null;
+  sortOrder: number;
+}
+
+export interface ResumeLanguage {
+  id?: number;
+  languageName: string;
+  proficiency: string;
+  testName: string;
+  testScore: string;
+  sortOrder: number;
+}
+
 export interface SaveApplicationDraftPayload {
   applicantName: string;
   applicantEmail: string;
   applicantPhone: string;
   resumePayload: Record<string, string | number>;
+  educations?: ResumeEducation[];
+  experiences?: ResumeExperience[];
+  skills?: ResumeSkill[];
+  certifications?: ResumeCertification[];
+  languages?: ResumeLanguage[];
 }
 
 export interface ApplicationDraftResponse {

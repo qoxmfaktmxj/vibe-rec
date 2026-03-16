@@ -50,7 +50,8 @@ class AdminApplicantTests {
                         Map.of(
                                 "introduction", "I have built enterprise recruitment backends and migration tooling for hiring teams.",
                                 "coreStrength", "I can stabilize hiring workflows while systems are being replaced."
-                        )
+                        ),
+                        null, null, null, null, null
                 )
         );
         applicationDraftService.saveDraft(
@@ -59,7 +60,8 @@ class AdminApplicantTests {
                         "Draft Park",
                         "draft.park@example.com",
                         "010-3333-4444",
-                        Map.of("introduction", "draft only")
+                        Map.of("introduction", "draft only"),
+                        null, null, null, null, null
                 )
         );
 
@@ -88,7 +90,8 @@ class AdminApplicantTests {
                         Map.of(
                                 "introduction", "I have owned applicant workflows and recruiter tools across multiple hiring platforms.",
                                 "coreStrength", "I can convert business review rules into predictable operating flows."
-                        )
+                        ),
+                        null, null, null, null, null
                 )
         );
 
@@ -123,7 +126,8 @@ class AdminApplicantTests {
                         "Draft Only",
                         "draft.only@example.com",
                         "010-9999-0000",
-                        Map.of("introduction", "This is still a draft.")
+                        Map.of("introduction", "This is still a draft."),
+                        null, null, null, null, null
                 )
         );
 

@@ -58,7 +58,8 @@ class RecruitmentMvpTests {
                         Map.of(
                                 "introduction", "I have led recruitment workflow modernization projects.",
                                 "careerYears", 6
-                        )
+                        ),
+                        null, null, null, null, null
                 )
         );
 
@@ -81,7 +82,8 @@ class RecruitmentMvpTests {
                                 "introduction", "I have led recruitment workflow modernization projects for enterprise hiring teams.",
                                 "coreStrength", "I translate hiring operations into resilient platform workflows.",
                                 "careerYears", 6
-                        )
+                        ),
+                        null, null, null, null, null
                 )
         );
 
@@ -105,7 +107,8 @@ class RecruitmentMvpTests {
                         Map.of(
                                 "introduction", "I have managed several applicant pipelines and legacy modernization programs.",
                                 "coreStrength", "I maintain strong delivery discipline across hiring operations."
-                        )
+                        ),
+                        null, null, null, null, null
                 )
         );
 
@@ -115,7 +118,8 @@ class RecruitmentMvpTests {
                         "Locked Applicant",
                         "locked@example.com",
                         "010-5555-7777",
-                        Map.of("introduction", "Trying to edit after submit.")
+                        Map.of("introduction", "Trying to edit after submit."),
+                        null, null, null, null, null
                 )
         ))
                 .isInstanceOf(ResponseStatusException.class)
@@ -130,7 +134,8 @@ class RecruitmentMvpTests {
                         "Closed Applicant",
                         "closed@example.com",
                         "010-9999-0000",
-                        Map.of("portfolioUrl", "https://example.com")
+                        Map.of("portfolioUrl", "https://example.com"),
+                        null, null, null, null, null
                 )
         ))
                 .isInstanceOf(ResponseStatusException.class)

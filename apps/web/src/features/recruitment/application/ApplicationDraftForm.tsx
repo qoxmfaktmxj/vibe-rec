@@ -3,7 +3,21 @@
 import { startTransition, useRef, useState } from "react";
 
 import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
-import type { ApplicationDraftResponse } from "@/entities/recruitment/model";
+import type {
+  ApplicationDraftResponse,
+  ResumeCertification,
+  ResumeEducation,
+  ResumeExperience,
+  ResumeLanguage,
+  ResumeSkill,
+} from "@/entities/recruitment/model";
+import {
+  CertificationSection,
+  EducationSection,
+  ExperienceSection,
+  LanguageSection,
+  SkillSection,
+} from "@/features/recruitment/application/ResumeSections";
 import {
   type DraftActionState,
   type DraftFieldName,
@@ -98,6 +112,12 @@ export function ApplicationDraftForm({
   const [pendingAction, setPendingAction] = useState<FormActionMode | null>(
     null,
   );
+
+  const [educations, setEducations] = useState<ResumeEducation[]>([]);
+  const [experiences, setExperiences] = useState<ResumeExperience[]>([]);
+  const [skills, setSkills] = useState<ResumeSkill[]>([]);
+  const [certifications, setCertifications] = useState<ResumeCertification[]>([]);
+  const [languages, setLanguages] = useState<ResumeLanguage[]>([]);
 
   const [attachments, setAttachments] = useState<AttachmentSummary[]>([]);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -201,6 +221,11 @@ export function ApplicationDraftForm({
           ? { careerYears: Number(formValues.careerYears.trim()) }
           : {}),
       },
+      educations: educations.length > 0 ? educations : undefined,
+      experiences: experiences.length > 0 ? experiences : undefined,
+      skills: skills.length > 0 ? skills : undefined,
+      certifications: certifications.length > 0 ? certifications : undefined,
+      languages: languages.length > 0 ? languages : undefined,
     };
   }
 
@@ -502,6 +527,24 @@ export function ApplicationDraftForm({
               </span>
             ) : null}
           </label>
+        </div>
+
+        {/* 이력서 정규화 섹션 */}
+        <div className="space-y-6 rounded-xl bg-surface-container-low/50 p-5">
+          <h3 className="font-headline text-lg font-bold text-on-surface">
+            이력서 상세
+            <span className="ml-2 text-sm font-normal text-outline">선택 사항</span>
+          </h3>
+          <EducationSection items={educations} onChange={setEducations}
+            disabled={!canSave || isPending || isSubmitted} />
+          <ExperienceSection items={experiences} onChange={setExperiences}
+            disabled={!canSave || isPending || isSubmitted} />
+          <SkillSection items={skills} onChange={setSkills}
+            disabled={!canSave || isPending || isSubmitted} />
+          <CertificationSection items={certifications} onChange={setCertifications}
+            disabled={!canSave || isPending || isSubmitted} />
+          <LanguageSection items={languages} onChange={setLanguages}
+            disabled={!canSave || isPending || isSubmitted} />
         </div>
 
         {/* 첨부파일 */}

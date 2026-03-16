@@ -1,4 +1,11 @@
-import type { ApplicationStatus } from "@/entities/recruitment/model";
+import type {
+  ApplicationStatus,
+  ResumeCertification,
+  ResumeEducation,
+  ResumeExperience,
+  ResumeLanguage,
+  ResumeSkill,
+} from "@/entities/recruitment/model";
 
 export type ApplicationReviewStatus =
   | "NEW"
@@ -24,6 +31,11 @@ export interface AdminApplicantDetail extends AdminApplicantSummary {
   jobPostingPublicKey: string;
   reviewNote: string | null;
   resumePayload: Record<string, unknown>;
+  educations: ResumeEducation[];
+  experiences: ResumeExperience[];
+  skills: ResumeSkill[];
+  certifications: ResumeCertification[];
+  languages: ResumeLanguage[];
 }
 
 export interface AdminApplicantFilters {
