@@ -37,16 +37,16 @@ public class FileStorageService {
     public StoredFileResult store(MultipartFile file) {
         validateFile(file);
 
-        String originalFilename = file.getOriginalFilename() != null
+        String originalName = file.getOriginalFilename() != null
                 ? file.getOriginalFilename()
                 : "unknown";
-        String extension = extractExtension(originalFilename);
-        String storedFilename = UUID.randomUUID() + extension;
+        String extension = extractExtension(originalName);
+        String fileName = UUID.randomUUID() + extension;
         String dateFolder = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"));
-        String relativePath = dateFolder + "/" + storedFilename;
+        String relativePath = dateFolder + "/" + fileName;
 
         Path targetDir = baseDir.resolve(dateFolder);
-        Path targetFile = targetDir.resolve(storedFilename);
+        Path targetFile = targetDir.resolve(fileName);
 
         try {
             Files.createDirectories(targetDir);
@@ -58,8 +58,8 @@ public class FileStorageService {
         }
 
         return new StoredFileResult(
-                originalFilename,
-                storedFilename,
+                fileName,
+                originalName,
                 file.getContentType() != null ? file.getContentType() : "application/octet-stream",
                 file.getSize(),
                 relativePath
@@ -109,10 +109,10 @@ public class FileStorageService {
     }
 
     public record StoredFileResult(
-            String originalFilename,
-            String storedFilename,
+            String fileName,
+            String originalName,
             String contentType,
-            long fileSizeBytes,
+            long fileSize,
             String storagePath
     ) {
     }

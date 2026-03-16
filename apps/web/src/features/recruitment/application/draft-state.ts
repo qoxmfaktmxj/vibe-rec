@@ -4,7 +4,10 @@ export type DraftFieldName =
   | "applicantPhone"
   | "introduction"
   | "coreStrength"
-  | "careerYears";
+  | "careerYears"
+  | "attachments"
+  | "education"
+  | "career";
 
 export interface DraftActionState {
   status: "idle" | "success" | "error";

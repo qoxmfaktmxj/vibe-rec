@@ -5,12 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Map;
 
 import com.viberec.api.platform.web.PlatformController;
+import com.viberec.api.support.IntegrationTestBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class VibeRecApiApplicationTests {
+class VibeRecApiApplicationTests extends IntegrationTestBase {
 
     @Autowired
     private PlatformController platformController;

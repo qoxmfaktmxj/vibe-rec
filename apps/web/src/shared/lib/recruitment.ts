@@ -1,6 +1,9 @@
 import type {
+  ApplicationFinalStatus,
   ApplicationReviewStatus,
   ApplicationStatus,
+  EvaluationResult,
+  InterviewStatus,
   JobPostingStatus,
   JobPostingStepType,
 } from "@/entities/recruitment/model";
@@ -170,4 +173,157 @@ export function getDraftAvailability(posting: {
     canSave: true,
     reason: "지원서를 임시저장한 뒤, 지원 기간 내에 최종 제출할 수 있습니다.",
   };
+}
+
+export function getInterviewStatusLabel(status: InterviewStatus) {
+  switch (status) {
+    case "SCHEDULED":
+      return "예정";
+    case "COMPLETED":
+      return "완료";
+    case "CANCELLED":
+      return "취소";
+    case "NO_SHOW":
+      return "불참";
+    default:
+      return status;
+  }
+}
+
+export function getInterviewStatusClassName(status: InterviewStatus) {
+  switch (status) {
+    case "SCHEDULED":
+      return "bg-sky-100 text-sky-900";
+    case "COMPLETED":
+      return "bg-emerald-100 text-emerald-900";
+    case "CANCELLED":
+      return "bg-stone-200 text-stone-700";
+    case "NO_SHOW":
+      return "bg-rose-100 text-rose-900";
+    default:
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
+export function getEvaluationResultLabel(result: EvaluationResult) {
+  switch (result) {
+    case "PENDING":
+      return "대기";
+    case "PASS":
+      return "통과";
+    case "FAIL":
+      return "탈락";
+    case "HOLD":
+      return "보류";
+    default:
+      return result;
+  }
+}
+
+export function getEvaluationResultClassName(result: EvaluationResult) {
+  switch (result) {
+    case "PENDING":
+      return "bg-amber-100 text-amber-900";
+    case "PASS":
+      return "bg-emerald-100 text-emerald-900";
+    case "FAIL":
+      return "bg-rose-100 text-rose-900";
+    case "HOLD":
+      return "bg-stone-200 text-stone-700";
+    default:
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
+export function getFinalStatusLabel(status: ApplicationFinalStatus) {
+  switch (status) {
+    case "OFFER_MADE":
+      return "제안";
+    case "ACCEPTED":
+      return "수락";
+    case "DECLINED":
+      return "거절";
+    case "WITHDRAWN":
+      return "철회";
+    default:
+      return status;
+  }
+}
+
+export function getFinalStatusClassName(status: ApplicationFinalStatus) {
+  switch (status) {
+    case "OFFER_MADE":
+      return "bg-sky-100 text-sky-900";
+    case "ACCEPTED":
+      return "bg-emerald-100 text-emerald-900";
+    case "DECLINED":
+      return "bg-rose-100 text-rose-900";
+    case "WITHDRAWN":
+      return "bg-amber-100 text-amber-900";
+    default:
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
+export function getDegreeLabel(degree: string) {
+  switch (degree) {
+    case "HIGH_SCHOOL":
+      return "고졸";
+    case "ASSOCIATE":
+      return "전문학사";
+    case "BACHELOR":
+      return "학사";
+    case "MASTER":
+      return "석사";
+    case "DOCTORATE":
+      return "박사";
+    default:
+      return degree;
+  }
+}
+
+export function getNotificationTypeLabel(type: string) {
+  switch (type) {
+    case "OFFER":
+      return "오퍼";
+    case "REJECTION":
+      return "불합격 통보";
+    case "INTERVIEW_INVITE":
+      return "면접 안내";
+    case "GENERAL":
+      return "일반";
+    default:
+      return type;
+  }
+}
+
+export function getNotificationTypeClassName(type: string) {
+  switch (type) {
+    case "OFFER":
+      return "bg-emerald-100 text-emerald-900";
+    case "REJECTION":
+      return "bg-rose-100 text-rose-900";
+    case "INTERVIEW_INVITE":
+      return "bg-sky-100 text-sky-900";
+    case "GENERAL":
+      return "bg-stone-200 text-stone-700";
+    default:
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
+export function formatFileSize(bytes: number) {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }

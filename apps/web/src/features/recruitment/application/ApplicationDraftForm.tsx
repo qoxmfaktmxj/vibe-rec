@@ -2,22 +2,10 @@
 
 import { startTransition, useRef, useState } from "react";
 
-import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import type {
+  ApplicationAttachment,
   ApplicationDraftResponse,
-  ResumeCertification,
-  ResumeEducation,
-  ResumeExperience,
-  ResumeLanguage,
-  ResumeSkill,
 } from "@/entities/recruitment/model";
-import {
-  CertificationSection,
-  EducationSection,
-  ExperienceSection,
-  LanguageSection,
-  SkillSection,
-} from "@/features/recruitment/application/ResumeSections";
 import {
   type DraftActionState,
   type DraftFieldName,
@@ -43,10 +31,43 @@ interface DraftFormValues {
   careerYears: string;
 }
 
+interface EducationEntry {
+  schoolName: string;
+  major: string;
+  degree: string;
+  graduatedAt: string;
+}
+
+interface CareerEntry {
+  companyName: string;
+  position: string;
+  startedAt: string;
+  endedAt: string;
+  description: string;
+}
+
 type FormActionMode = "draft" | "submit";
+
+const DEGREE_OPTIONS = [
+  { value: "", label: "학위 선택" },
+  { value: "HIGH_SCHOOL", label: "고등학교 졸업" },
+  { value: "ASSOCIATE", label: "전문학사" },
+  { value: "BACHELOR", label: "학사" },
+  { value: "MASTER", label: "석사" },
+  { value: "DOCTORATE", label: "박사" },
+];
+
+const ACCEPTED_FILE_TYPES =
+  ".pdf,.doc,.docx,.jpg,.jpeg,.png";
 
 const inputClassName =
   "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+
+const selectClassName =
+  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+
+const sectionHeadingClassName =
+  "text-lg font-bold text-on-surface";
 
 const initialFormValues: DraftFormValues = {
   applicantName: "",
@@ -56,6 +77,26 @@ const initialFormValues: DraftFormValues = {
   coreStrength: "",
   careerYears: "",
 };
+
+function emptyEducation(): EducationEntry {
+  return { schoolName: "", major: "", degree: "", graduatedAt: "" };
+}
+
+function emptyCareer(): CareerEntry {
+  return {
+    companyName: "",
+    position: "",
+    startedAt: "",
+    endedAt: "",
+    description: "",
+  };
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
   const fieldErrors: DraftActionState["fieldErrors"] = {};
@@ -113,96 +154,154 @@ export function ApplicationDraftForm({
     null,
   );
 
-  const [educations, setEducations] = useState<ResumeEducation[]>([]);
-  const [experiences, setExperiences] = useState<ResumeExperience[]>([]);
-  const [skills, setSkills] = useState<ResumeSkill[]>([]);
-  const [certifications, setCertifications] = useState<ResumeCertification[]>([]);
-  const [languages, setLanguages] = useState<ResumeLanguage[]>([]);
-
-  const [attachments, setAttachments] = useState<AttachmentSummary[]>([]);
-  const [uploadingFile, setUploadingFile] = useState(false);
-  const [fileError, setFileError] = useState<string | null>(null);
+  // Attachments
+  const [attachments, setAttachments] = useState<ApplicationAttachment[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Education history
+  const [educations, setEducations] = useState<EducationEntry[]>([]);
+
+  // Career history
+  const [careers, setCareers] = useState<CareerEntry[]>([]);
 
   const isPending = pendingAction !== null;
   const isSubmitted = state.currentStatus === "SUBMITTED";
-  const hasApplicationId = state.applicationId !== null;
-
-  async function handleFileUpload(file: File) {
-    if (!state.applicationId) {
-      setFileError("파일을 첨부하려면 먼저 지원서를 임시저장해주세요.");
-      return;
-    }
-
-    if (attachments.length >= 3) {
-      setFileError("첨부파일은 최대 3개까지 업로드할 수 있습니다.");
-      return;
-    }
-
-    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-    if (!allowedTypes.includes(file.type)) {
-      setFileError("PDF, PNG, JPEG 파일만 업로드 가능합니다.");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setFileError("파일 크기는 10MB를 초과할 수 없습니다.");
-      return;
-    }
-
-    setUploadingFile(true);
-    setFileError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch(
-        `/api/applications/${state.applicationId}/attachments`,
-        { method: "POST", body: formData },
-      );
-
-      const body = (await response.json()) as
-        | AttachmentSummary
-        | { message?: string };
-
-      if (!response.ok) {
-        setFileError(
-          "message" in body
-            ? (body.message ?? "파일 업로드에 실패했습니다.")
-            : "파일 업로드에 실패했습니다.",
-        );
-        return;
-      }
-
-      if ("id" in body) {
-        setAttachments((prev) => [...prev, body]);
-      }
-    } catch {
-      setFileError("파일 업로드 중 오류가 발생했습니다.");
-    } finally {
-      setUploadingFile(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  }
-
-  function handleDeleteAttachment(attachmentId: number) {
-    setAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
-  }
-
-  function formatFileSize(bytes: number) {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
 
   function updateField(fieldName: DraftFieldName, value: string) {
     setFormValues((current) => ({
       ...current,
       [fieldName]: value,
     }));
+  }
+
+  // --- Education helpers ---
+  function addEducation() {
+    setEducations((current) => [...current, emptyEducation()]);
+  }
+
+  function removeEducation(index: number) {
+    setEducations((current) => current.filter((_, i) => i !== index));
+  }
+
+  function updateEducation(
+    index: number,
+    field: keyof EducationEntry,
+    value: string,
+  ) {
+    setEducations((current) =>
+      current.map((entry, i) =>
+        i === index ? { ...entry, [field]: value } : entry,
+      ),
+    );
+  }
+
+  // --- Career helpers ---
+  function addCareer() {
+    setCareers((current) => [...current, emptyCareer()]);
+  }
+
+  function removeCareer(index: number) {
+    setCareers((current) => current.filter((_, i) => i !== index));
+  }
+
+  function updateCareer(
+    index: number,
+    field: keyof CareerEntry,
+    value: string,
+  ) {
+    setCareers((current) =>
+      current.map((entry, i) =>
+        i === index ? { ...entry, [field]: value } : entry,
+      ),
+    );
+  }
+
+  // --- File upload ---
+  async function handleFileUpload(files: FileList) {
+    if (!formValues.applicantEmail.trim()) {
+      setState((current) => ({
+        ...current,
+        status: "error",
+        message: "파일 업로드 전 이메일 주소를 먼저 입력해주세요.",
+        fieldErrors: {
+          ...current.fieldErrors,
+          applicantEmail: "파일 업로드 전 이메일을 입력해주세요.",
+        },
+      }));
+      return;
+    }
+
+    setUploadingFiles(true);
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch(
+          `/api/job-postings/${jobPostingId}/application-draft/attachments?applicantEmail=${encodeURIComponent(formValues.applicantEmail.trim())}`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+
+        if (!response.ok) {
+          const errorBody = (await response.json()) as { message?: string };
+          setState((current) => ({
+            ...current,
+            status: "error",
+            message:
+              errorBody.message ??
+              `파일 "${file.name}" 업로드에 실패했습니다.`,
+          }));
+          continue;
+        }
+
+        const attachment = (await response.json()) as ApplicationAttachment;
+        setAttachments((current) => [...current, attachment]);
+      } catch {
+        setState((current) => ({
+          ...current,
+          status: "error",
+          message: `파일 "${file.name}" 업로드 중 오류가 발생했습니다.`,
+        }));
+      }
+    }
+
+    setUploadingFiles(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleDeleteAttachment(attachmentId: number) {
+    try {
+      const response = await fetch(`/api/attachments/${attachmentId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorBody = (await response.json()) as { message?: string };
+        setState((current) => ({
+          ...current,
+          status: "error",
+          message: errorBody.message ?? "파일 삭제에 실패했습니다.",
+        }));
+        return;
+      }
+
+      setAttachments((current) =>
+        current.filter((a) => a.id !== attachmentId),
+      );
+    } catch {
+      setState((current) => ({
+        ...current,
+        status: "error",
+        message: "파일 삭제 중 오류가 발생했습니다.",
+      }));
+    }
   }
 
   function buildPayload() {
@@ -220,12 +319,23 @@ export function ApplicationDraftForm({
         ...(formValues.careerYears.trim()
           ? { careerYears: Number(formValues.careerYears.trim()) }
           : {}),
+        ...(educations.length > 0
+          ? {
+              education: educations.map((e, i) => ({
+                ...e,
+                sortOrder: i,
+              })),
+            }
+          : {}),
+        ...(careers.length > 0
+          ? {
+              career: careers.map((c, i) => ({
+                ...c,
+                sortOrder: i,
+              })),
+            }
+          : {}),
       },
-      educations: educations.length > 0 ? educations : undefined,
-      experiences: experiences.length > 0 ? experiences : undefined,
-      skills: skills.length > 0 ? skills : undefined,
-      certifications: certifications.length > 0 ? certifications : undefined,
-      languages: languages.length > 0 ? languages : undefined,
     };
   }
 
@@ -346,6 +456,8 @@ export function ApplicationDraftForm({
     });
   }
 
+  const formDisabled = !canSave || isPending || isSubmitted;
+
   return (
     <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-7">
       <h2 className="font-headline text-2xl font-bold text-on-surface">
@@ -392,7 +504,8 @@ export function ApplicationDraftForm({
         </div>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-8">
+        {/* --- 기본 정보 --- */}
         <div className="grid gap-5">
           <label className="block text-sm font-semibold text-on-surface-variant">
             지원자 이름
@@ -403,7 +516,7 @@ export function ApplicationDraftForm({
               placeholder="김지원"
               required
               minLength={2}
-              disabled={!canSave || isPending || isSubmitted}
+              disabled={formDisabled}
               aria-invalid={Boolean(state.fieldErrors.applicantName)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.applicantName}
@@ -426,7 +539,7 @@ export function ApplicationDraftForm({
               autoComplete="email"
               placeholder="applicant@example.com"
               required
-              disabled={!canSave || isPending || isSubmitted}
+              disabled={formDisabled}
               aria-invalid={Boolean(state.fieldErrors.applicantEmail)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.applicantEmail}
@@ -449,7 +562,7 @@ export function ApplicationDraftForm({
               autoComplete="tel"
               placeholder="010-1234-5678"
               required
-              disabled={!canSave || isPending || isSubmitted}
+              disabled={formDisabled}
               aria-invalid={Boolean(state.fieldErrors.applicantPhone)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.applicantPhone}
@@ -470,7 +583,7 @@ export function ApplicationDraftForm({
               name="introduction"
               rows={5}
               placeholder="관련 경험과 지원 동기를 간략히 소개해주세요."
-              disabled={!canSave || isPending || isSubmitted}
+              disabled={formDisabled}
               aria-invalid={Boolean(state.fieldErrors.introduction)}
               className={`mt-2 resize-y ${inputClassName}`}
               value={formValues.introduction}
@@ -491,7 +604,7 @@ export function ApplicationDraftForm({
               name="coreStrength"
               rows={4}
               placeholder="이 직무에서 발휘할 수 있는 가장 강점을 설명해주세요."
-              disabled={!canSave || isPending || isSubmitted}
+              disabled={formDisabled}
               className={`mt-2 resize-y ${inputClassName}`}
               value={formValues.coreStrength}
               onChange={(event) =>
@@ -513,7 +626,7 @@ export function ApplicationDraftForm({
               min={0}
               max={40}
               placeholder="6"
-              disabled={!canSave || isPending || isSubmitted}
+              disabled={formDisabled}
               aria-invalid={Boolean(state.fieldErrors.careerYears)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.careerYears}
@@ -529,123 +642,284 @@ export function ApplicationDraftForm({
           </label>
         </div>
 
-        {/* 이력서 정규화 섹션 */}
-        <div className="space-y-6 rounded-xl bg-surface-container-low/50 p-5">
-          <h3 className="font-headline text-lg font-bold text-on-surface">
-            이력서 상세
-            <span className="ml-2 text-sm font-normal text-outline">선택 사항</span>
-          </h3>
-          <EducationSection items={educations} onChange={setEducations}
-            disabled={!canSave || isPending || isSubmitted} />
-          <ExperienceSection items={experiences} onChange={setExperiences}
-            disabled={!canSave || isPending || isSubmitted} />
-          <SkillSection items={skills} onChange={setSkills}
-            disabled={!canSave || isPending || isSubmitted} />
-          <CertificationSection items={certifications} onChange={setCertifications}
-            disabled={!canSave || isPending || isSubmitted} />
-          <LanguageSection items={languages} onChange={setLanguages}
-            disabled={!canSave || isPending || isSubmitted} />
-        </div>
+        {/* --- 학력 사항 --- */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h3 className={sectionHeadingClassName}>학력 사항</h3>
+            <button
+              type="button"
+              disabled={formDisabled}
+              onClick={addEducation}
+              className="rounded-lg bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              + 학력 추가
+            </button>
+          </div>
 
-        {/* 첨부파일 */}
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-on-surface-variant">
-            첨부파일
-            <span className="ml-2 font-normal text-outline">
-              (PDF, PNG, JPEG / 최대 10MB, 3개)
-            </span>
-          </p>
-
-          {hasApplicationId && !isSubmitted ? (
-            <div className="space-y-3">
-              <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-surface-container-high px-4 py-3 text-sm font-medium text-on-surface transition hover:bg-surface-container-highest">
-                <svg
-                  className="h-5 w-5 text-outline"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                {uploadingFile ? "업로드 중..." : "파일 선택"}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  disabled={uploadingFile || isSubmitted || attachments.length >= 3}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      void handleFileUpload(file);
-                    }
-                  }}
-                />
-              </label>
-            </div>
-          ) : !isSubmitted ? (
-            <p className="text-xs text-outline">
-              파일을 첨부하려면 먼저 임시저장을 해주세요.
+          {educations.length === 0 ? (
+            <p className="mt-3 text-sm text-on-surface-variant">
+              등록된 학력이 없습니다. 위 버튼을 눌러 추가하세요.
             </p>
           ) : null}
 
-          {fileError ? (
-            <p className="text-xs text-destructive">{fileError}</p>
+          <div className="mt-4 space-y-4">
+            {educations.map((edu, index) => (
+              <div
+                key={index}
+                className="rounded-lg bg-surface-container p-5"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-on-surface-variant">
+                    학력 #{index + 1}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={formDisabled}
+                    onClick={() => removeEducation(index)}
+                    className="rounded-md px-3 py-1 text-xs font-medium text-destructive transition hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    삭제
+                  </button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm text-on-surface-variant">
+                    학교명
+                    <input
+                      type="text"
+                      placeholder="서울대학교"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={edu.schoolName}
+                      onChange={(e) =>
+                        updateEducation(index, "schoolName", e.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="block text-sm text-on-surface-variant">
+                    전공
+                    <input
+                      type="text"
+                      placeholder="컴퓨터공학"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={edu.major}
+                      onChange={(e) =>
+                        updateEducation(index, "major", e.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="block text-sm text-on-surface-variant">
+                    학위
+                    <select
+                      disabled={formDisabled}
+                      className={`mt-1 ${selectClassName}`}
+                      value={edu.degree}
+                      onChange={(e) =>
+                        updateEducation(index, "degree", e.target.value)
+                      }
+                    >
+                      {DEGREE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block text-sm text-on-surface-variant">
+                    졸업일
+                    <input
+                      type="date"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={edu.graduatedAt}
+                      onChange={(e) =>
+                        updateEducation(index, "graduatedAt", e.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* --- 경력 사항 --- */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h3 className={sectionHeadingClassName}>경력 사항</h3>
+            <button
+              type="button"
+              disabled={formDisabled}
+              onClick={addCareer}
+              className="rounded-lg bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              + 경력 추가
+            </button>
+          </div>
+
+          {careers.length === 0 ? (
+            <p className="mt-3 text-sm text-on-surface-variant">
+              등록된 경력이 없습니다. 위 버튼을 눌러 추가하세요.
+            </p>
           ) : null}
 
+          <div className="mt-4 space-y-4">
+            {careers.map((career, index) => (
+              <div
+                key={index}
+                className="rounded-lg bg-surface-container p-5"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-on-surface-variant">
+                    경력 #{index + 1}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={formDisabled}
+                    onClick={() => removeCareer(index)}
+                    className="rounded-md px-3 py-1 text-xs font-medium text-destructive transition hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    삭제
+                  </button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm text-on-surface-variant">
+                    회사명
+                    <input
+                      type="text"
+                      placeholder="네이버"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={career.companyName}
+                      onChange={(e) =>
+                        updateCareer(index, "companyName", e.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="block text-sm text-on-surface-variant">
+                    직책
+                    <input
+                      type="text"
+                      placeholder="백엔드 개발자"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={career.position}
+                      onChange={(e) =>
+                        updateCareer(index, "position", e.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="block text-sm text-on-surface-variant">
+                    입사일
+                    <input
+                      type="date"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={career.startedAt}
+                      onChange={(e) =>
+                        updateCareer(index, "startedAt", e.target.value)
+                      }
+                    />
+                  </label>
+                  <label className="block text-sm text-on-surface-variant">
+                    퇴사일
+                    <input
+                      type="date"
+                      disabled={formDisabled}
+                      className={`mt-1 ${inputClassName}`}
+                      value={career.endedAt}
+                      onChange={(e) =>
+                        updateCareer(index, "endedAt", e.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+                <label className="mt-3 block text-sm text-on-surface-variant">
+                  업무 내용
+                  <textarea
+                    rows={3}
+                    placeholder="담당 업무 및 성과를 간략히 기술해주세요."
+                    disabled={formDisabled}
+                    className={`mt-1 resize-y ${inputClassName}`}
+                    value={career.description}
+                    onChange={(e) =>
+                      updateCareer(index, "description", e.target.value)
+                    }
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* --- 첨부파일 --- */}
+        <div>
+          <h3 className={sectionHeadingClassName}>첨부파일</h3>
+          <p className="mt-1 text-xs text-on-surface-variant">
+            PDF, DOC, DOCX, JPG, PNG 파일을 업로드할 수 있습니다.
+          </p>
+
+          <div className="mt-3 flex items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept={ACCEPTED_FILE_TYPES}
+              disabled={formDisabled || uploadingFiles}
+              className="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface file:transition hover:file:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  void handleFileUpload(e.target.files);
+                }
+              }}
+            />
+            {uploadingFiles ? (
+              <span className="shrink-0 text-sm text-on-surface-variant">
+                업로드 중...
+              </span>
+            ) : null}
+          </div>
+
           {attachments.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className="mt-4 space-y-2">
               {attachments.map((attachment) => (
                 <li
                   key={attachment.id}
-                  className="flex items-center justify-between rounded-lg bg-surface-container-low px-4 py-2.5 text-sm"
+                  className="flex items-center justify-between rounded-lg bg-surface-container px-4 py-3"
                 >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <svg
-                      className="h-4 w-4 shrink-0 text-primary"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={`/api/attachments/${attachment.id}/download`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate text-sm font-medium text-primary hover:underline"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                      />
-                    </svg>
-                    <span className="truncate text-on-surface">
-                      {attachment.originalFilename}
-                    </span>
-                    <span className="shrink-0 text-xs text-outline">
-                      {formatFileSize(attachment.fileSizeBytes)}
+                      {attachment.originalName}
+                    </a>
+                    <span className="ml-2 text-xs text-on-surface-variant">
+                      {formatFileSize(attachment.fileSize)}
                     </span>
                   </div>
-                  {!isSubmitted ? (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAttachment(attachment.id)}
-                      className="ml-2 shrink-0 text-xs text-outline transition hover:text-destructive"
-                    >
-                      삭제
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    disabled={formDisabled}
+                    onClick={() => void handleDeleteAttachment(attachment.id)}
+                    className="ml-3 shrink-0 rounded-md px-3 py-1 text-xs font-medium text-destructive transition hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    삭제
+                  </button>
                 </li>
               ))}
             </ul>
           ) : null}
         </div>
 
+        {/* --- 제출 버튼 --- */}
         <div className="grid gap-3 sm:grid-cols-2">
           <button
             type="submit"
             value="draft"
-            disabled={!canSave || isPending || isSubmitted}
+            disabled={formDisabled}
             className="inline-flex w-full items-center justify-center rounded-lg bg-surface-container-high px-5 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pendingAction === "draft"
@@ -655,7 +929,7 @@ export function ApplicationDraftForm({
           <button
             type="submit"
             value="submit"
-            disabled={!canSave || isPending || isSubmitted}
+            disabled={formDisabled}
             className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pendingAction === "submit"

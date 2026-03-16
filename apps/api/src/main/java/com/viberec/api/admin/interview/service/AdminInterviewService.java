@@ -1,18 +1,24 @@
 package com.viberec.api.admin.interview.service;
 
-import com.viberec.api.admin.interview.web.AddEvaluatorRequest;
+import com.viberec.api.admin.auth.domain.AdminAccount;
+import com.viberec.api.admin.auth.repository.AdminAccountRepository;
+import com.viberec.api.admin.interview.web.CreateEvaluationRequest;
+import com.viberec.api.admin.interview.web.CreateInterviewRequest;
+import com.viberec.api.admin.interview.web.EvaluationResponse;
 import com.viberec.api.admin.interview.web.InterviewResponse;
-import com.viberec.api.admin.interview.web.ScheduleInterviewRequest;
-import com.viberec.api.admin.interview.web.SubmitEvaluationRequest;
-import com.viberec.api.admin.interview.web.UpdateInterviewStatusRequest;
+import com.viberec.api.admin.interview.web.UpdateInterviewRequest;
 import com.viberec.api.recruitment.application.domain.Application;
-import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
+import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
+import com.viberec.api.recruitment.evaluation.domain.Evaluation;
+import com.viberec.api.recruitment.evaluation.repository.EvaluationRepository;
 import com.viberec.api.recruitment.interview.domain.Interview;
-import com.viberec.api.recruitment.interview.domain.InterviewEvaluator;
-import com.viberec.api.recruitment.interview.repository.InterviewEvaluatorRepository;
 import com.viberec.api.recruitment.interview.repository.InterviewRepository;
+import com.viberec.api.recruitment.jobposting.domain.JobPostingStep;
+import com.viberec.api.recruitment.jobposting.repository.JobPostingStepRepository;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,125 +28,134 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional(readOnly = true)
 public class AdminInterviewService {
 
-    private final ApplicationRepository applicationRepository;
     private final InterviewRepository interviewRepository;
-    private final InterviewEvaluatorRepository interviewEvaluatorRepository;
+    private final EvaluationRepository evaluationRepository;
+    private final ApplicationRepository applicationRepository;
+    private final JobPostingStepRepository jobPostingStepRepository;
+    private final AdminAccountRepository adminAccountRepository;
 
     public AdminInterviewService(
-            ApplicationRepository applicationRepository,
             InterviewRepository interviewRepository,
-            InterviewEvaluatorRepository interviewEvaluatorRepository
+            EvaluationRepository evaluationRepository,
+            ApplicationRepository applicationRepository,
+            JobPostingStepRepository jobPostingStepRepository,
+            AdminAccountRepository adminAccountRepository
     ) {
-        this.applicationRepository = applicationRepository;
         this.interviewRepository = interviewRepository;
-        this.interviewEvaluatorRepository = interviewEvaluatorRepository;
+        this.evaluationRepository = evaluationRepository;
+        this.applicationRepository = applicationRepository;
+        this.jobPostingStepRepository = jobPostingStepRepository;
+        this.adminAccountRepository = adminAccountRepository;
+    }
+
+    @Transactional
+    public InterviewResponse createInterview(Long applicationId, CreateInterviewRequest request) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+
+        if (application.getStatus() != ApplicationStatus.SUBMITTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only submitted applications can have interviews.");
+        }
+
+        JobPostingStep step = jobPostingStepRepository.findById(request.jobPostingStepId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting step not found."));
+
+        interviewRepository.findByApplicationIdAndJobPostingStepId(applicationId, request.jobPostingStepId())
+                .ifPresent(existing -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Interview already exists for this application and step.");
+                });
+
+        Interview interview = new Interview(application, step, request.scheduledAt(), request.note());
+        interviewRepository.save(interview);
+
+        return toInterviewResponse(interview, List.of());
+    }
+
+    @Transactional
+    public InterviewResponse updateInterview(Long interviewId, UpdateInterviewRequest request) {
+        Interview interview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interview not found."));
+
+        interview.updateStatus(request.status(), request.note());
+
+        List<Evaluation> evaluations = evaluationRepository.findByInterviewIdOrderByCreatedAt(interviewId);
+        return toInterviewResponse(interview, evaluations);
     }
 
     public List<InterviewResponse> getInterviews(Long applicationId) {
-        return interviewRepository.findByApplicationIdOrderByScheduledAtDesc(applicationId).stream()
-                .map(this::toResponse)
+        applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+
+        List<Interview> interviews = interviewRepository.findByApplicationIdOrderByCreatedAt(applicationId);
+        List<Evaluation> allEvaluations = evaluationRepository.findByInterviewApplicationIdOrderByCreatedAt(applicationId);
+
+        Map<Long, List<Evaluation>> evaluationsByInterview = allEvaluations.stream()
+                .collect(Collectors.groupingBy(evaluation -> evaluation.getInterview().getId()));
+
+        return interviews.stream()
+                .map(interview -> toInterviewResponse(
+                        interview,
+                        evaluationsByInterview.getOrDefault(interview.getId(), List.of())
+                ))
                 .toList();
     }
 
-    public InterviewResponse getInterview(Long interviewId) {
-        Interview interview = loadInterview(interviewId);
-        return toResponse(interview);
-    }
-
     @Transactional
-    public InterviewResponse scheduleInterview(Long applicationId, ScheduleInterviewRequest request) {
-        Application application = applicationRepository.findWithJobPostingById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Applicant not found."));
-
-        if (application.getReviewStatus() != ApplicationReviewStatus.PASSED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Only PASSED applicants can be scheduled for an interview.");
-        }
-
-        Interview interview = new Interview(
-                application,
-                request.interviewType(),
-                request.scheduledAt(),
-                request.durationMinutes(),
-                request.location(),
-                request.onlineLink(),
-                request.note()
-        );
-        interviewRepository.save(interview);
-        return toResponse(interview);
-    }
-
-    @Transactional
-    public InterviewResponse updateStatus(Long interviewId, UpdateInterviewStatusRequest request) {
-        Interview interview = loadInterview(interviewId);
-        interview.updateStatus(request.status());
-        return toResponse(interview);
-    }
-
-    @Transactional
-    public InterviewResponse addEvaluator(Long interviewId, AddEvaluatorRequest request) {
-        Interview interview = loadInterview(interviewId);
-        InterviewEvaluator evaluator = new InterviewEvaluator(interview, request.evaluatorName());
-        interviewEvaluatorRepository.save(evaluator);
-        return toResponse(interview);
-    }
-
-    @Transactional
-    public InterviewResponse removeEvaluator(Long interviewId, Long evaluatorId) {
-        loadInterview(interviewId);
-        InterviewEvaluator evaluator = interviewEvaluatorRepository.findById(evaluatorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluator not found."));
-        if (!evaluator.getInterview().getId().equals(interviewId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Evaluator does not belong to this interview.");
-        }
-        interviewEvaluatorRepository.delete(evaluator);
-        Interview interview = loadInterview(interviewId);
-        return toResponse(interview);
-    }
-
-    @Transactional
-    public InterviewResponse submitEvaluation(Long interviewId, Long evaluatorId, SubmitEvaluationRequest request) {
-        loadInterview(interviewId);
-        InterviewEvaluator evaluator = interviewEvaluatorRepository.findById(evaluatorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluator not found."));
-        if (!evaluator.getInterview().getId().equals(interviewId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Evaluator does not belong to this interview.");
-        }
-        evaluator.submitScore(request.score(), request.comment(), request.result());
-        Interview interview = loadInterview(interviewId);
-        return toResponse(interview);
-    }
-
-    private Interview loadInterview(Long interviewId) {
-        return interviewRepository.findById(interviewId)
+    public EvaluationResponse createEvaluation(Long interviewId, Long evaluatorId, CreateEvaluationRequest request) {
+        Interview interview = interviewRepository.findById(interviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interview not found."));
+
+        AdminAccount evaluator = adminAccountRepository.findById(evaluatorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluator account not found."));
+
+        evaluationRepository.findByInterviewIdAndEvaluatorId(interviewId, evaluatorId)
+                .ifPresent(existing -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Evaluation already exists for this interview and evaluator.");
+                });
+
+        Evaluation evaluation = new Evaluation(interview, evaluatorId, request.score(), request.comment(), request.result());
+        evaluationRepository.save(evaluation);
+
+        return toEvaluationResponse(evaluation, evaluator.getDisplayName());
     }
 
-    private InterviewResponse toResponse(Interview interview) {
-        List<InterviewResponse.EvaluatorResponse> evaluators =
-                interviewEvaluatorRepository.findByInterviewIdOrderByCreatedAtAsc(interview.getId()).stream()
-                        .map(e -> new InterviewResponse.EvaluatorResponse(
-                                e.getId(),
-                                e.getEvaluatorName(),
-                                e.getScore(),
-                                e.getComment(),
-                                e.getResult().name(),
-                                e.getEvaluatedAt()
-                        ))
-                        .toList();
+    private InterviewResponse toInterviewResponse(Interview interview, List<Evaluation> evaluations) {
+        JobPostingStep step = interview.getJobPostingStep();
+
+        List<EvaluationResponse> evaluationResponses = evaluations.stream()
+                .map(evaluation -> {
+                    String evaluatorName = adminAccountRepository.findById(evaluation.getEvaluatorId())
+                            .map(AdminAccount::getDisplayName)
+                            .orElse("Unknown");
+                    return toEvaluationResponse(evaluation, evaluatorName);
+                })
+                .toList();
 
         return new InterviewResponse(
                 interview.getId(),
                 interview.getApplication().getId(),
-                interview.getInterviewType(),
+                step.getId(),
+                step.getTitle(),
+                step.getStepType(),
                 interview.getScheduledAt(),
-                interview.getDurationMinutes(),
-                interview.getLocation(),
-                interview.getOnlineLink(),
                 interview.getStatus(),
                 interview.getNote(),
                 interview.getCreatedAt(),
-                evaluators
+                interview.getUpdatedAt(),
+                evaluationResponses
+        );
+    }
+
+    private EvaluationResponse toEvaluationResponse(Evaluation evaluation, String evaluatorName) {
+        return new EvaluationResponse(
+                evaluation.getId(),
+                evaluation.getInterview().getId(),
+                evaluation.getEvaluatorId(),
+                evaluatorName,
+                evaluation.getScore(),
+                evaluation.getComment(),
+                evaluation.getResult(),
+                evaluation.getCreatedAt()
         );
     }
 }

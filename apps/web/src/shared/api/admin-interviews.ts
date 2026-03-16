@@ -1,10 +1,10 @@
 import "server-only";
 
 import type {
-  Interview,
-  ScheduleInterviewPayload,
-  SubmitEvaluationPayload,
-} from "@/entities/admin/interview-model";
+  EvaluationResult,
+  InterviewResponse,
+  InterviewStatus,
+} from "@/entities/recruitment/model";
 import {
   AdminApiError,
   getApiBaseUrl,
@@ -14,6 +14,7 @@ import {
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let message = `API request failed with status ${response.status}.`;
+
     try {
       const errorBody = (await response.json()) as {
         error?: string;
@@ -21,10 +22,12 @@ async function parseResponse<T>(response: Response): Promise<T> {
       };
       message = errorBody.message ?? errorBody.error ?? message;
     } catch {
-      // ignore
+      // Keep the default message when the response body is not JSON.
     }
+
     throw new AdminApiError(message, response.status);
   }
+
   return (await response.json()) as T;
 }
 
@@ -40,12 +43,17 @@ export async function getAdminInterviews(applicationId: number) {
       },
     },
   );
-  return parseResponse<Interview[]>(response);
+
+  return parseResponse<InterviewResponse[]>(response);
 }
 
-export async function scheduleInterview(
+export async function createInterview(
   applicationId: number,
-  payload: ScheduleInterviewPayload,
+  payload: {
+    jobPostingStepId: number;
+    scheduledAt?: string;
+    note?: string;
+  },
 ) {
   const sessionToken = await getRequiredAdminSessionToken();
   const response = await fetch(
@@ -61,78 +69,20 @@ export async function scheduleInterview(
       body: JSON.stringify(payload),
     },
   );
-  return parseResponse<Interview>(response);
+
+  return parseResponse<InterviewResponse>(response);
 }
 
-export async function updateInterviewStatus(
+export async function updateInterview(
   interviewId: number,
-  status: string,
+  payload: {
+    status: InterviewStatus;
+    note?: string;
+  },
 ) {
   const sessionToken = await getRequiredAdminSessionToken();
   const response = await fetch(
-    `${getApiBaseUrl()}/admin/interviews/${interviewId}/status`,
-    {
-      method: "PATCH",
-      cache: "no-store",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "X-Admin-Session": sessionToken,
-      },
-      body: JSON.stringify({ status }),
-    },
-  );
-  return parseResponse<Interview>(response);
-}
-
-export async function addInterviewEvaluator(
-  interviewId: number,
-  evaluatorName: string,
-) {
-  const sessionToken = await getRequiredAdminSessionToken();
-  const response = await fetch(
-    `${getApiBaseUrl()}/admin/interviews/${interviewId}/evaluators`,
-    {
-      method: "POST",
-      cache: "no-store",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "X-Admin-Session": sessionToken,
-      },
-      body: JSON.stringify({ evaluatorName }),
-    },
-  );
-  return parseResponse<Interview>(response);
-}
-
-export async function removeInterviewEvaluator(
-  interviewId: number,
-  evaluatorId: number,
-) {
-  const sessionToken = await getRequiredAdminSessionToken();
-  const response = await fetch(
-    `${getApiBaseUrl()}/admin/interviews/${interviewId}/evaluators/${evaluatorId}`,
-    {
-      method: "DELETE",
-      cache: "no-store",
-      headers: {
-        Accept: "application/json",
-        "X-Admin-Session": sessionToken,
-      },
-    },
-  );
-  return parseResponse<Interview>(response);
-}
-
-export async function submitEvaluation(
-  interviewId: number,
-  evaluatorId: number,
-  payload: SubmitEvaluationPayload,
-) {
-  const sessionToken = await getRequiredAdminSessionToken();
-  const response = await fetch(
-    `${getApiBaseUrl()}/admin/interviews/${interviewId}/evaluators/${evaluatorId}/score`,
+    `${getApiBaseUrl()}/admin/interviews/${interviewId}`,
     {
       method: "PATCH",
       cache: "no-store",
@@ -144,5 +94,32 @@ export async function submitEvaluation(
       body: JSON.stringify(payload),
     },
   );
-  return parseResponse<Interview>(response);
+
+  return parseResponse<InterviewResponse>(response);
+}
+
+export async function createEvaluation(
+  interviewId: number,
+  payload: {
+    score: number | null;
+    comment: string | null;
+    result: EvaluationResult;
+  },
+) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/interviews/${interviewId}/evaluations`,
+    {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  return parseResponse<InterviewResponse>(response);
 }

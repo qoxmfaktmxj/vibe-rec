@@ -11,15 +11,14 @@ import com.viberec.api.recruitment.application.repository.ApplicationRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationResumeRawRepository;
 import com.viberec.api.recruitment.application.service.ApplicationDraftService;
 import com.viberec.api.recruitment.application.web.SaveApplicationDraftRequest;
+import com.viberec.api.support.IntegrationTestBase;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 
-@SpringBootTest
-class AdminApplicantTests {
+class AdminApplicantTests extends IntegrationTestBase {
 
     @Autowired
     private AdminApplicantService adminApplicantService;

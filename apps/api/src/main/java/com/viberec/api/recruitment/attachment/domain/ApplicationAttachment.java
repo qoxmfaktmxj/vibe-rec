@@ -25,48 +25,40 @@ public class ApplicationAttachment {
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @Column(name = "original_filename", nullable = false, length = 255)
-    private String originalFilename;
+    @Column(name = "file_name", nullable = false, length = 255)
+    private String fileName;
 
-    @Column(name = "stored_filename", nullable = false, length = 255)
-    private String storedFilename;
+    @Column(name = "original_name", nullable = false, length = 255)
+    private String originalName;
 
-    @Column(name = "content_type", nullable = false, length = 120)
+    @Column(name = "content_type", nullable = false, length = 100)
     private String contentType;
 
-    @Column(name = "file_size_bytes", nullable = false)
-    private long fileSizeBytes;
+    @Column(name = "file_size", nullable = false)
+    private long fileSize;
 
     @Column(name = "storage_path", nullable = false, columnDefinition = "text")
     private String storagePath;
 
-    @Column(name = "uploaded_at", nullable = false)
-    private OffsetDateTime uploadedAt;
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
 
     protected ApplicationAttachment() {
     }
 
-    public ApplicationAttachment(
-            Application application,
-            String originalFilename,
-            String storedFilename,
-            String contentType,
-            long fileSizeBytes,
-            String storagePath
-    ) {
+    public ApplicationAttachment(Application application, String fileName, String originalName,
+                                  String contentType, long fileSize, String storagePath) {
         this.application = application;
-        this.originalFilename = originalFilename;
-        this.storedFilename = storedFilename;
+        this.fileName = fileName;
+        this.originalName = originalName;
         this.contentType = contentType;
-        this.fileSizeBytes = fileSizeBytes;
+        this.fileSize = fileSize;
         this.storagePath = storagePath;
     }
 
     @PrePersist
     void onCreate() {
-        if (uploadedAt == null) {
-            uploadedAt = OffsetDateTime.now();
-        }
+        createdAt = OffsetDateTime.now();
     }
 
     public Long getId() {
@@ -77,27 +69,27 @@ public class ApplicationAttachment {
         return application;
     }
 
-    public String getOriginalFilename() {
-        return originalFilename;
+    public String getFileName() {
+        return fileName;
     }
 
-    public String getStoredFilename() {
-        return storedFilename;
+    public String getOriginalName() {
+        return originalName;
     }
 
     public String getContentType() {
         return contentType;
     }
 
-    public long getFileSizeBytes() {
-        return fileSizeBytes;
+    public long getFileSize() {
+        return fileSize;
     }
 
     public String getStoragePath() {
         return storagePath;
     }
 
-    public OffsetDateTime getUploadedAt() {
-        return uploadedAt;
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 }

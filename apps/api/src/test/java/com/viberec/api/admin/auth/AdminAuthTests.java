@@ -7,14 +7,13 @@ import com.viberec.api.admin.auth.repository.AdminAccountRepository;
 import com.viberec.api.admin.auth.repository.AdminSessionRepository;
 import com.viberec.api.admin.auth.service.AdminAuthService;
 import com.viberec.api.admin.auth.web.AdminLoginRequest;
+import com.viberec.api.support.IntegrationTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 
-@SpringBootTest
-class AdminAuthTests {
+class AdminAuthTests extends IntegrationTestBase {
 
     @Autowired
     private AdminAccountRepository adminAccountRepository;

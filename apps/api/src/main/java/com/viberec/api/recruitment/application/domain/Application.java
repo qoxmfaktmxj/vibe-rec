@@ -51,6 +51,25 @@ public class Application {
     @Column(name = "reviewed_at")
     private OffsetDateTime reviewedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "final_status", length = 20)
+    private ApplicationFinalStatus finalStatus;
+
+    @Column(name = "final_decided_at")
+    private OffsetDateTime finalDecidedAt;
+
+    @Column(name = "final_note", columnDefinition = "text")
+    private String finalNote;
+
+    @Column(columnDefinition = "text")
+    private String introduction;
+
+    @Column(name = "core_strength", columnDefinition = "text")
+    private String coreStrength;
+
+    @Column(name = "career_years")
+    private Integer careerYears;
+
     @Column(name = "draft_saved_at", nullable = false)
     private OffsetDateTime draftSavedAt;
 
@@ -157,7 +176,43 @@ public class Application {
         return reviewedAt;
     }
 
+    public void updateFinalStatus(ApplicationFinalStatus status, String note) {
+        this.finalStatus = status;
+        this.finalNote = note;
+        this.finalDecidedAt = OffsetDateTime.now();
+    }
+
     public boolean isSubmitted() {
         return status == ApplicationStatus.SUBMITTED;
+    }
+
+    public ApplicationFinalStatus getFinalStatus() {
+        return finalStatus;
+    }
+
+    public OffsetDateTime getFinalDecidedAt() {
+        return finalDecidedAt;
+    }
+
+    public String getFinalNote() {
+        return finalNote;
+    }
+
+    public void updateNormalizedFields(String introduction, String coreStrength, Integer careerYears) {
+        this.introduction = introduction;
+        this.coreStrength = coreStrength;
+        this.careerYears = careerYears;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public String getCoreStrength() {
+        return coreStrength;
+    }
+
+    public Integer getCareerYears() {
+        return careerYears;
     }
 }
