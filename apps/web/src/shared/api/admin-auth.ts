@@ -51,7 +51,7 @@ async function parseAdminResponse<T>(response: Response) {
 }
 
 export async function loginAdmin(payload: AdminLoginPayload) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/admin/auth/login`, {
+  const response = await fetch(`${getApiBaseUrl()}/admin/auth/login`, {
     method: "POST",
     cache: "no-store",
     headers: {
@@ -65,7 +65,7 @@ export async function loginAdmin(payload: AdminLoginPayload) {
 }
 
 export async function getAdminSession(sessionToken: string) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/admin/auth/session`, {
+  const response = await fetch(`${getApiBaseUrl()}/admin/auth/session`, {
     cache: "no-store",
     headers: {
       Accept: "application/json",
@@ -77,7 +77,7 @@ export async function getAdminSession(sessionToken: string) {
 }
 
 export async function logoutAdmin(sessionToken: string) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/admin/auth/logout`, {
+  const response = await fetch(`${getApiBaseUrl()}/admin/auth/logout`, {
     method: "POST",
     cache: "no-store",
     headers: {

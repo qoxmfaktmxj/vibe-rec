@@ -27,8 +27,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
               and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
               and (
                     :query is null
-                    or lower(application.applicantName) like lower(concat('%', :query, '%'))
-                    or lower(application.applicantEmail) like lower(concat('%', :query, '%'))
+                    or lower(application.applicantName) like lower(concat('%', cast(:query as string), '%'))
+                    or lower(application.applicantEmail) like lower(concat('%', cast(:query as string), '%'))
                   )
             order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
             """)

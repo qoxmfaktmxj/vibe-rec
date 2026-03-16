@@ -62,11 +62,11 @@ async function apiFetch<T>(path: string, init?: RequestInit) {
 }
 
 export async function getJobPostings() {
-  return apiFetch<JobPostingSummary[]>("/v1/job-postings");
+  return apiFetch<JobPostingSummary[]>("/job-postings");
 }
 
 export async function getJobPosting(id: number) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/job-postings/${id}`, {
+  const response = await fetch(`${getApiBaseUrl()}/job-postings/${id}`, {
     cache: "no-store",
     headers: {
       Accept: "application/json",
@@ -85,7 +85,7 @@ export async function saveApplicationDraft(
   payload: SaveApplicationDraftPayload,
 ) {
   return apiFetch<ApplicationDraftResponse>(
-    `/v1/job-postings/${jobPostingId}/application-draft`,
+    `/job-postings/${jobPostingId}/application-draft`,
     {
       method: "POST",
       headers: {
@@ -101,7 +101,7 @@ export async function submitApplication(
   payload: SaveApplicationDraftPayload,
 ) {
   return apiFetch<ApplicationDraftResponse>(
-    `/v1/job-postings/${jobPostingId}/application-submit`,
+    `/job-postings/${jobPostingId}/application-submit`,
     {
       method: "POST",
       headers: {

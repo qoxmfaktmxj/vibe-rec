@@ -58,7 +58,7 @@ function buildApplicantsQuery(filters: AdminApplicantFilters) {
 export async function getAdminApplicants(filters: AdminApplicantFilters) {
   const sessionToken = await getRequiredAdminSessionToken();
   const response = await fetch(
-    `${getApiBaseUrl()}/v1/admin/applicants${buildApplicantsQuery(filters)}`,
+    `${getApiBaseUrl()}/admin/applicants${buildApplicantsQuery(filters)}`,
     {
       cache: "no-store",
       headers: {
@@ -74,7 +74,7 @@ export async function getAdminApplicants(filters: AdminApplicantFilters) {
 export async function getAdminApplicant(applicationId: number) {
   const sessionToken = await getRequiredAdminSessionToken();
   const response = await fetch(
-    `${getApiBaseUrl()}/v1/admin/applicants/${applicationId}`,
+    `${getApiBaseUrl()}/admin/applicants/${applicationId}`,
     {
       cache: "no-store",
       headers: {
@@ -97,7 +97,7 @@ export async function updateAdminApplicantReviewStatus(
 ) {
   const sessionToken = await getRequiredAdminSessionToken();
   const response = await fetch(
-    `${getApiBaseUrl()}/v1/admin/applicants/${applicationId}/review-status`,
+    `${getApiBaseUrl()}/admin/applicants/${applicationId}/review-status`,
     {
       method: "PATCH",
       cache: "no-store",
