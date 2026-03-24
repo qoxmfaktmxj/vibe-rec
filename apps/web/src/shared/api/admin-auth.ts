@@ -9,7 +9,7 @@ import type {
 } from "@/entities/admin/model";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
 
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8080/api";
+const DEFAULT_API_BASE_URL = "http://127.0.0.1:8081/api";
 
 export class AdminApiError extends Error {
   constructor(

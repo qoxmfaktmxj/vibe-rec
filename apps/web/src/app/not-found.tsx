@@ -24,10 +24,10 @@ export default function NotFound() {
         </p>
         <div className="space-y-3">
           <h1 className="font-headline text-3xl font-medium tracking-[-0.05em] text-on-surface">
-            Page Not Found
+            페이지를 찾을 수 없습니다
           </h1>
           <p className="max-w-lg text-sm leading-7 text-on-surface-variant">
-            The page you are looking for does not exist or has been moved.
+            요청하신 페이지가 없거나 이동되었습니다.
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -35,13 +35,13 @@ export default function NotFound() {
             href="/"
             className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
           >
-            Back to Home
+            홈으로 이동
           </Link>
           <Link
             href="/"
             className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
           >
-            Browse Jobs
+            공고 보기
           </Link>
         </div>
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-on-surface-variant">

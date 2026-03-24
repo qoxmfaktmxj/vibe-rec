@@ -20,11 +20,10 @@ export default async function LoginPage() {
           </p>
           <div className="space-y-2">
             <h1 className="font-headline text-3xl font-light tracking-[-0.05em] text-on-surface">
-              Sign in to continue.
+              로그인 후 계속 진행하세요.
             </h1>
             <p className="text-sm leading-7 text-on-surface-variant">
-              Access the recruiting workspace, review applicants, and manage
-              workflow decisions.
+              채용 운영 화면에 로그인해서 지원자 검토와 진행 상태를 관리하세요.
             </p>
           </div>
         </div>
@@ -35,9 +34,9 @@ export default async function LoginPage() {
 
         <div className="mt-8 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
           <Link href="/" className="transition-colors hover:text-primary">
-            Back to Home
+            홈으로 돌아가기
           </Link>
-          <span>Secure access</span>
+          <span>보안 접속</span>
         </div>
       </div>
     </main>

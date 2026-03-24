@@ -44,7 +44,7 @@ export default async function JobPostingDetailPage({
             href="/"
             className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
           >
-            Back to listings
+            공고 목록으로
           </Link>
         </div>
       </nav>

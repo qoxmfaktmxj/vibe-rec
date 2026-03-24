@@ -36,7 +36,7 @@ export default async function AdminApplicantsPage({
 
   const [applicants, jobPostings] = await Promise.all([
     getAdminApplicants(normalizedFilters),
-    getJobPostings(),
+    getJobPostings().catch(() => []),
   ]);
 
   return (
@@ -44,17 +44,17 @@ export default async function AdminApplicantsPage({
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
         <form className="rounded-sm border border-outline-variant bg-card p-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            Filters
+            필터
           </p>
           <div className="mt-5 grid gap-4">
             <label className="text-sm text-on-surface-variant">
-              Job posting
+              공고
               <select
                 name="jobPostingId"
                 defaultValue={normalizedFilters.jobPostingId?.toString() ?? ""}
                 className={selectClassName}
               >
-                <option value="">All</option>
+                <option value="">전체</option>
                 {jobPostings.map((jobPosting) => (
                   <option key={jobPosting.id} value={jobPosting.id}>
                     {jobPosting.title}
@@ -64,26 +64,26 @@ export default async function AdminApplicantsPage({
             </label>
 
             <label className="text-sm text-on-surface-variant">
-              Application
+              지원 상태
               <select
                 name="applicationStatus"
                 defaultValue={normalizedFilters.applicationStatus ?? ""}
                 className={selectClassName}
               >
-                <option value="">All</option>
+                <option value="">전체</option>
                 <option value="DRAFT">DRAFT</option>
                 <option value="SUBMITTED">SUBMITTED</option>
               </select>
             </label>
 
             <label className="text-sm text-on-surface-variant">
-              Review
+              검토 상태
               <select
                 name="reviewStatus"
                 defaultValue={normalizedFilters.reviewStatus ?? ""}
                 className={selectClassName}
               >
-                <option value="">All</option>
+                <option value="">전체</option>
                 <option value="NEW">NEW</option>
                 <option value="IN_REVIEW">IN_REVIEW</option>
                 <option value="PASSED">PASSED</option>
@@ -92,12 +92,12 @@ export default async function AdminApplicantsPage({
             </label>
 
             <label className="text-sm text-on-surface-variant">
-              Search
+              검색
               <input
                 name="query"
                 defaultValue={normalizedFilters.query ?? ""}
                 className="mt-2 w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary"
-                placeholder="name or email"
+                placeholder="이름 또는 이메일"
               />
             </label>
           </div>
@@ -107,13 +107,13 @@ export default async function AdminApplicantsPage({
               type="submit"
               className="rounded-sm bg-primary px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground"
             >
-              Apply
+              적용
             </button>
             <Link
               href="/admin/applicants"
               className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
             >
-              Reset
+              초기화
             </Link>
           </div>
         </form>
@@ -121,10 +121,10 @@ export default async function AdminApplicantsPage({
         <div className="space-y-4">
           <div className="rounded-sm border border-outline-variant bg-card px-6 py-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-              Applicants
+              지원자
             </p>
             <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
-              Review the current pipeline at a glance.
+              현재 지원 파이프라인을 한눈에 확인하세요.
             </h1>
           </div>
           <AdminApplicantTable applicants={applicants} />

@@ -16,10 +16,10 @@ const reviewOptions: Array<{
   value: ApplicationReviewStatus;
   label: string;
 }> = [
-  { value: "NEW", label: "NEW" },
-  { value: "IN_REVIEW", label: "IN_REVIEW" },
-  { value: "PASSED", label: "PASSED" },
-  { value: "REJECTED", label: "REJECTED" },
+  { value: "NEW", label: "신규" },
+  { value: "IN_REVIEW", label: "검토 중" },
+  { value: "PASSED", label: "통과" },
+  { value: "REJECTED", label: "불합격" },
 ];
 
 const inputClassName =
@@ -63,15 +63,15 @@ export function ApplicantReviewForm({
           const body = (await response.json()) as { message?: string };
           if (!response.ok) {
             setIsError(true);
-            setMessage(body.message ?? "Unable to update review status.");
+            setMessage(body.message ?? "검토 상태를 업데이트하지 못했습니다.");
             return;
           }
 
-          setMessage("Review status updated.");
+          setMessage("검토 상태를 업데이트했습니다.");
           router.refresh();
         } catch {
           setIsError(true);
-          setMessage("A network error occurred while updating review status.");
+          setMessage("검토 상태 저장 중 네트워크 오류가 발생했습니다.");
         } finally {
           setIsPending(false);
         }
@@ -85,13 +85,13 @@ export function ApplicantReviewForm({
       className="rounded-sm border border-outline-variant bg-card p-7"
     >
       <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-        Review
+        검토
       </p>
       <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-        Recruiting decision
+        채용 검토 결정
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-        Move the application through the current review rule:
+        현재 검토 규칙에 따라 지원 상태를 이동합니다:
         <code className="ml-2 rounded-sm bg-surface-container-low px-2 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-on-surface">
           NEW → IN_REVIEW → PASSED/REJECTED
         </code>
@@ -111,7 +111,7 @@ export function ApplicantReviewForm({
 
       <div className="mt-6 space-y-5">
         <label className="block text-sm text-on-surface-variant">
-          Review status
+          검토 상태
           <select
             value={reviewStatus}
             onChange={(event) =>
@@ -129,14 +129,14 @@ export function ApplicantReviewForm({
         </label>
 
         <label className="block text-sm text-on-surface-variant">
-          Notes
+          메모
           <textarea
             rows={5}
             value={reviewNote}
             onChange={(event) => setReviewNote(event.target.value)}
             disabled={isPending}
             className={`${inputClassName} resize-y`}
-            placeholder="Leave a concise note for the next reviewer."
+            placeholder="다음 검토자를 위한 간단한 메모를 남겨 주세요."
           />
         </label>
       </div>
@@ -146,7 +146,7 @@ export function ApplicantReviewForm({
         disabled={isPending}
         className="mt-6 inline-flex w-full items-center justify-center rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isPending ? "Saving..." : "Save review"}
+        {isPending ? "저장 중..." : "검토 저장"}
       </button>
     </form>
   );

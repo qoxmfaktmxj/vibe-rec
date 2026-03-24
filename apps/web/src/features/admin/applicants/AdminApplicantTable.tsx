@@ -13,7 +13,7 @@ export function AdminApplicantTable({
   if (applicants.length === 0) {
     return (
       <section className="rounded-sm border border-outline-variant bg-card p-10 text-center text-sm text-on-surface-variant">
-        No applicants matched the current filters.
+        현재 필터 조건에 맞는 지원자가 없습니다.
       </section>
     );
   }
@@ -24,12 +24,12 @@ export function AdminApplicantTable({
         <table className="min-w-full border-collapse text-left text-sm">
           <thead className="border-b border-outline-variant bg-surface-container-low">
             <tr className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
-              <th className="px-6 py-4 font-medium">Applicant</th>
-              <th className="px-6 py-4 font-medium">Role</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium">Review</th>
-              <th className="px-6 py-4 font-medium">Updated</th>
-              <th className="px-6 py-4 font-medium">Open</th>
+              <th className="px-6 py-4 font-medium">지원자</th>
+              <th className="px-6 py-4 font-medium">공고</th>
+              <th className="px-6 py-4 font-medium">상태</th>
+              <th className="px-6 py-4 font-medium">검토</th>
+              <th className="px-6 py-4 font-medium">갱신 시각</th>
+              <th className="px-6 py-4 font-medium">열기</th>
             </tr>
           </thead>
           <tbody>
@@ -68,7 +68,7 @@ export function AdminApplicantTable({
                     href={`/admin/applicants/${applicant.applicationId}`}
                     className="inline-flex rounded-sm border border-on-surface px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    View
+                    보기
                   </Link>
                 </td>
               </tr>

@@ -7,7 +7,7 @@ import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 const navItems = [
   {
     href: "/admin",
-    label: "Dashboard",
+    label: "대시보드",
     icon: (
       <path
         strokeLinecap="round"
@@ -18,7 +18,7 @@ const navItems = [
   },
   {
     href: "/admin/applicants",
-    label: "Applicants",
+    label: "지원자",
     icon: (
       <path
         strokeLinecap="round"
@@ -29,7 +29,7 @@ const navItems = [
   },
   {
     href: "/",
-    label: "Public",
+    label: "공개 사이트",
     icon: (
       <path
         strokeLinecap="round"
@@ -92,7 +92,7 @@ export default async function AdminLayout({
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-                Recruiting Workspace
+                채용 운영 공간
               </p>
               <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
                 {session.displayName}
@@ -104,7 +104,7 @@ export default async function AdminLayout({
                   {session.role}
                 </p>
                 <p className="text-sm text-on-surface-variant">
-                  Admin session active
+                  관리자 세션 활성
                 </p>
               </div>
               <AdminLogoutButton />

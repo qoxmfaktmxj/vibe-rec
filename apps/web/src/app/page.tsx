@@ -4,9 +4,9 @@ import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingLi
 import { getJobPostings } from "@/shared/api/recruitment";
 
 const navLinks = [
-  { href: "#positions", label: "Job Postings" },
-  { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: "#positions", label: "채용 공고" },
+  { href: "#about", label: "소개" },
+  { href: "#contact", label: "문의" },
 ];
 
 export default async function Home() {
@@ -39,7 +39,7 @@ export default async function Home() {
               href="/login"
               className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
-              Login
+              로그인
             </Link>
           </div>
         </div>
@@ -49,22 +49,22 @@ export default async function Home() {
         <section className="border-b border-outline-variant bg-[#fdf2f8] px-6 py-24 md:px-16">
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
             <span className="font-mono text-xs uppercase tracking-[0.28em] text-on-surface-variant">
-              {openJobPostingCount} active roles
+              현재 모집 중인 공고 {openJobPostingCount}건
             </span>
             <h1 className="max-w-4xl font-headline text-5xl font-light leading-[1.08] tracking-[-0.06em] text-primary md:text-7xl">
-              Connecting Talent
+              사람과 기회를
               <br />
-              with Opportunity
+              더 정확하게 연결합니다
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant md:text-base">
-              Discover your next career move with Vibe Rec, where precise
-              hiring operations meet a calmer candidate experience.
+              Vibe Rec은 채용 운영의 정확함과 지원 경험의 편안함을 함께
+              가져가는 한글 채용 홈페이지입니다.
             </p>
             <Link
               href="#positions"
               className="rounded-sm bg-primary px-8 py-3 text-xs font-medium uppercase tracking-[0.24em] text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
-              Browse Jobs
+              공고 보기
             </Link>
           </div>
         </section>
@@ -82,16 +82,15 @@ export default async function Home() {
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
-                Featured Positions
+                주요 공고
               </p>
               <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
-                A tighter shortlist of roles worth your time.
+                지금 바로 검토해볼 만한 공고를 모았습니다.
               </h2>
             </div>
             <p className="hidden max-w-sm text-sm leading-7 text-on-surface-variant lg:block">
-              The Penpot direction is quiet and editorial, so the list leans on
-              mono metadata, thin borders, and strong hierarchy instead of loud
-              decoration.
+              차분한 편집형 레이아웃과 얇은 보더, 모노 메타데이터를 중심으로
+              정보가 먼저 보이도록 정리했습니다.
             </p>
           </div>
           <JobPostingList jobPostings={jobPostings} />
@@ -104,16 +103,16 @@ export default async function Home() {
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.2fr_0.8fr]">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
-                About
+                소개
               </p>
               <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
-                Designed to feel human, operational, and precise.
+                사람 중심이면서도 운영 친화적으로 설계했습니다.
               </h2>
             </div>
             <p className="text-sm leading-7 text-on-surface-variant">
-              Vibe Rec now borrows the Penpot file&apos;s cream surfaces, plum
-              accents, and cleaner spacing rhythm to feel more like a refined
-              hiring workspace than a generic SaaS landing page.
+              이번 리디자인은 Penpot 시안의 크림 톤 배경, 와인 계열 포인트,
+              정리된 여백 리듬을 가져와 범용 SaaS가 아니라 채용 업무용 화면처럼
+              보이도록 조정했습니다.
             </p>
           </div>
         </section>
@@ -126,9 +125,9 @@ export default async function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-4 text-[11px] text-on-surface-variant md:flex-row md:items-center md:justify-between">
           <p>© 2026 Vibe Rec. All rights reserved.</p>
           <div className="flex gap-6">
-            <span>Privacy Policy</span>
-            <span>Terms of Service</span>
-            <span>Contact</span>
+            <span>개인정보 처리방침</span>
+            <span>이용약관</span>
+            <span>문의</span>
           </div>
         </div>
       </footer>

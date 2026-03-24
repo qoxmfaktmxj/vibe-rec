@@ -32,11 +32,11 @@ export default function Error({
         </p>
         <div className="space-y-3">
           <h1 className="font-headline text-3xl font-medium tracking-[-0.05em] text-on-surface">
-            Something Went Wrong
+            문제가 발생했습니다
           </h1>
           <p className="max-w-xl text-sm leading-7 text-on-surface-variant">
             {error.message ||
-              "An unexpected error occurred. Please try again or contact support if the problem persists."}
+              "예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -45,13 +45,13 @@ export default function Error({
             onClick={() => reset()}
             className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
           >
-            Try Again
+            다시 시도
           </button>
           <Link
             href="/"
             className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
           >
-            Back to Home
+            홈으로 이동
           </Link>
         </div>
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-on-surface-variant">
