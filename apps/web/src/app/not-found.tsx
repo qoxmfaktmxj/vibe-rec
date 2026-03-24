@@ -3,14 +3,14 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="ambient-shadow w-full max-w-xl rounded-xl bg-surface-container-lowest p-10 text-center">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-surface-container-high">
+      <div className="flex max-w-2xl flex-col items-center gap-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-outline-variant bg-surface-container-low">
           <svg
             className="h-7 w-7 text-outline"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={1.8}
           >
             <path
               strokeLinecap="round"
@@ -19,18 +19,34 @@ export default function NotFound() {
             />
           </svg>
         </div>
-        <h1 className="font-headline text-3xl font-bold text-on-surface">
-          페이지를 찾을 수 없습니다
-        </h1>
-        <p className="mt-4 text-sm leading-7 text-on-surface-variant">
-          존재하지 않거나 아직 게시되지 않은 페이지입니다.
+        <p className="font-headline text-6xl font-light tracking-[-0.08em] text-on-surface">
+          404
         </p>
-        <Link
-          href="/"
-          className="mt-8 inline-flex items-center justify-center rounded-lg bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0"
-        >
-          채용 공고로 이동
-        </Link>
+        <div className="space-y-3">
+          <h1 className="font-headline text-3xl font-medium tracking-[-0.05em] text-on-surface">
+            Page Not Found
+          </h1>
+          <p className="max-w-lg text-sm leading-7 text-on-surface-variant">
+            The page you are looking for does not exist or has been moved.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/"
+            className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+          >
+            Back to Home
+          </Link>
+          <Link
+            href="/"
+            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
+          >
+            Browse Jobs
+          </Link>
+        </div>
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-on-surface-variant">
+          Vibe Rec
+        </p>
       </div>
     </main>
   );

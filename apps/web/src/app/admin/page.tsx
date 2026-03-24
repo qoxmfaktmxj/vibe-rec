@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { getJobPostings } from "@/shared/api/recruitment";
-import { getJobPostingStatusLabel } from "@/shared/lib/recruitment";
 
 export default async function AdminPage() {
   const jobPostings = await getJobPostings();
@@ -11,107 +10,81 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8">
-      {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-6">
-          <p className="text-sm font-semibold text-on-surface-variant">
-            전체 공고
-          </p>
-          <p className="mt-2 font-headline text-4xl font-bold text-primary">
-            {jobPostings.length}
-          </p>
-        </div>
-        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-6">
-          <p className="text-sm font-semibold text-on-surface-variant">
-            모집 중
-          </p>
-          <p className="mt-2 font-headline text-4xl font-bold text-secondary">
-            {openJobPostingCount}
-          </p>
-        </div>
-        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-6 sm:col-span-2">
-          <p className="text-sm font-semibold text-on-surface-variant">
-            빠른 실행
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link
-              href="/admin/applicants"
-              className="rounded-lg bg-gradient-primary px-5 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10"
-            >
-              지원자 관리
-            </Link>
-            <Link
-              href="/"
-              className="rounded-lg bg-surface-container-high px-5 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
-            >
-              공개 사이트 보기
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress & Snapshot */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <h2 className="font-headline text-2xl font-bold text-on-surface">
-            마이그레이션 현황
-          </h2>
-          <div className="mt-6 space-y-3 text-sm leading-7 text-on-surface-variant">
-            <p className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
-                &#10003;
-              </span>
-              기반 구축, 공고 조회, 임시저장
+      <section className="rounded-sm border border-outline-variant bg-card p-8">
+        <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+          Dashboard
+        </p>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <div className="rounded-sm border border-outline-variant bg-surface-container-low px-5 py-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+              Total postings
             </p>
-            <p className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
-                &#10003;
-              </span>
-              관리자 로그인, 보호된 어드민 영역
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
-                &#10003;
-              </span>
-              최종 제출 흐름 및 지원 상태 규칙
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-xs text-secondary">
-                &#10003;
-              </span>
-              지원자 관리 및 검토 기능
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-surface-container-high text-xs text-outline">
-                &rarr;
-              </span>
-              파일 업로드, 정규화된 이력서, 면접 워크플로우
+            <p className="mt-3 font-headline text-4xl font-light tracking-[-0.06em] text-on-surface">
+              {jobPostings.length}
             </p>
           </div>
-        </section>
-
-        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <h2 className="font-headline text-2xl font-bold text-on-surface">
-            공고 현황
-          </h2>
-          <div className="mt-6 space-y-4">
-            {jobPostings.map((jobPosting) => (
-              <div
-                key={jobPosting.id}
-                className="rounded-lg bg-surface-container-low px-5 py-4"
+          <div className="rounded-sm border border-outline-variant bg-surface-container-low px-5 py-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+              Open roles
+            </p>
+            <p className="mt-3 font-headline text-4xl font-light tracking-[-0.06em] text-primary">
+              {openJobPostingCount}
+            </p>
+          </div>
+          <div className="rounded-sm border border-outline-variant bg-surface-container-low px-5 py-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+              Quick actions
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                href="/admin/applicants"
+                className="rounded-sm bg-primary px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground"
               >
-                <p className="font-headline font-bold text-on-surface">
+                View applicants
+              </Link>
+              <Link
+                href="/"
+                className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+              >
+                Public site
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-sm border border-outline-variant bg-card p-8">
+        <div className="flex items-end justify-between gap-6 border-b border-outline-variant pb-5">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+              Snapshot
+            </p>
+            <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+              Current postings
+            </h2>
+          </div>
+        </div>
+        <div className="mt-6 grid gap-3">
+          {jobPostings.map((jobPosting) => (
+            <div
+              key={jobPosting.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-outline-variant bg-surface-container-low px-5 py-4"
+            >
+              <div>
+                <p className="font-headline text-lg font-medium tracking-[-0.03em] text-on-surface">
                   {jobPosting.title}
                 </p>
-                <p className="mt-1 text-sm text-on-surface-variant">
-                  {getJobPostingStatusLabel(jobPosting.status)} &bull;{" "}
-                  {jobPosting.stepCount}단계
+                <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+                  {jobPosting.location} · {jobPosting.stepCount} steps
                 </p>
               </div>
-            ))}
-          </div>
-        </section>
-      </div>
+              <span className="rounded-sm bg-primary-container px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-primary">
+                {jobPosting.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

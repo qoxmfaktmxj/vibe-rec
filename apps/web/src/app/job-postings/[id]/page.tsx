@@ -32,38 +32,24 @@ export default async function JobPostingDetailPage({
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
-      {/* Nav */}
-      <nav className="glass-nav sticky top-0 z-50 flex items-center justify-between border-b border-outline-variant/15 px-8 py-4">
-        <div className="flex items-center gap-12">
+      <nav className="glass-nav sticky top-0 z-50 border-b border-outline-variant px-6 py-4 md:px-16">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
           <Link
             href="/"
-            className="font-headline text-2xl font-extrabold tracking-tight text-primary"
+            className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
           >
             Vibe Rec
           </Link>
-        </div>
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-medium text-on-surface-variant transition-colors hover:text-primary"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
+          <Link
+            href="/"
+            className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          목록으로
-        </Link>
+            Back to listings
+          </Link>
+        </div>
       </nav>
 
-      <main className="mx-auto max-w-7xl px-8 py-10">
+      <main className="mx-auto max-w-7xl px-6 py-10 md:px-16">
         <JobPostingDetailView
           jobPosting={jobPosting}
           applicationSlot={

@@ -4,7 +4,7 @@ import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const inputClassName =
-  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-4 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -108,7 +108,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-gradient-primary py-4 font-bold text-white shadow-xl shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-sm bg-primary py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "로그인 중..." : "로그인"}
       </button>

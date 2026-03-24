@@ -3,8 +3,6 @@ import type { ReactNode } from "react";
 import type { JobPostingDetail } from "@/entities/recruitment/model";
 import {
   formatDateRange,
-  getJobPostingStatusClassName,
-  getJobPostingStatusLabel,
   getStepTypeLabel,
 } from "@/shared/lib/recruitment";
 
@@ -18,113 +16,75 @@ export function JobPostingDetailView({
   applicationSlot,
 }: JobPostingDetailViewProps) {
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.35fr_0.9fr]">
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_420px]">
       <div className="space-y-8">
-        {/* Header */}
-        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <div className="flex flex-wrap items-center gap-3">
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getJobPostingStatusClassName(jobPosting.status)}`}
-            >
-              {getJobPostingStatusLabel(jobPosting.status)}
-            </span>
-            <span className="text-xs font-medium uppercase tracking-widest text-outline">
-              {jobPosting.publicKey}
-            </span>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            <h1 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
-              {jobPosting.title}
-            </h1>
-            <p className="max-w-3xl text-lg leading-relaxed text-on-surface-variant">
-              {jobPosting.headline}
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 rounded-xl bg-surface-container-low px-6 py-5 text-sm md:grid-cols-3">
+        <section className="rounded-sm border border-outline-variant bg-card p-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant pb-5">
             <div>
-              <dt className="font-semibold text-on-surface-variant">
-                고용 형태
-              </dt>
-              <dd className="mt-1 font-medium text-on-surface">
-                {jobPosting.employmentType}
-              </dd>
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+                {jobPosting.publicKey}
+              </p>
+              <h1 className="mt-3 font-headline text-4xl font-medium tracking-[-0.05em] text-on-surface">
+                {jobPosting.title}
+              </h1>
             </div>
-            <div>
-              <dt className="font-semibold text-on-surface-variant">
-                근무지
-              </dt>
-              <dd className="mt-1 font-medium text-on-surface">
-                {jobPosting.location}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-on-surface-variant">
-                지원 기간
-              </dt>
-              <dd className="mt-1 font-medium text-on-surface">
-                {formatDateRange(jobPosting.opensAt, jobPosting.closesAt)}
-              </dd>
+            <div className="space-y-1 text-right font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+              <p>{jobPosting.employmentType}</p>
+              <p>{jobPosting.location}</p>
+              <p>{formatDateRange(jobPosting.opensAt, jobPosting.closesAt)}</p>
             </div>
           </div>
-        </section>
-
-        {/* Description */}
-        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <h2 className="font-headline text-2xl font-bold text-on-surface">
-            직무 소개
-          </h2>
-          <p className="mt-4 whitespace-pre-line text-sm leading-8 text-on-surface-variant md:text-base">
+          <p className="mt-6 text-base leading-8 text-on-surface-variant">
+            {jobPosting.headline}
+          </p>
+          <p className="mt-6 whitespace-pre-line text-sm leading-8 text-on-surface-variant">
             {jobPosting.description}
           </p>
         </section>
 
-        {/* Steps */}
-        <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="font-headline text-2xl font-bold text-on-surface">
-              채용 단계
-            </h2>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              {jobPosting.steps.length}단계
+        <section className="rounded-sm border border-outline-variant bg-card p-8">
+          <div className="flex items-center justify-between gap-4 border-b border-outline-variant pb-5">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+                Process
+              </p>
+              <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+                Hiring steps
+              </h2>
+            </div>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+              {jobPosting.steps.length} stages
             </span>
           </div>
-
           <ol className="mt-6 space-y-4">
             {jobPosting.steps.map((step) => (
               <li
                 key={`${jobPosting.id}-${step.stepOrder}`}
-                className="grid gap-4 rounded-xl bg-surface-container-low px-6 py-5 md:grid-cols-[84px_1fr]"
+                className="rounded-sm border border-outline-variant bg-surface-container-low px-5 py-5"
               >
-                <div className="flex items-center gap-3 md:block">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 font-headline font-bold text-primary">
-                    {step.stepOrder}
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="space-y-2">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
+                      Step {step.stepOrder} · {getStepTypeLabel(step.stepType)}
+                    </p>
+                    <h3 className="font-headline text-lg font-medium tracking-[-0.03em] text-on-surface">
+                      {step.title}
+                    </h3>
                   </div>
-                  <span className="mt-1 text-xs font-semibold uppercase tracking-wider text-outline">
-                    {getStepTypeLabel(step.stepType)}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-headline text-lg font-bold text-on-surface">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-7 text-on-surface-variant">
-                    {step.description}
-                  </p>
-                  <p className="mt-3 text-xs text-outline">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
                     {formatDateRange(step.startsAt, step.endsAt)}
                   </p>
                 </div>
+                <p className="mt-4 text-sm leading-7 text-on-surface-variant">
+                  {step.description}
+                </p>
               </li>
             ))}
           </ol>
         </section>
       </div>
 
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        {applicationSlot}
-      </aside>
+      <aside className="lg:sticky lg:top-20 lg:self-start">{applicationSlot}</aside>
     </div>
   );
 }

@@ -1,171 +1,134 @@
 import Link from "next/link";
 
 import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
-import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 
+const navLinks = [
+  { href: "#positions", label: "Job Postings" },
+  { href: "#about", label: "About" },
+  { href: "#contact", label: "Contact" },
+];
+
 export default async function Home() {
-  const [jobPostings, session] = await Promise.all([
-    getJobPostings(),
-    getCurrentAdminSession(),
-  ]);
+  const jobPostings = await getJobPostings().catch(() => []);
   const openJobPostingCount = jobPostings.filter(
     (jobPosting) => jobPosting.status === "OPEN",
   ).length;
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
-      {/* Nav */}
-      <nav className="glass-nav sticky top-0 z-50 flex items-center justify-between border-b border-outline-variant/15 px-8 py-4">
-        <div className="flex items-center gap-12">
-          <span className="font-headline text-2xl font-extrabold tracking-tight text-primary">
+      <nav className="glass-nav sticky top-0 z-50 border-b border-outline-variant px-6 py-4 md:px-16">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
+          <Link
+            href="/"
+            className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
+          >
             Vibe Rec
-          </span>
+          </Link>
           <div className="hidden items-center gap-8 md:flex">
+            {navLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-[13px] font-normal text-on-surface transition-colors hover:text-primary"
+              >
+                {item.label}
+              </Link>
+            ))}
             <Link
-              href="/"
-              className="font-medium text-on-surface transition-colors hover:text-primary"
+              href="/login"
+              className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
-              공고
+              Login
             </Link>
           </div>
         </div>
-        {session ? (
-          <Link
-            href="/admin"
-            className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
-          >
-            대시보드
-          </Link>
-        ) : (
-          <Link
-            href="/login"
-            className="rounded-lg bg-gradient-primary px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
-          >
-            로그인
-          </Link>
-        )}
       </nav>
 
       <main>
-        {/* Hero Section */}
-        <section className="relative overflow-hidden px-8 pb-32 pt-20">
-          <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
-            <div className="z-10">
-              <span className="mb-6 inline-block rounded-full bg-secondary-fixed px-4 py-1 text-sm font-bold text-[#005313]">
-                {openJobPostingCount}개 모집 중
-              </span>
-              <h1 className="mb-8 font-headline text-5xl font-extrabold leading-[1.1] tracking-tight text-on-surface lg:text-6xl">
-                다음 커리어를{" "}
-                <span className="text-primary">여기서 시작하세요.</span>
-              </h1>
-              <p className="mb-12 max-w-lg text-xl leading-relaxed text-on-surface-variant">
-                검증된 채용 공고를 탐색하고 간편하게 지원하세요.
-              </p>
-            </div>
-
-            {/* Stats card */}
-            <div className="relative hidden lg:block">
-              <div className="absolute -right-10 -top-10 h-64 w-64 rounded-full bg-primary-fixed opacity-30 blur-3xl" />
-              <div className="ambient-shadow relative z-10 rounded-2xl bg-surface-container-lowest p-8">
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <p className="font-headline text-4xl font-bold text-primary">
-                      {jobPostings.length}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-on-surface-variant">
-                      전체 공고
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-headline text-4xl font-bold text-secondary">
-                      {openJobPostingCount}
-                    </p>
-                    <p className="mt-1 text-sm font-medium text-on-surface-variant">
-                      모집 중
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <section className="border-b border-outline-variant bg-[#fdf2f8] px-6 py-24 md:px-16">
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
+            <span className="font-mono text-xs uppercase tracking-[0.28em] text-on-surface-variant">
+              {openJobPostingCount} active roles
+            </span>
+            <h1 className="max-w-4xl font-headline text-5xl font-light leading-[1.08] tracking-[-0.06em] text-primary md:text-7xl">
+              Connecting Talent
+              <br />
+              with Opportunity
+            </h1>
+            <p className="max-w-2xl text-sm leading-7 text-on-surface-variant md:text-base">
+              Discover your next career move with Vibe Rec, where precise
+              hiring operations meet a calmer candidate experience.
+            </p>
+            <Link
+              href="#positions"
+              className="rounded-sm bg-primary px-8 py-3 text-xs font-medium uppercase tracking-[0.24em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+            >
+              Browse Jobs
+            </Link>
           </div>
         </section>
 
-        {/* Job Listings */}
-        <section className="bg-surface-container-low px-8 py-24">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-16 flex items-end justify-between">
-              <div>
-                <h2 className="mb-4 font-headline text-4xl font-bold">
-                  현재 채용 공고
-                </h2>
-                <p className="text-on-surface-variant">
-                  지금 지원 가능한 포지션을 확인하세요.
-                </p>
-              </div>
+        <section
+          id="positions"
+          className="mx-auto max-w-7xl px-6 py-16 md:px-16"
+        >
+          {jobPostings.length === 0 ? (
+            <div className="mb-8 rounded-sm border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
+              Job postings could not be loaded from the API right now. The rest
+              of the site is still available.
             </div>
-
-            <JobPostingList jobPostings={jobPostings} />
+          ) : null}
+          <div className="mb-10 flex items-end justify-between gap-6">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
+                Featured Positions
+              </p>
+              <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+                A tighter shortlist of roles worth your time.
+              </h2>
+            </div>
+            <p className="hidden max-w-sm text-sm leading-7 text-on-surface-variant lg:block">
+              The Penpot direction is quiet and editorial, so the list leans on
+              mono metadata, thin borders, and strong hierarchy instead of loud
+              decoration.
+            </p>
           </div>
+          <JobPostingList jobPostings={jobPostings} />
         </section>
 
-        {/* CTA Section */}
-        <section className="px-8 py-24">
-          <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-3">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-primary p-12 text-white md:col-span-2">
-              <div className="relative z-10">
-                <h2 className="mb-6 font-headline text-4xl font-bold">
-                  채용을 시작할
-                  <br />
-                  준비가 됐나요?
-                </h2>
-                <p className="mb-8 max-w-md text-lg text-primary-fixed">
-                  운영자 대시보드에서 지원자를 관리하고 제출 현황을 검토하세요.
-                </p>
-                <Link
-                  href="/login"
-                  className="inline-flex rounded-lg bg-surface-container-lowest px-8 py-4 font-bold text-primary transition-transform hover:scale-105"
-                >
-                  대시보드 열기
-                </Link>
-              </div>
-            </div>
-            <div className="rounded-2xl bg-secondary-container p-12 text-[#00731e]">
-              <svg
-                className="mb-6 h-10 w-10"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="mb-4 font-headline text-2xl font-bold">
-                모던 &amp; 안정적
-              </h3>
-              <p className="text-sm leading-relaxed">
-                PostgreSQL, Spring Boot, Next.js 기반의 안정적이고 확장 가능한
-                채용 플랫폼.
+        <section
+          id="about"
+          className="border-t border-outline-variant bg-surface-container-low px-6 py-16 md:px-16"
+        >
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
+                About
               </p>
+              <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+                Designed to feel human, operational, and precise.
+              </h2>
             </div>
+            <p className="text-sm leading-7 text-on-surface-variant">
+              Vibe Rec now borrows the Penpot file&apos;s cream surfaces, plum
+              accents, and cleaner spacing rhythm to feel more like a refined
+              hiring workspace than a generic SaaS landing page.
+            </p>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-outline-variant/15 bg-surface-container-low px-8 pb-10 pt-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col items-center justify-between gap-6 border-t border-outline-variant/15 pt-10 md:flex-row">
-            <p className="text-xs text-on-surface-variant">
-              &copy; 2024 Vibe Rec. All rights reserved.
-            </p>
-            <span className="font-headline text-lg font-extrabold tracking-tight text-primary">
-              Vibe Rec
-            </span>
+      <footer
+        id="contact"
+        className="border-t border-outline-variant bg-surface-container-low px-6 py-8 md:px-16"
+      >
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 text-[11px] text-on-surface-variant md:flex-row md:items-center md:justify-between">
+          <p>© 2026 Vibe Rec. All rights reserved.</p>
+          <div className="flex gap-6">
+            <span>Privacy Policy</span>
+            <span>Terms of Service</span>
+            <span>Contact</span>
           </div>
         </div>
       </footer>

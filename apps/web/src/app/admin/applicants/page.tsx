@@ -9,21 +9,19 @@ import { AdminApplicantTable } from "@/features/admin/applicants/AdminApplicantT
 import { getAdminApplicants } from "@/shared/api/admin-applicants";
 import { getJobPostings } from "@/shared/api/recruitment";
 
-interface AdminApplicantsPageProps {
+const selectClassName =
+  "mt-2 w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary";
+
+export default async function AdminApplicantsPage({
+  searchParams,
+}: {
   searchParams: Promise<{
     jobPostingId?: string;
     applicationStatus?: ApplicationStatus;
     reviewStatus?: ApplicationReviewStatus;
     query?: string;
   }>;
-}
-
-const selectClassName =
-  "mt-2 w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
-
-export default async function AdminApplicantsPage({
-  searchParams,
-}: AdminApplicantsPageProps) {
+}) {
   const filters = await searchParams;
   const jobPostingId = filters.jobPostingId
     ? Number(filters.jobPostingId)
@@ -43,31 +41,20 @@ export default async function AdminApplicantsPage({
 
   return (
     <div className="space-y-8">
-      {/* Header + Filters */}
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <h1 className="font-headline text-3xl font-bold text-on-surface">
-            지원자 관리
-          </h1>
-          <p className="mt-4 text-sm leading-7 text-on-surface-variant">
-            공고, 제출 상태, 검토 상태, 이름/이메일 검색으로 현재 지원서를 빠르게
-            좁힐 수 있습니다.
+      <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <form className="rounded-sm border border-outline-variant bg-card p-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+            Filters
           </p>
-        </div>
-
-        <form className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-          <p className="text-sm font-semibold text-on-surface-variant">
-            필터
-          </p>
-          <div className="mt-4 grid gap-4">
-            <label className="text-sm font-semibold text-on-surface-variant">
-              공고
+          <div className="mt-5 grid gap-4">
+            <label className="text-sm text-on-surface-variant">
+              Job posting
               <select
                 name="jobPostingId"
                 defaultValue={normalizedFilters.jobPostingId?.toString() ?? ""}
                 className={selectClassName}
               >
-                <option value="">전체</option>
+                <option value="">All</option>
                 {jobPostings.map((jobPosting) => (
                   <option key={jobPosting.id} value={jobPosting.id}>
                     {jobPosting.title}
@@ -76,65 +63,73 @@ export default async function AdminApplicantsPage({
               </select>
             </label>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="text-sm font-semibold text-on-surface-variant">
-                지원 상태
-                <select
-                  name="applicationStatus"
-                  defaultValue={normalizedFilters.applicationStatus ?? ""}
-                  className={selectClassName}
-                >
-                  <option value="">전체</option>
-                  <option value="DRAFT">DRAFT</option>
-                  <option value="SUBMITTED">SUBMITTED</option>
-                </select>
-              </label>
+            <label className="text-sm text-on-surface-variant">
+              Application
+              <select
+                name="applicationStatus"
+                defaultValue={normalizedFilters.applicationStatus ?? ""}
+                className={selectClassName}
+              >
+                <option value="">All</option>
+                <option value="DRAFT">DRAFT</option>
+                <option value="SUBMITTED">SUBMITTED</option>
+              </select>
+            </label>
 
-              <label className="text-sm font-semibold text-on-surface-variant">
-                검토 상태
-                <select
-                  name="reviewStatus"
-                  defaultValue={normalizedFilters.reviewStatus ?? ""}
-                  className={selectClassName}
-                >
-                  <option value="">전체</option>
-                  <option value="NEW">NEW</option>
-                  <option value="IN_REVIEW">IN_REVIEW</option>
-                  <option value="PASSED">PASSED</option>
-                  <option value="REJECTED">REJECTED</option>
-                </select>
-              </label>
-            </div>
+            <label className="text-sm text-on-surface-variant">
+              Review
+              <select
+                name="reviewStatus"
+                defaultValue={normalizedFilters.reviewStatus ?? ""}
+                className={selectClassName}
+              >
+                <option value="">All</option>
+                <option value="NEW">NEW</option>
+                <option value="IN_REVIEW">IN_REVIEW</option>
+                <option value="PASSED">PASSED</option>
+                <option value="REJECTED">REJECTED</option>
+              </select>
+            </label>
 
-            <label className="text-sm font-semibold text-on-surface-variant">
-              이름/이메일 검색
+            <label className="text-sm text-on-surface-variant">
+              Search
               <input
                 name="query"
                 defaultValue={normalizedFilters.query ?? ""}
-                className="mt-2 w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20"
-                placeholder="예: kim, example.com"
+                className="mt-2 w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary"
+                placeholder="name or email"
               />
             </label>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <button
               type="submit"
-              className="rounded-lg bg-gradient-primary px-5 py-2.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+              className="rounded-sm bg-primary px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground"
             >
-              조회
+              Apply
             </button>
             <Link
               href="/admin/applicants"
-              className="rounded-lg bg-surface-container-high px-5 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
+              className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
             >
-              초기화
+              Reset
             </Link>
           </div>
         </form>
-      </div>
 
-      <AdminApplicantTable applicants={applicants} />
+        <div className="space-y-4">
+          <div className="rounded-sm border border-outline-variant bg-card px-6 py-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+              Applicants
+            </p>
+            <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+              Review the current pipeline at a glance.
+            </h1>
+          </div>
+          <AdminApplicantTable applicants={applicants} />
+        </div>
+      </div>
     </div>
   );
 }
