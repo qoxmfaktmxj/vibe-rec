@@ -58,8 +58,12 @@ public class ResumeNormalizationService {
             educationRepository.deleteByApplicationId(applicationId);
             educationRepository.saveAll(educations.stream()
                     .map(dto -> new ApplicationEducation(
-                            application, dto.institution(), dto.degree(), dto.fieldOfStudy(),
-                            dto.startDate(), dto.endDate(), dto.description(), dto.sortOrder()))
+                            application,
+                            dto.institution(),
+                            dto.fieldOfStudy(),
+                            dto.degree(),
+                            dto.endDate() != null ? dto.endDate() : dto.startDate(),
+                            (short) dto.sortOrder()))
                     .toList());
         }
 
@@ -102,9 +106,15 @@ public class ResumeNormalizationService {
     @Transactional(readOnly = true)
     public List<ResumeEducationDto> getEducations(Long applicationId) {
         return educationRepository.findByApplicationIdOrderBySortOrder(applicationId).stream()
-                .map(e -> new ResumeEducationDto(e.getId(), e.getInstitution(), e.getDegree(),
-                        e.getFieldOfStudy(), e.getStartDate(), e.getEndDate(),
-                        e.getDescription(), e.getSortOrder()))
+                .map(e -> new ResumeEducationDto(
+                        e.getId(),
+                        e.getSchoolName(),
+                        e.getDegree(),
+                        e.getMajor(),
+                        null,
+                        e.getGraduatedAt(),
+                        null,
+                        e.getSortOrder()))
                 .toList();
     }
 

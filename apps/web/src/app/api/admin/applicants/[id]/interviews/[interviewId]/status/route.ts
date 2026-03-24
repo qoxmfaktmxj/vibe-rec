@@ -8,7 +8,7 @@ import {
 import { updateInterviewStatus } from "@/shared/api/admin-interviews";
 
 interface RouteProps {
-  params: Promise<{ interviewId: string }>;
+  params: Promise<{ id: string; interviewId: string }>;
 }
 
 export async function PATCH(request: Request, { params }: RouteProps) {
@@ -28,6 +28,10 @@ export async function PATCH(request: Request, { params }: RouteProps) {
     if (error instanceof AdminApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
-    return NextResponse.json({ message: "Failed to update interview status." }, { status: 500 });
+
+    return NextResponse.json(
+      { message: "Failed to update interview status." },
+      { status: 500 },
+    );
   }
 }

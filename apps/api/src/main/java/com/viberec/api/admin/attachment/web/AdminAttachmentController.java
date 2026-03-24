@@ -61,7 +61,7 @@ public class AdminAttachmentController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + attachment.getOriginalFilename() + "\"")
+                        "attachment; filename=\"" + attachment.getOriginalName() + "\"")
                 .body(resource);
     }
 
