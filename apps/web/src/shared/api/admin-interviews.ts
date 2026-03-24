@@ -123,3 +123,73 @@ export async function createEvaluation(
 
   return parseResponse<InterviewResponse>(response);
 }
+
+export async function scheduleInterview(
+  applicationId: number,
+  payload: {
+    jobPostingStepId?: number;
+    scheduledAt?: string;
+    note?: string;
+    stepOrder?: number;
+  },
+) {
+  if (!payload.jobPostingStepId) {
+    throw new AdminApiError(
+      "Interview scheduling currently requires a job posting step id.",
+      400,
+    );
+  }
+
+  return createInterview(applicationId, {
+    jobPostingStepId: payload.jobPostingStepId,
+    scheduledAt: payload.scheduledAt,
+    note: payload.note,
+  });
+}
+
+export async function updateInterviewStatus(
+  interviewId: number,
+  status: InterviewStatus,
+) {
+  return updateInterview(interviewId, { status });
+}
+
+export async function submitEvaluation(
+  interviewId: number,
+  _evaluatorId: number,
+  payload: {
+    score: number | null;
+    comment?: string;
+    result: EvaluationResult;
+  },
+) {
+  return createEvaluation(interviewId, {
+    score: payload.score,
+    comment: payload.comment ?? null,
+    result: payload.result,
+  });
+}
+
+export async function addInterviewEvaluator(
+  interviewId: number,
+  evaluatorName: string,
+) {
+  void interviewId;
+  void evaluatorName;
+  throw new AdminApiError(
+    "Evaluator assignment is not supported by the current backend.",
+    501,
+  );
+}
+
+export async function removeInterviewEvaluator(
+  interviewId: number,
+  evaluatorId: number,
+) {
+  void interviewId;
+  void evaluatorId;
+  throw new AdminApiError(
+    "Evaluator assignment is not supported by the current backend.",
+    501,
+  );
+}

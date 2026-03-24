@@ -8,5 +8,7 @@ public interface ApplicationAttachmentRepository extends JpaRepository<Applicati
 
     List<ApplicationAttachment> findByApplicationId(Long applicationId);
 
+    List<ApplicationAttachment> findByApplicationIdOrderByCreatedAtAsc(Long applicationId);
+
     long countByApplicationId(Long applicationId);
 }

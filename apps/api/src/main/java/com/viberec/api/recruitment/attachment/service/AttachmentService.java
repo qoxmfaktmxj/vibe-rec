@@ -50,10 +50,10 @@ public class AttachmentService {
 
         ApplicationAttachment attachment = new ApplicationAttachment(
                 application,
-                stored.originalFilename(),
-                stored.storedFilename(),
+                stored.fileName(),
+                stored.originalName(),
                 stored.contentType(),
-                stored.fileSizeBytes(),
+                stored.fileSize(),
                 stored.storagePath()
         );
 
@@ -63,7 +63,7 @@ public class AttachmentService {
 
     @Transactional(readOnly = true)
     public List<AttachmentResponse> getAttachments(Long applicationId) {
-        return attachmentRepository.findByApplicationIdOrderByUploadedAtAsc(applicationId)
+        return attachmentRepository.findByApplicationIdOrderByCreatedAtAsc(applicationId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -86,10 +86,10 @@ public class AttachmentService {
         return new AttachmentResponse(
                 attachment.getId(),
                 attachment.getApplication().getId(),
-                attachment.getOriginalFilename(),
+                attachment.getOriginalName(),
                 attachment.getContentType(),
-                attachment.getFileSizeBytes(),
-                attachment.getUploadedAt()
+                attachment.getFileSize(),
+                attachment.getCreatedAt()
         );
     }
 }

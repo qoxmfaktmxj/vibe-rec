@@ -39,16 +39,15 @@ public class ApplicationAttachmentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot attach files to a submitted application.");
         }
 
-        String storedFileName = fileStorageService.store(file);
-        String storagePath = fileStorageService.load(storedFileName).toString();
+        FileStorageService.StoredFileResult stored = fileStorageService.store(file);
 
         ApplicationAttachment attachment = new ApplicationAttachment(
                 application,
-                storedFileName,
-                file.getOriginalFilename(),
-                file.getContentType(),
-                file.getSize(),
-                storagePath
+                stored.fileName(),
+                stored.originalName(),
+                stored.contentType(),
+                stored.fileSize(),
+                stored.storagePath()
         );
 
         ApplicationAttachment saved = attachmentRepository.save(attachment);
@@ -56,7 +55,7 @@ public class ApplicationAttachmentService {
     }
 
     public List<ApplicationAttachmentResponse> getAttachments(Long applicationId) {
-        return attachmentRepository.findByApplicationId(applicationId).stream()
+        return attachmentRepository.findByApplicationIdOrderByCreatedAtAsc(applicationId).stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -70,7 +69,7 @@ public class ApplicationAttachmentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete attachments from a submitted application.");
         }
 
-        fileStorageService.delete(attachment.getFileName());
+        fileStorageService.delete(attachment.getStoragePath());
         attachmentRepository.delete(attachment);
     }
 
