@@ -3,7 +3,11 @@
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function AdminLogoutButton() {
+export function AdminLogoutButton({
+  redirectTo = "/login",
+}: {
+  redirectTo?: string;
+}) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
@@ -18,7 +22,7 @@ export function AdminLogoutButton() {
           });
         } finally {
           setIsPending(false);
-          router.push("/login");
+          router.push(redirectTo);
           router.refresh();
         }
       })();

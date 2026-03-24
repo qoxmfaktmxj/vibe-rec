@@ -43,11 +43,25 @@ public class AdminApplicantService {
             Long jobPostingId,
             ApplicationStatus applicationStatus,
             ApplicationReviewStatus reviewStatus,
+            String applicantName,
+            String applicantEmail,
+            String applicantPhone,
             String query
     ) {
+        String normalizedApplicantName = normalizeQuery(applicantName);
+        String normalizedApplicantEmail = normalizeQuery(applicantEmail);
+        String normalizedApplicantPhone = normalizeQuery(applicantPhone);
         String normalizedQuery = normalizeQuery(query);
 
-        return applicationRepository.findAdminApplicants(jobPostingId, applicationStatus, reviewStatus, normalizedQuery).stream()
+        return applicationRepository.findAdminApplicants(
+                        jobPostingId,
+                        applicationStatus,
+                        reviewStatus,
+                        normalizedApplicantName,
+                        normalizedApplicantEmail,
+                        normalizedApplicantPhone,
+                        normalizedQuery
+                ).stream()
                 .map(this::toSummaryResponse)
                 .toList();
     }

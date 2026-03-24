@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
+import { AdminRailNav } from "@/features/admin/navigation/AdminRailNav";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 
 const navItems = [
@@ -61,26 +62,7 @@ export default async function AdminLayout({
           >
             <span className="font-headline text-lg font-medium">V</span>
           </Link>
-          <nav className="flex flex-col items-center gap-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex h-10 w-10 items-center justify-center rounded-sm border border-transparent transition-colors hover:border-sidebar-border hover:bg-sidebar-accent"
-                title={item.label}
-              >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.8}
-                >
-                  {item.icon}
-                </svg>
-              </Link>
-            ))}
-          </nav>
+          <AdminRailNav items={navItems} />
         </div>
         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-xs font-medium uppercase">
           {session.displayName?.charAt(0) ?? "A"}

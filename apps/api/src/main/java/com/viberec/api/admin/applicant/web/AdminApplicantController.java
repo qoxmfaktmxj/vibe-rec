@@ -38,10 +38,21 @@ public class AdminApplicantController {
             @RequestParam(required = false) Long jobPostingId,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
             @RequestParam(required = false) ApplicationReviewStatus reviewStatus,
+            @RequestParam(required = false) String applicantName,
+            @RequestParam(required = false) String applicantEmail,
+            @RequestParam(required = false) String applicantPhone,
             @RequestParam(required = false) String query
     ) {
         authorize(sessionToken);
-        return adminApplicantService.getApplicants(jobPostingId, applicationStatus, reviewStatus, query);
+        return adminApplicantService.getApplicants(
+                jobPostingId,
+                applicationStatus,
+                reviewStatus,
+                applicantName,
+                applicantEmail,
+                applicantPhone,
+                query
+        );
     }
 
     @GetMapping("/{id}")

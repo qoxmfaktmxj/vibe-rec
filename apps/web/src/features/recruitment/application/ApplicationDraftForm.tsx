@@ -172,6 +172,7 @@ export function ApplicationDraftForm({
   const [attachments, setAttachments] = useState<ApplicationAttachment[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   // Education history
   const [educations, setEducations] = useState<EducationEntry[]>([]);
@@ -187,6 +188,30 @@ export function ApplicationDraftForm({
       ...current,
       [fieldName]: value,
     }));
+
+    setState((current) => {
+      if (!current.fieldErrors[fieldName] && fieldName !== "applicantEmail") {
+        return current;
+      }
+
+      const nextFieldErrors = { ...current.fieldErrors };
+      delete nextFieldErrors[fieldName];
+
+      const shouldClearUploadEmailMessage =
+        fieldName === "applicantEmail" &&
+        current.message?.includes("이메일") &&
+        current.message?.includes("업로드");
+
+      return {
+        ...current,
+        fieldErrors: nextFieldErrors,
+        message: shouldClearUploadEmailMessage ? null : current.message,
+        status:
+          shouldClearUploadEmailMessage && current.status === "error"
+            ? "idle"
+            : current.status,
+      };
+    });
   }
 
   // --- Education helpers ---
@@ -233,7 +258,10 @@ export function ApplicationDraftForm({
 
   // --- File upload ---
   async function handleFileUpload(files: FileList) {
-    if (!formValues.applicantEmail.trim()) {
+    const applicantEmail =
+      emailInputRef.current?.value.trim() ?? formValues.applicantEmail.trim();
+
+    if (!applicantEmail) {
       setState((current) => ({
         ...current,
         status: "error",
@@ -254,7 +282,7 @@ export function ApplicationDraftForm({
 
       try {
         const response = await fetch(
-          `/api/job-postings/${jobPostingId}/application-draft/attachments?applicantEmail=${encodeURIComponent(formValues.applicantEmail.trim())}`,
+          `/api/job-postings/${jobPostingId}/application-draft/attachments?applicantEmail=${encodeURIComponent(applicantEmail)}`,
           {
             method: "POST",
             body: formData,
@@ -565,6 +593,7 @@ export function ApplicationDraftForm({
           <label className="block text-sm font-semibold text-on-surface-variant">
             이메일
             <input
+              ref={emailInputRef}
               name="applicantEmail"
               type="email"
               autoComplete="email"

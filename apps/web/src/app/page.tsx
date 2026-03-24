@@ -1,16 +1,21 @@
 import Link from "next/link";
 
+import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
+import { LegalLayerLinks } from "@/features/recruitment/legal/LegalLayerLinks";
 import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
+import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 
 const navLinks = [
-  { href: "#positions", label: "채용 공고" },
-  { href: "#about", label: "소개" },
-  { href: "#contact", label: "문의" },
-];
+  { href: "/job-postings", label: "채용 공고" },
+  { href: "https://www.minseok91.cloud", label: "문의", external: true },
+] as const;
 
 export default async function Home() {
-  const jobPostings = await getJobPostings().catch(() => []);
+  const [jobPostings, session] = await Promise.all([
+    getJobPostings().catch(() => []),
+    getCurrentAdminSession().catch(() => null),
+  ]);
   const openJobPostingCount = jobPostings.filter(
     (jobPosting) => jobPosting.status === "OPEN",
   ).length;
@@ -26,21 +31,45 @@ export default async function Home() {
             Vibe Rec
           </Link>
           <div className="hidden items-center gap-8 md:flex">
-            {navLinks.map((item) => (
+            {navLinks.map((item) =>
+              "external" in item ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[13px] font-normal text-on-surface transition-colors hover:text-primary"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-[13px] font-normal text-on-surface transition-colors hover:text-primary"
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
+            {session ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/admin"
+                  className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+                >
+                  대시보드
+                </Link>
+                <AdminLogoutButton redirectTo="/" />
+              </div>
+            ) : (
               <Link
-                key={item.href}
-                href={item.href}
-                className="text-[13px] font-normal text-on-surface transition-colors hover:text-primary"
+                href="/login"
+                className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
               >
-                {item.label}
+                로그인
               </Link>
-            ))}
-            <Link
-              href="/login"
-              className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
-            >
-              로그인
-            </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -57,11 +86,11 @@ export default async function Home() {
               더 정확하게 연결합니다
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant md:text-base">
-              Vibe Rec은 채용 운영의 정확함과 지원 경험의 편안함을 함께
-              가져가는 한글 채용 홈페이지입니다.
+              Vibe Rec은 채용 운영의 정확함과 지원 경험의 편의성을 함께 가져가는
+              채용 홈페이지입니다.
             </p>
             <Link
-              href="#positions"
+              href="/job-postings"
               className="rounded-sm bg-primary px-8 py-3 text-xs font-medium uppercase tracking-[0.24em] text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
               공고 보기
@@ -88,33 +117,8 @@ export default async function Home() {
                 지금 바로 검토해볼 만한 공고를 모았습니다.
               </h2>
             </div>
-            <p className="hidden max-w-sm text-sm leading-7 text-on-surface-variant lg:block">
-              차분한 편집형 레이아웃과 얇은 보더, 모노 메타데이터를 중심으로
-              정보가 먼저 보이도록 정리했습니다.
-            </p>
           </div>
           <JobPostingList jobPostings={jobPostings} />
-        </section>
-
-        <section
-          id="about"
-          className="border-t border-outline-variant bg-surface-container-low px-6 py-16 md:px-16"
-        >
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
-                소개
-              </p>
-              <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
-                사람 중심이면서도 운영 친화적으로 설계했습니다.
-              </h2>
-            </div>
-            <p className="text-sm leading-7 text-on-surface-variant">
-              이번 리디자인은 Penpot 시안의 크림 톤 배경, 와인 계열 포인트,
-              정리된 여백 리듬을 가져와 범용 SaaS가 아니라 채용 업무용 화면처럼
-              보이도록 조정했습니다.
-            </p>
-          </div>
         </section>
       </main>
 
@@ -125,9 +129,15 @@ export default async function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-4 text-[11px] text-on-surface-variant md:flex-row md:items-center md:justify-between">
           <p>© 2026 Vibe Rec. All rights reserved.</p>
           <div className="flex gap-6">
-            <span>개인정보 처리방침</span>
-            <span>이용약관</span>
-            <span>문의</span>
+            <LegalLayerLinks />
+            <a
+              href="https://www.minseok91.cloud"
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-primary"
+            >
+              문의
+            </a>
           </div>
         </div>
       </footer>

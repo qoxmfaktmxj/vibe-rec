@@ -18,7 +18,8 @@ const postingTranslations: Record<
 > = {
   "platform-backend-engineer": {
     title: "플랫폼 백엔드 엔지니어",
-    headline: "PostgreSQL 중심 아키텍처로 차세대 채용 플랫폼을 구축합니다.",
+    headline:
+      "PostgreSQL 중심 아키텍처로 차세대 채용 플랫폼을 구축합니다.",
     employmentType: "정규직",
     location: "서울",
   },
@@ -64,7 +65,7 @@ export function JobPostingList({ jobPostings }: JobPostingListProps) {
             </div>
             <Link
               href={`/job-postings/${jobPosting.id}`}
-              className="mt-8 inline-flex w-fit items-center justify-center rounded-sm border border-on-surface px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+              className="mt-auto pt-6 inline-flex w-fit items-center justify-center rounded-sm border border-on-surface px-4 py-1.5 text-xs font-medium tracking-[0.04em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
             >
               지원하기
             </Link>

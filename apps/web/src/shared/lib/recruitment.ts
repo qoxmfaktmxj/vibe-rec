@@ -116,7 +116,7 @@ export function getApplicationReviewStatusLabel(
     case "PASSED":
       return "통과";
     case "REJECTED":
-      return "보류/탈락";
+      return "보류/불합격";
     default:
       return reviewStatus;
   }
@@ -151,27 +151,27 @@ export function getDraftAvailability(posting: {
   if (posting.status !== "OPEN") {
     return {
       canSave: false,
-      reason: "현재 지원을 받지 않는 공고입니다.",
+      reason: "현재는 지원을 받을 수 없는 공고입니다.",
     };
   }
 
   if (now < opensAt) {
     return {
       canSave: false,
-      reason: "지원 기간이 시작되면 임시저장이 가능합니다.",
+      reason: "지원 기간이 시작되면 임시저장할 수 있습니다.",
     };
   }
 
   if (now > closesAt) {
     return {
       canSave: false,
-      reason: "지원 기간이 마감되어 임시저장이 불가합니다.",
+      reason: "지원 기간이 마감되어 임시저장할 수 없습니다.",
     };
   }
 
   return {
     canSave: true,
-    reason: "지원서를 임시저장한 뒤, 지원 기간 내에 최종 제출할 수 있습니다.",
+    reason: "지원서를 임시저장한 뒤, 지원 기간 안에 최종 제출할 수 있습니다.",
   };
 }
 
@@ -212,7 +212,7 @@ export function getEvaluationResultLabel(result: EvaluationResult) {
     case "PASS":
       return "통과";
     case "FAIL":
-      return "탈락";
+      return "불합격";
     case "HOLD":
       return "보류";
     default:
@@ -238,7 +238,7 @@ export function getEvaluationResultClassName(result: EvaluationResult) {
 export function getFinalStatusLabel(status: ApplicationFinalStatus) {
   switch (status) {
     case "OFFER_MADE":
-      return "제안";
+      return "오퍼 발송";
     case "ACCEPTED":
       return "수락";
     case "DECLINED":
@@ -287,7 +287,7 @@ export function getNotificationTypeLabel(type: string) {
     case "OFFER":
       return "오퍼";
     case "REJECTION":
-      return "불합격 통보";
+      return "불합격 안내";
     case "INTERVIEW_INVITE":
       return "면접 안내";
     case "GENERAL":

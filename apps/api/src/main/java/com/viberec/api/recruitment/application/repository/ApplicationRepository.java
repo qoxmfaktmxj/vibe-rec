@@ -26,9 +26,22 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
               and (:applicationStatus is null or application.status = :applicationStatus)
               and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
               and (
+                    :applicantName is null
+                    or lower(application.applicantName) like lower(concat('%', cast(:applicantName as string), '%'))
+                  )
+              and (
+                    :applicantEmail is null
+                    or lower(application.applicantEmail) like lower(concat('%', cast(:applicantEmail as string), '%'))
+                  )
+              and (
+                    :applicantPhone is null
+                    or lower(application.applicantPhone) like lower(concat('%', cast(:applicantPhone as string), '%'))
+                  )
+              and (
                     :query is null
                     or lower(application.applicantName) like lower(concat('%', cast(:query as string), '%'))
                     or lower(application.applicantEmail) like lower(concat('%', cast(:query as string), '%'))
+                    or lower(application.applicantPhone) like lower(concat('%', cast(:query as string), '%'))
                   )
             order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
             """)
@@ -36,6 +49,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             @Param("jobPostingId") Long jobPostingId,
             @Param("applicationStatus") ApplicationStatus applicationStatus,
             @Param("reviewStatus") ApplicationReviewStatus reviewStatus,
+            @Param("applicantName") String applicantName,
+            @Param("applicantEmail") String applicantEmail,
+            @Param("applicantPhone") String applicantPhone,
             @Param("query") String query
     );
 }

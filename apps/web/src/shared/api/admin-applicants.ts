@@ -47,6 +47,18 @@ function buildApplicantsQuery(filters: AdminApplicantFilters) {
     searchParams.set("reviewStatus", filters.reviewStatus);
   }
 
+  if (filters.applicantName?.trim()) {
+    searchParams.set("applicantName", filters.applicantName.trim());
+  }
+
+  if (filters.applicantEmail?.trim()) {
+    searchParams.set("applicantEmail", filters.applicantEmail.trim());
+  }
+
+  if (filters.applicantPhone?.trim()) {
+    searchParams.set("applicantPhone", filters.applicantPhone.trim());
+  }
+
   if (filters.query?.trim()) {
     searchParams.set("query", filters.query.trim());
   }

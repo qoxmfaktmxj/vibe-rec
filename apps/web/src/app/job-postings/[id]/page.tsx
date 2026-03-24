@@ -41,7 +41,7 @@ export default async function JobPostingDetailPage({
             Vibe Rec
           </Link>
           <Link
-            href="/"
+            href="/job-postings"
             className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
           >
             공고 목록으로

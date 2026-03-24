@@ -48,6 +48,9 @@ export interface AdminApplicantFilters {
   jobPostingId?: number;
   applicationStatus?: ApplicationStatus;
   reviewStatus?: ApplicationReviewStatus;
+  applicantName?: string;
+  applicantEmail?: string;
+  applicantPhone?: string;
   query?: string;
 }
 
