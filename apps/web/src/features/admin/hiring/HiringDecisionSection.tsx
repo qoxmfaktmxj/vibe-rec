@@ -64,11 +64,11 @@ export function HiringDecisionSection({
           const response = await fetch(
             `/api/admin/applicants/${applicationId}/final-decision`,
             {
-              method: "PUT",
+              method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 finalStatus,
-                finalNote: note || null,
+                note: note || null,
               }),
             },
           );

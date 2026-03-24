@@ -2,6 +2,7 @@ package com.viberec.api.admin.applicant.web;
 
 import com.viberec.api.admin.applicant.service.AdminApplicantService;
 import com.viberec.api.admin.auth.service.AdminAuthService;
+import com.viberec.api.admin.auth.web.RequiresPermission;
 import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class AdminApplicantController {
     }
 
     @GetMapping
+    @RequiresPermission("APPLICANT_VIEW")
     public List<AdminApplicantSummaryResponse> getApplicants(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @RequestParam(required = false) Long jobPostingId,
@@ -43,6 +45,7 @@ public class AdminApplicantController {
     }
 
     @GetMapping("/{id}")
+    @RequiresPermission("APPLICANT_VIEW")
     public AdminApplicantDetailResponse getApplicant(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id
@@ -52,6 +55,7 @@ public class AdminApplicantController {
     }
 
     @PatchMapping("/{id}/review-status")
+    @RequiresPermission("APPLICANT_REVIEW")
     public AdminApplicantDetailResponse updateReviewStatus(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,

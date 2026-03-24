@@ -1,0 +1,151 @@
+package com.viberec.api.admin.hiring;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.viberec.api.admin.applicant.service.AdminApplicantService;
+import com.viberec.api.admin.applicant.web.UpdateApplicantReviewStatusRequest;
+import com.viberec.api.admin.auth.repository.AdminAccountRepository;
+import com.viberec.api.admin.hiring.service.AdminHiringDecisionService;
+import com.viberec.api.admin.hiring.web.CreateNotificationRequest;
+import com.viberec.api.admin.hiring.web.FinalDecisionRequest;
+import com.viberec.api.recruitment.application.domain.ApplicationFinalStatus;
+import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
+import com.viberec.api.recruitment.application.repository.ApplicationRepository;
+import com.viberec.api.recruitment.application.repository.ApplicationResumeRawRepository;
+import com.viberec.api.recruitment.application.service.ApplicationDraftService;
+import com.viberec.api.recruitment.application.web.SaveApplicationDraftRequest;
+import com.viberec.api.recruitment.notification.repository.NotificationLogRepository;
+import com.viberec.api.support.IntegrationTestBase;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.server.ResponseStatusException;
+
+class AdminHiringDecisionTests extends IntegrationTestBase {
+
+    @Autowired
+    private AdminApplicantService adminApplicantService;
+
+    @Autowired
+    private AdminHiringDecisionService adminHiringDecisionService;
+
+    @Autowired
+    private ApplicationDraftService applicationDraftService;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private ApplicationResumeRawRepository applicationResumeRawRepository;
+
+    @Autowired
+    private NotificationLogRepository notificationLogRepository;
+
+    @Autowired
+    private AdminAccountRepository adminAccountRepository;
+
+    @BeforeEach
+    void cleanApplications() {
+        notificationLogRepository.deleteAll();
+        applicationResumeRawRepository.deleteAll();
+        applicationRepository.deleteAll();
+    }
+
+    @Test
+    void enforcesFinalDecisionTransitionRules() {
+        Long applicationId = applicationDraftService.submit(
+                1001L,
+                new SaveApplicationDraftRequest(
+                        "Hiring Kim",
+                        "hiring.kim@example.com",
+                        "010-5050-6060",
+                        Map.of(
+                                "introduction", "I have shipped candidate decision flows with clear acceptance and decline rules.",
+                                "coreStrength", "I can keep final-status transitions predictable while features evolve."
+                        ),
+                        null, null, null, null, null
+                )
+        ).applicationId();
+
+        assertThatThrownBy(() -> adminHiringDecisionService.makeFinalDecision(
+                applicationId,
+                new FinalDecisionRequest(ApplicationFinalStatus.OFFER_MADE, "Too early")
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("PASSED");
+
+        adminApplicantService.updateReviewStatus(
+                applicationId,
+                new UpdateApplicantReviewStatusRequest(
+                        ApplicationReviewStatus.IN_REVIEW,
+                        "Review started."
+                )
+        );
+        adminApplicantService.updateReviewStatus(
+                applicationId,
+                new UpdateApplicantReviewStatusRequest(
+                        ApplicationReviewStatus.PASSED,
+                        "Strong candidate."
+                )
+        );
+
+        var offer = adminHiringDecisionService.makeFinalDecision(
+                applicationId,
+                new FinalDecisionRequest(ApplicationFinalStatus.OFFER_MADE, "Offer extended")
+        );
+        var accepted = adminHiringDecisionService.makeFinalDecision(
+                applicationId,
+                new FinalDecisionRequest(ApplicationFinalStatus.ACCEPTED, "Offer accepted")
+        );
+
+        assertThat(offer.finalStatus()).isEqualTo(ApplicationFinalStatus.OFFER_MADE);
+        assertThat(accepted.finalStatus()).isEqualTo(ApplicationFinalStatus.ACCEPTED);
+
+        assertThatThrownBy(() -> adminHiringDecisionService.makeFinalDecision(
+                applicationId,
+                new FinalDecisionRequest(ApplicationFinalStatus.WITHDRAWN, "Should not withdraw accepted")
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("cannot be withdrawn");
+    }
+
+    @Test
+    void createsAndListsNotificationsWithSenderName() {
+        Long applicationId = applicationDraftService.submit(
+                1001L,
+                new SaveApplicationDraftRequest(
+                        "Notify Kim",
+                        "notify.kim@example.com",
+                        "010-7070-8080",
+                        Map.of(
+                                "introduction", "I have managed candidate communications and status notifications.",
+                                "coreStrength", "I keep recruiter messaging consistent across workflow transitions."
+                        ),
+                        null, null, null, null, null
+                )
+        ).applicationId();
+        Long senderId = adminAccountRepository.findByUsernameIgnoreCase("admin")
+                .orElseThrow()
+                .getId();
+
+        adminHiringDecisionService.createNotification(
+                applicationId,
+                senderId,
+                new CreateNotificationRequest("GENERAL", "First", "First notification")
+        );
+        var created = adminHiringDecisionService.createNotification(
+                applicationId,
+                senderId,
+                new CreateNotificationRequest("GENERAL", "Second", "Second notification")
+        );
+
+        var notifications = adminHiringDecisionService.getNotifications(applicationId);
+
+        assertThat(created.sentByName()).isEqualTo("Dev Admin");
+        assertThat(notifications).hasSize(2);
+        assertThat(notifications.getFirst().title()).isEqualTo("Second");
+        assertThat(notifications.getFirst().sentByName()).isEqualTo("Dev Admin");
+    }
+}

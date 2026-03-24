@@ -6,3 +6,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+app:
+  admin:
+    dev-account:
+      enabled: true

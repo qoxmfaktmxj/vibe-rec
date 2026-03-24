@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 
 import type {
   InterviewResponse,
-  JobPostingStep,
-  NotificationResponse,
 } from "@/entities/recruitment/model";
 import { ApplicantAttachmentList } from "@/features/admin/applicants/ApplicantAttachmentList";
 import { ApplicantReviewForm } from "@/features/admin/applicants/ApplicantReviewForm";
@@ -12,12 +10,10 @@ import { HiringDecisionSection } from "@/features/admin/hiring/HiringDecisionSec
 import { InterviewSection } from "@/features/admin/interview/InterviewSection";
 import { NotificationSection } from "@/features/admin/notification/NotificationSection";
 import { getAdminApplicant } from "@/shared/api/admin-applicants";
+import { getAdminJobPostingSteps } from "@/shared/api/admin-job-postings";
+import { getNotifications as getAdminNotifications } from "@/shared/api/admin-hiring";
 import { getAdminAttachments } from "@/shared/api/attachments";
 import { getAdminInterviews } from "@/shared/api/admin-interviews";
-import {
-  getApiBaseUrl,
-  getRequiredAdminSessionToken,
-} from "@/shared/api/admin-auth";
 import {
   formatDateTime,
   getApplicationReviewStatusClassName,
@@ -30,42 +26,6 @@ interface AdminApplicantDetailPageProps {
   params: Promise<{
     id: string;
   }>;
-}
-
-async function getNotifications(
-  applicationId: number,
-  sessionToken: string,
-): Promise<NotificationResponse[]> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/admin/applicants/${applicationId}/notifications`,
-    {
-      headers: {
-        "X-Admin-Session": sessionToken,
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    },
-  );
-  if (!res.ok) return [];
-  return res.json() as Promise<NotificationResponse[]>;
-}
-
-async function getJobPostingSteps(
-  jobPostingId: number,
-  sessionToken: string,
-): Promise<JobPostingStep[]> {
-  const res = await fetch(
-    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}/steps`,
-    {
-      headers: {
-        "X-Admin-Session": sessionToken,
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    },
-  );
-  if (!res.ok) return [];
-  return res.json() as Promise<JobPostingStep[]>;
 }
 
 export default async function AdminApplicantDetailPage({
@@ -87,12 +47,10 @@ export default async function AdminApplicantDetailPage({
     notFound();
   }
 
-  const sessionToken = await getRequiredAdminSessionToken();
-
   const [interviews, notifications, steps] = await Promise.all([
     getAdminInterviews(applicationId).catch(() => [] as InterviewResponse[]),
-    getNotifications(applicationId, sessionToken),
-    getJobPostingSteps(applicant.jobPostingId, sessionToken),
+    getAdminNotifications(applicationId).catch(() => []),
+    getAdminJobPostingSteps(applicant.jobPostingId).catch(() => []),
   ]);
 
   return (

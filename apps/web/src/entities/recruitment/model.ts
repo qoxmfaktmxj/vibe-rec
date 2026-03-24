@@ -27,6 +27,7 @@ export interface JobPostingSummary {
 }
 
 export interface JobPostingStep {
+  id?: number;
   stepOrder: number;
   stepType: JobPostingStepType;
   title: string;

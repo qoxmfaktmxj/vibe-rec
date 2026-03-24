@@ -58,7 +58,9 @@ export function InterviewSection({
   const [isError, setIsError] = useState(false);
 
   // Add interview form state
-  const [newStepOrder, setNewStepOrder] = useState<number | "">("");
+  const [newJobPostingStepId, setNewJobPostingStepId] = useState<number | "">(
+    "",
+  );
   const [newScheduledAt, setNewScheduledAt] = useState("");
   const [newNote, setNewNote] = useState("");
   const [isAddingInterview, setIsAddingInterview] = useState(false);
@@ -77,7 +79,7 @@ export function InterviewSection({
 
   function handleAddInterview(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (newStepOrder === "") return;
+    if (newJobPostingStepId === "") return;
 
     setIsAddingInterview(true);
     setMessage(null);
@@ -91,8 +93,10 @@ export function InterviewSection({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                stepOrder: newStepOrder,
-                scheduledAt: newScheduledAt || null,
+                jobPostingStepId: newJobPostingStepId,
+                scheduledAt: newScheduledAt
+                  ? new Date(newScheduledAt).toISOString()
+                  : null,
                 note: newNote || null,
               }),
             },
@@ -109,7 +113,7 @@ export function InterviewSection({
 
           showMessage("면접 일정을 등록했습니다.", false);
           setShowAddForm(false);
-          setNewStepOrder("");
+          setNewJobPostingStepId("");
           setNewScheduledAt("");
           setNewNote("");
           router.refresh();
@@ -201,16 +205,15 @@ export function InterviewSection({
   }
 
   // Find steps not yet assigned to an interview
-  const assignedStepOrders = new Set(
-    interviews.map((iv) => {
-      const step = steps.find(
-        (s) => s.title === iv.stepTitle,
-      );
-      return step?.stepOrder;
-    }),
-  );
   const availableSteps = steps.filter(
-    (s) => !assignedStepOrders.has(s.stepOrder),
+    (step): step is JobPostingStep & { id: number } =>
+      typeof step.id === "number" && step.stepType === "INTERVIEW",
+  );
+  const assignedStepIds = new Set(
+    interviews.map((interview) => interview.jobPostingStepId),
+  );
+  const unassignedSteps = availableSteps.filter(
+    (step) => !assignedStepIds.has(step.id),
   );
 
   return (
@@ -219,7 +222,7 @@ export function InterviewSection({
         <h2 className="font-headline text-2xl font-bold text-on-surface">
           면접 타임라인
         </h2>
-        {availableSteps.length > 0 ? (
+        {unassignedSteps.length > 0 ? (
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
@@ -255,9 +258,9 @@ export function InterviewSection({
           <label className="block text-sm font-semibold text-on-surface-variant">
             전형 단계
             <select
-              value={newStepOrder}
+              value={newJobPostingStepId}
               onChange={(e) =>
-                setNewStepOrder(
+                setNewJobPostingStepId(
                   e.target.value === "" ? "" : Number(e.target.value),
                 )
               }
@@ -265,8 +268,8 @@ export function InterviewSection({
               className={inputClassName}
             >
               <option value="">선택하세요</option>
-              {availableSteps.map((step) => (
-                <option key={step.stepOrder} value={step.stepOrder}>
+              {unassignedSteps.map((step) => (
+                <option key={step.id} value={step.id}>
                   {step.title} ({getStepTypeLabel(step.stepType)})
                 </option>
               ))}
@@ -343,7 +346,9 @@ export function InterviewSection({
                     예정 일시:{" "}
                   </span>
                   <span className="text-on-surface">
-                    {formatDateTime(interview.scheduledAt)}
+                    {interview.scheduledAt
+                      ? formatDateTime(interview.scheduledAt)
+                      : "-"}
                   </span>
                 </div>
                 {interview.note ? (

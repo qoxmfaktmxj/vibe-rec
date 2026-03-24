@@ -127,23 +127,15 @@ export async function createEvaluation(
 export async function scheduleInterview(
   applicationId: number,
   payload: {
-    jobPostingStepId?: number;
-    scheduledAt?: string;
-    note?: string;
-    stepOrder?: number;
+    jobPostingStepId: number;
+    scheduledAt?: string | null;
+    note?: string | null;
   },
 ) {
-  if (!payload.jobPostingStepId) {
-    throw new AdminApiError(
-      "Interview scheduling currently requires a job posting step id.",
-      400,
-    );
-  }
-
   return createInterview(applicationId, {
     jobPostingStepId: payload.jobPostingStepId,
-    scheduledAt: payload.scheduledAt,
-    note: payload.note,
+    scheduledAt: payload.scheduledAt ?? undefined,
+    note: payload.note ?? undefined,
   });
 }
 

@@ -30,12 +30,9 @@ export interface Interview {
 }
 
 export interface ScheduleInterviewPayload {
-  interviewType: InterviewType;
-  scheduledAt: string;
-  durationMinutes: number;
-  location?: string;
-  onlineLink?: string;
-  note?: string;
+  jobPostingStepId: number;
+  scheduledAt?: string | null;
+  note?: string | null;
 }
 
 export interface SubmitEvaluationPayload {

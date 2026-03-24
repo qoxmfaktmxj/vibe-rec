@@ -2,6 +2,7 @@ package com.viberec.api.admin.hiring.web;
 
 import com.viberec.api.admin.auth.service.AdminAuthService;
 import com.viberec.api.admin.auth.web.AdminSessionResponse;
+import com.viberec.api.admin.auth.web.RequiresPermission;
 import com.viberec.api.admin.hiring.service.AdminHiringDecisionService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -32,6 +33,7 @@ public class AdminHiringDecisionController {
 
     @PostMapping("/final-decision")
     @ResponseStatus(HttpStatus.OK)
+    @RequiresPermission("FINAL_DECIDE")
     public FinalDecisionResponse makeFinalDecision(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,
@@ -43,6 +45,7 @@ public class AdminHiringDecisionController {
 
     @PostMapping("/notifications")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequiresPermission("NOTIFICATION_SEND")
     public NotificationResponse createNotification(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,
@@ -53,6 +56,7 @@ public class AdminHiringDecisionController {
     }
 
     @GetMapping("/notifications")
+    @RequiresPermission("APPLICANT_VIEW")
     public List<NotificationResponse> getNotifications(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id

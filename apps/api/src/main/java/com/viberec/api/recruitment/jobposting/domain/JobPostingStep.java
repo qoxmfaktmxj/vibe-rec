@@ -48,6 +48,10 @@ public class JobPostingStep {
         return id;
     }
 
+    public JobPosting getJobPosting() {
+        return jobPosting;
+    }
+
     public short getStepOrder() {
         return stepOrder;
     }

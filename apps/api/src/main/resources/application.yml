@@ -44,8 +44,8 @@ app:
     base-dir: ${UPLOAD_DIR:./uploads}
   admin:
     dev-account:
-      enabled: true
-      username: admin
-      password: admin
-      display-name: Dev Admin
-      role: SUPER_ADMIN
+      enabled: ${APP_ADMIN_DEV_ACCOUNT_ENABLED:false}
+      username: ${APP_ADMIN_DEV_ACCOUNT_USERNAME:admin}
+      password: ${APP_ADMIN_DEV_ACCOUNT_PASSWORD:admin}
+      display-name: ${APP_ADMIN_DEV_ACCOUNT_DISPLAY_NAME:Dev Admin}
+      role: ${APP_ADMIN_DEV_ACCOUNT_ROLE:SUPER_ADMIN}

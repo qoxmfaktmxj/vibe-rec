@@ -2,6 +2,7 @@ package com.viberec.api.admin.interview.web;
 
 import com.viberec.api.admin.auth.service.AdminAuthService;
 import com.viberec.api.admin.auth.web.AdminSessionResponse;
+import com.viberec.api.admin.auth.web.RequiresPermission;
 import com.viberec.api.admin.interview.service.AdminInterviewService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -31,6 +32,7 @@ public class AdminInterviewController {
 
     @PostMapping("/admin/applicants/{id}/interviews")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequiresPermission("INTERVIEW_MANAGE")
     public InterviewResponse createInterview(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,
@@ -41,6 +43,7 @@ public class AdminInterviewController {
     }
 
     @GetMapping("/admin/applicants/{id}/interviews")
+    @RequiresPermission("APPLICANT_VIEW")
     public List<InterviewResponse> getInterviews(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id
@@ -50,6 +53,7 @@ public class AdminInterviewController {
     }
 
     @PatchMapping("/admin/interviews/{id}")
+    @RequiresPermission("INTERVIEW_MANAGE")
     public InterviewResponse updateInterview(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,
@@ -61,6 +65,7 @@ public class AdminInterviewController {
 
     @PostMapping("/admin/interviews/{id}/evaluations")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequiresPermission("EVALUATION_WRITE")
     public EvaluationResponse createEvaluation(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,

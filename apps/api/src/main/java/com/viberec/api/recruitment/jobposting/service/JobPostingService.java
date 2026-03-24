@@ -65,6 +65,7 @@ public class JobPostingService {
 
     private JobPostingStepResponse toStepResponse(JobPostingStep step) {
         return new JobPostingStepResponse(
+                step.getId(),
                 step.getStepOrder(),
                 step.getStepType(),
                 step.getTitle(),

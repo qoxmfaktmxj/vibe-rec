@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-import type { ScheduleInterviewPayload } from "@/entities/admin/interview-model";
 import {
   AdminApiError,
   getRequiredAdminSessionToken,
@@ -44,7 +43,11 @@ export async function POST(request: Request, { params }: RouteProps) {
 
   try {
     await getRequiredAdminSessionToken();
-    const payload = (await request.json()) as ScheduleInterviewPayload;
+    const payload = (await request.json()) as {
+      jobPostingStepId: number;
+      scheduledAt?: string | null;
+      note?: string | null;
+    };
     const interview = await scheduleInterview(applicationId, payload);
     return NextResponse.json(interview, { status: 201 });
   } catch (error) {

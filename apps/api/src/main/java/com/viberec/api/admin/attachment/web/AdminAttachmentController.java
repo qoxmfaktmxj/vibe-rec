@@ -1,6 +1,7 @@
 package com.viberec.api.admin.attachment.web;
 
 import com.viberec.api.admin.auth.service.AdminAuthService;
+import com.viberec.api.admin.auth.web.RequiresPermission;
 import com.viberec.api.recruitment.attachment.service.AttachmentService;
 import com.viberec.api.recruitment.attachment.service.FileStorageService;
 import com.viberec.api.recruitment.attachment.web.AttachmentResponse;
@@ -37,6 +38,7 @@ public class AdminAttachmentController {
     }
 
     @GetMapping("/applicants/{applicationId}/attachments")
+    @RequiresPermission("APPLICANT_VIEW")
     public List<AttachmentResponse> getAttachments(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long applicationId
@@ -46,6 +48,7 @@ public class AdminAttachmentController {
     }
 
     @GetMapping("/attachments/{attachmentId}/download")
+    @RequiresPermission("APPLICANT_VIEW")
     public ResponseEntity<Resource> downloadAttachment(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long attachmentId

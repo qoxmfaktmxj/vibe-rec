@@ -57,10 +57,9 @@ public class AdminInterviewService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Only submitted applications can have interviews.");
         }
 
-        JobPostingStep step = jobPostingStepRepository.findById(request.jobPostingStepId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting step not found."));
+        JobPostingStep step = resolveInterviewStep(application, request);
 
-        interviewRepository.findByApplicationIdAndJobPostingStepId(applicationId, request.jobPostingStepId())
+        interviewRepository.findByApplicationIdAndJobPostingStepId(applicationId, step.getId())
                 .ifPresent(existing -> {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Interview already exists for this application and step.");
                 });
@@ -117,6 +116,35 @@ public class AdminInterviewService {
         evaluationRepository.save(evaluation);
 
         return toEvaluationResponse(evaluation, evaluator.getDisplayName());
+    }
+
+    private JobPostingStep resolveInterviewStep(Application application, CreateInterviewRequest request) {
+        if (request.jobPostingStepId() != null) {
+            JobPostingStep step = jobPostingStepRepository.findById(request.jobPostingStepId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting step not found."));
+
+            if (!application.getJobPosting().getId().equals(step.getJobPosting().getId())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Interview step does not belong to the application's job posting."
+                );
+            }
+
+            return step;
+        }
+
+        if (request.stepOrder() != null) {
+            return jobPostingStepRepository.findByJobPostingIdAndStepOrder(
+                            application.getJobPosting().getId(),
+                            request.stepOrder()
+                    )
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting step not found."));
+        }
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Either jobPostingStepId or stepOrder is required."
+        );
     }
 
     private InterviewResponse toInterviewResponse(Interview interview, List<Evaluation> evaluations) {

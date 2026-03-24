@@ -2,6 +2,7 @@
 
 import { startTransition, useRef, useState } from "react";
 
+import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import type {
   ApplicationAttachment,
   ApplicationDraftResponse,
@@ -96,6 +97,19 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function normalizeAttachmentSummary(
+  attachment: AttachmentSummary,
+): ApplicationAttachment {
+  return {
+    id: attachment.id,
+    applicationId: attachment.applicationId,
+    originalName: attachment.originalFilename,
+    contentType: attachment.contentType,
+    fileSize: attachment.fileSizeBytes,
+    createdAt: attachment.uploadedAt,
+  };
 }
 
 function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
@@ -339,6 +353,19 @@ export function ApplicationDraftForm({
     };
   }
 
+  async function refreshAttachments(applicationId: number) {
+    const response = await fetch(`/api/applications/${applicationId}/attachments`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const responseBody = (await response.json()) as AttachmentSummary[];
+    setAttachments(responseBody.map(normalizeAttachmentSummary));
+  }
+
   async function submitDraft(mode: FormActionMode) {
     const endpoint =
       mode === "draft"
@@ -391,6 +418,10 @@ export function ApplicationDraftForm({
           currentStatus: null,
         });
         return;
+      }
+
+      if (responseBody.applicationId) {
+        await refreshAttachments(responseBody.applicationId);
       }
 
       setState({
