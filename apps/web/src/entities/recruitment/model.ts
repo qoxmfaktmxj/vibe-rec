@@ -98,9 +98,6 @@ export interface ResumeLanguage {
 }
 
 export interface SaveApplicationDraftPayload {
-  applicantName: string;
-  applicantEmail: string;
-  applicantPhone: string;
   resumePayload: Record<string, string | number>;
   educations?: ResumeEducation[];
   experiences?: ResumeExperience[];
@@ -112,7 +109,7 @@ export interface SaveApplicationDraftPayload {
 export interface ApplicationDraftResponse {
   applicationId: number;
   jobPostingId: number;
-  applicantEmail: string;
+  applicantEmail?: string;
   status: ApplicationStatus;
   draftSavedAt: string;
   submittedAt: string | null;

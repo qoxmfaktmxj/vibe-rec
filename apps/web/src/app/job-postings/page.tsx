@@ -1,14 +1,17 @@
 import Link from "next/link";
 
 import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
+import { CandidateLogoutButton } from "@/features/recruitment/application/CandidateLogoutButton";
 import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
+import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 
 export default async function JobPostingListPage() {
-  const [jobPostings, session] = await Promise.all([
+  const [jobPostings, adminSession, candidateSession] = await Promise.all([
     getJobPostings().catch(() => []),
     getCurrentAdminSession().catch(() => null),
+    getCurrentCandidateSession().catch(() => null),
   ]);
 
   return (
@@ -36,23 +39,41 @@ export default async function JobPostingListPage() {
             >
               문의
             </a>
-            {session ? (
+            {adminSession ? (
               <div className="flex items-center gap-3">
                 <Link
                   href="/admin"
                   className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
                 >
-                  대시보드
+                  관리자 대시보드
                 </Link>
                 <AdminLogoutButton redirectTo="/job-postings" />
               </div>
+            ) : candidateSession ? (
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+                    지원자
+                  </p>
+                  <p className="text-sm text-on-surface">{candidateSession.name}</p>
+                </div>
+                <CandidateLogoutButton redirectTo="/job-postings" />
+              </div>
             ) : (
-              <Link
-                href="/login"
-                className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
-              >
-                로그인
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/auth/login"
+                  className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+                >
+                  로그인
+                </Link>
+                <Link
+                  href="/auth/login?mode=signup"
+                  className="rounded-sm border border-outline-variant px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+                >
+                  회원가입
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -61,8 +82,7 @@ export default async function JobPostingListPage() {
       <main className="mx-auto max-w-7xl px-6 py-16 md:px-16">
         {jobPostings.length === 0 ? (
           <div className="mb-8 rounded-sm border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
-            Job postings could not be loaded from the API right now. The rest
-            of the site is still available.
+            현재 공고 목록을 불러오지 못했습니다. 나머지 페이지는 계속 이용할 수 있습니다.
           </div>
         ) : null}
         <div className="mb-10 flex items-end justify-between gap-6">

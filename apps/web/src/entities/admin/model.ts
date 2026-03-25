@@ -15,6 +15,12 @@ export interface AdminLoginPayload {
   password: string;
 }
 
+export interface AdminSignupPayload {
+  username: string;
+  displayName: string;
+  password: string;
+}
+
 export interface AdminLoginResponse extends AdminSession {
   sessionToken: string;
 }

@@ -1,0 +1,1 @@
+export const CANDIDATE_SESSION_COOKIE = "vibe_rec_candidate_session";

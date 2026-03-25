@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { CandidateApiError, getRequiredCandidateSessionToken } from "@/shared/api/candidate-auth";
+
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:8081/api";
 
 function getApiBaseUrl() {
@@ -26,30 +28,25 @@ export async function POST(
 
   if (!Number.isInteger(jobPostingId) || jobPostingId <= 0) {
     return NextResponse.json(
-      { message: "Invalid job posting id." },
-      { status: 400 },
-    );
-  }
-
-  const url = new URL(request.url);
-  const applicantEmail = url.searchParams.get("applicantEmail");
-
-  if (!applicantEmail) {
-    return NextResponse.json(
-      { message: "applicantEmail query parameter is required." },
+      { message: "유효하지 않은 공고 ID입니다." },
       { status: 400 },
     );
   }
 
   try {
+    const sessionToken = await getRequiredCandidateSessionToken();
     const formData = await request.formData();
 
-    const backendUrl = `${getApiBaseUrl()}/job-postings/${jobPostingId}/application-draft/attachments?applicantEmail=${encodeURIComponent(applicantEmail)}`;
-
-    const response = await fetch(backendUrl, {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${getApiBaseUrl()}/job-postings/${jobPostingId}/application-draft/attachments`,
+      {
+        method: "POST",
+        headers: {
+          "X-Candidate-Session": sessionToken,
+        },
+        body: formData,
+      },
+    );
 
     if (!response.ok) {
       let message = "파일 업로드에 실패했습니다.";
@@ -64,7 +61,14 @@ export async function POST(
 
     const result = await response.json();
     return NextResponse.json(result);
-  } catch {
+  } catch (error) {
+    if (error instanceof CandidateApiError) {
+      return NextResponse.json(
+        { message: error.message },
+        { status: error.status },
+      );
+    }
+
     return NextResponse.json(
       { message: "파일 업로드 중 서버 오류가 발생했습니다." },
       { status: 500 },

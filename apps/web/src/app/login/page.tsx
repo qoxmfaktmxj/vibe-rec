@@ -1,44 +1,52 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { AdminLoginForm } from "@/features/admin/auth/AdminLoginForm";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
+import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
 
-export default async function LoginPage() {
-  const session = await getCurrentAdminSession();
+interface LoginRedirectPageProps {
+  searchParams: Promise<{
+    mode?: string;
+    next?: string;
+  }>;
+}
 
-  if (session) {
+function resolveNextPath(rawNext?: string) {
+  if (!rawNext || !rawNext.startsWith("/") || rawNext.startsWith("//")) {
+    return "/job-postings";
+  }
+
+  return rawNext;
+}
+
+export default async function LoginRedirectPage({
+  searchParams,
+}: LoginRedirectPageProps) {
+  const [candidateSession, adminSession, params] = await Promise.all([
+    getCurrentCandidateSession().catch(() => null),
+    getCurrentAdminSession().catch(() => null),
+    searchParams,
+  ]);
+  const nextPath = resolveNextPath(params.next);
+
+  if (adminSession) {
     redirect("/admin");
   }
 
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
-      <div className="w-full max-w-md rounded-sm border border-outline-variant bg-surface px-10 py-12">
-        <div className="space-y-4 border-b border-outline-variant pb-8">
-          <p className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-            Vibe Rec
-          </p>
-          <div className="space-y-2">
-            <h1 className="font-headline text-3xl font-light tracking-[-0.05em] text-on-surface">
-              로그인 후 계속 진행하세요.
-            </h1>
-            <p className="text-sm leading-7 text-on-surface-variant">
-              채용 운영 화면에 로그인해서 지원자 검토와 진행 상태를 관리하세요.
-            </p>
-          </div>
-        </div>
+  if (candidateSession) {
+    redirect(nextPath);
+  }
 
-        <div className="pt-8">
-          <AdminLoginForm />
-        </div>
+  const nextSearchParams = new URLSearchParams();
+  if (params.mode) {
+    nextSearchParams.set("mode", params.mode);
+  }
+  if (params.next) {
+    nextSearchParams.set("next", params.next);
+  }
 
-        <div className="mt-8 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
-          <Link href="/" className="transition-colors hover:text-primary">
-            홈으로 돌아가기
-          </Link>
-          <span>보안 접속</span>
-        </div>
-      </div>
-    </main>
+  redirect(
+    nextSearchParams.size > 0
+      ? `/auth/login?${nextSearchParams.toString()}`
+      : "/auth/login",
   );
 }

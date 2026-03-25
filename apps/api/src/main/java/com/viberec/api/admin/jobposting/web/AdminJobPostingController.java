@@ -39,7 +39,7 @@ public class AdminJobPostingController {
     ) {
         authorize(sessionToken);
         jobPostingRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공고를 찾을 수 없습니다."));
 
         return jobPostingStepRepository.findByJobPostingIdOrderByStepOrderAsc(id).stream()
                 .map(this::toStepResponse)

@@ -39,7 +39,7 @@ public class AdminHiringDecisionService {
     @Transactional
     public FinalDecisionResponse makeFinalDecision(Long applicationId, FinalDecisionRequest request) {
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
         validateFinalStatusTransition(application, request.finalStatus());
 
@@ -56,7 +56,7 @@ public class AdminHiringDecisionService {
     @Transactional
     public NotificationResponse createNotification(Long applicationId, Long sentBy, CreateNotificationRequest request) {
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
         String sentByName = adminAccountRepository.findById(sentBy)
                 .map(AdminAccount::getDisplayName)
@@ -70,7 +70,7 @@ public class AdminHiringDecisionService {
 
     public List<NotificationResponse> getNotifications(Long applicationId) {
         applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
         return notificationLogRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId).stream()
                 .map(log -> {
@@ -89,19 +89,19 @@ public class AdminHiringDecisionService {
 
         if (targetStatus == ApplicationFinalStatus.OFFER_MADE) {
             if (application.getReviewStatus() != ApplicationReviewStatus.PASSED) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Only applications with PASSED review status can receive an offer.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "검토 결과가 통과인 지원서만 오퍼할 수 있습니다.");
             }
         }
 
         if (targetStatus == ApplicationFinalStatus.ACCEPTED || targetStatus == ApplicationFinalStatus.DECLINED) {
             if (currentFinalStatus != ApplicationFinalStatus.OFFER_MADE) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Application must have an offer before it can be accepted or declined.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "오퍼가 먼저 있어야 수락 또는 거절로 변경할 수 있습니다.");
             }
         }
 
         if (targetStatus == ApplicationFinalStatus.WITHDRAWN) {
             if (currentFinalStatus == ApplicationFinalStatus.ACCEPTED) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "An accepted application cannot be withdrawn.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "수락된 지원서는 철회 상태로 변경할 수 없습니다.");
             }
         }
     }

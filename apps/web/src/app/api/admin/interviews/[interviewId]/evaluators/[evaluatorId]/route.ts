@@ -16,7 +16,10 @@ export async function DELETE(_request: Request, { params }: RouteProps) {
   const eid = Number(evaluatorId);
 
   if (!Number.isInteger(iid) || iid <= 0 || !Number.isInteger(eid) || eid <= 0) {
-    return NextResponse.json({ message: "Invalid id." }, { status: 400 });
+    return NextResponse.json(
+      { message: "유효하지 않은 ID입니다." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -27,6 +30,9 @@ export async function DELETE(_request: Request, { params }: RouteProps) {
     if (error instanceof AdminApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
-    return NextResponse.json({ message: "Failed to remove evaluator." }, { status: 500 });
+    return NextResponse.json(
+      { message: "면접관 삭제에 실패했습니다." },
+      { status: 500 },
+    );
   }
 }

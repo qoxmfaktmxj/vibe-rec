@@ -21,6 +21,11 @@ public class AdminAuthController {
         this.adminAuthService = adminAuthService;
     }
 
+    @PostMapping("/signup")
+    public AdminLoginResponse signup(@Valid @RequestBody AdminSignupRequest request) {
+        return adminAuthService.signup(request);
+    }
+
     @PostMapping("/login")
     public AdminLoginResponse login(@Valid @RequestBody AdminLoginRequest request) {
         return adminAuthService.login(request);

@@ -8,7 +8,7 @@ import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 const navItems = [
   {
     href: "/admin",
-    label: "대시보드",
+    label: "Dashboard",
     icon: (
       <path
         strokeLinecap="round"
@@ -19,7 +19,7 @@ const navItems = [
   },
   {
     href: "/admin/applicants",
-    label: "지원자",
+    label: "Applicants",
     icon: (
       <path
         strokeLinecap="round"
@@ -30,7 +30,7 @@ const navItems = [
   },
   {
     href: "/",
-    label: "공개 사이트",
+    label: "Public site",
     icon: (
       <path
         strokeLinecap="round"
@@ -49,7 +49,7 @@ export default async function AdminLayout({
   const session = await getCurrentAdminSession();
 
   if (!session) {
-    redirect("/login");
+    redirect("/admin/login");
   }
 
   return (
@@ -74,7 +74,7 @@ export default async function AdminLayout({
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-                채용 운영 공간
+                Hiring workspace
               </p>
               <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
                 {session.displayName}
@@ -85,11 +85,9 @@ export default async function AdminLayout({
                 <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
                   {session.role}
                 </p>
-                <p className="text-sm text-on-surface-variant">
-                  관리자 세션 활성
-                </p>
+                <p className="text-sm text-on-surface-variant">Admin session active</p>
               </div>
-              <AdminLogoutButton />
+              <AdminLogoutButton redirectTo="/admin/login" />
             </div>
           </div>
         </header>

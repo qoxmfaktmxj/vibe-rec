@@ -29,14 +29,19 @@ export async function POST(request: Request) {
     return nextResponse;
   } catch (error) {
     if (error instanceof AdminApiError) {
+      const message =
+        error.status === 401 || error.status === 403
+          ? "아이디 또는 비밀번호를 다시 확인해주세요."
+          : error.message;
+
       return NextResponse.json(
-        { message: error.message },
+        { message },
         { status: error.status },
       );
     }
 
     return NextResponse.json(
-      { message: "Failed to sign in." },
+      { message: "로그인 처리 중 오류가 발생했습니다." },
       { status: 500 },
     );
   }

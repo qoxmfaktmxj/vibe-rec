@@ -51,17 +51,17 @@ public class AdminInterviewService {
     @Transactional
     public InterviewResponse createInterview(Long applicationId, CreateInterviewRequest request) {
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
         if (application.getStatus() != ApplicationStatus.SUBMITTED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only submitted applications can have interviews.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "제출 완료된 지원서만 면접을 등록할 수 있습니다.");
         }
 
         JobPostingStep step = resolveInterviewStep(application, request);
 
         interviewRepository.findByApplicationIdAndJobPostingStepId(applicationId, step.getId())
                 .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Interview already exists for this application and step.");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "해당 지원서와 전형 단계에는 이미 면접이 등록되어 있습니다.");
                 });
 
         Interview interview = new Interview(application, step, request.scheduledAt(), request.note());
@@ -73,7 +73,7 @@ public class AdminInterviewService {
     @Transactional
     public InterviewResponse updateInterview(Long interviewId, UpdateInterviewRequest request) {
         Interview interview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interview not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "면접 정보를 찾을 수 없습니다."));
 
         interview.updateStatus(request.status(), request.note());
 
@@ -83,7 +83,7 @@ public class AdminInterviewService {
 
     public List<InterviewResponse> getInterviews(Long applicationId) {
         applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "지원서를 찾을 수 없습니다."));
 
         List<Interview> interviews = interviewRepository.findByApplicationIdOrderByCreatedAt(applicationId);
         List<Evaluation> allEvaluations = evaluationRepository.findByInterviewApplicationIdOrderByCreatedAt(applicationId);
@@ -102,14 +102,14 @@ public class AdminInterviewService {
     @Transactional
     public EvaluationResponse createEvaluation(Long interviewId, Long evaluatorId, CreateEvaluationRequest request) {
         Interview interview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interview not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "면접 정보를 찾을 수 없습니다."));
 
         AdminAccount evaluator = adminAccountRepository.findById(evaluatorId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evaluator account not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "평가자 계정을 찾을 수 없습니다."));
 
         evaluationRepository.findByInterviewIdAndEvaluatorId(interviewId, evaluatorId)
                 .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Evaluation already exists for this interview and evaluator.");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "해당 면접과 평가자 조합의 평가가 이미 존재합니다.");
                 });
 
         Evaluation evaluation = new Evaluation(interview, evaluatorId, request.score(), request.comment(), request.result());
@@ -121,12 +121,12 @@ public class AdminInterviewService {
     private JobPostingStep resolveInterviewStep(Application application, CreateInterviewRequest request) {
         if (request.jobPostingStepId() != null) {
             JobPostingStep step = jobPostingStepRepository.findById(request.jobPostingStepId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting step not found."));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공고 전형 단계를 찾을 수 없습니다."));
 
             if (!application.getJobPosting().getId().equals(step.getJobPosting().getId())) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
-                        "Interview step does not belong to the application's job posting."
+                        "선택한 면접 단계가 해당 지원서의 공고에 속하지 않습니다."
                 );
             }
 
@@ -134,16 +134,16 @@ public class AdminInterviewService {
         }
 
         if (request.stepOrder() != null) {
-            return jobPostingStepRepository.findByJobPostingIdAndStepOrder(
+                    return jobPostingStepRepository.findByJobPostingIdAndStepOrder(
                             application.getJobPosting().getId(),
                             request.stepOrder()
                     )
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting step not found."));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공고 전형 단계를 찾을 수 없습니다."));
         }
 
         throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Either jobPostingStepId or stepOrder is required."
+                "전형 단계 정보를 함께 보내야 합니다."
         );
     }
 

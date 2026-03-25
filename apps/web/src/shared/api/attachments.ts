@@ -21,7 +21,7 @@ export async function getAdminAttachments(applicationId: number) {
   );
 
   if (!response.ok) {
-    let message = `API request failed with status ${response.status}.`;
+    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
     try {
       const errorBody = (await response.json()) as {
         error?: string;

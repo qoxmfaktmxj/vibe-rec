@@ -16,6 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 class AdminApplicantTests extends IntegrationTestBase {
@@ -40,12 +41,13 @@ class AdminApplicantTests extends IntegrationTestBase {
 
     @Test
     void returnsApplicantsWithSearchAndStatusFilters() {
+        var backendCandidate = createCandidateAccount("Backend Kim", "backend.kim@example.com", "010-1111-2222");
+        var draftCandidate = createCandidateAccount("Draft Park", "draft.park@example.com", "010-3333-4444");
+
         applicationDraftService.submit(
                 1001L,
+                backendCandidate,
                 new SaveApplicationDraftRequest(
-                        "Backend Kim",
-                        "backend.kim@example.com",
-                        "010-1111-2222",
                         Map.of(
                                 "introduction", "I have built enterprise recruitment backends and migration tooling for hiring teams.",
                                 "coreStrength", "I can stabilize hiring workflows while systems are being replaced."
@@ -55,10 +57,8 @@ class AdminApplicantTests extends IntegrationTestBase {
         );
         applicationDraftService.saveDraft(
                 1001L,
+                draftCandidate,
                 new SaveApplicationDraftRequest(
-                        "Draft Park",
-                        "draft.park@example.com",
-                        "010-3333-4444",
                         Map.of("introduction", "draft only"),
                         null, null, null, null, null
                 )
@@ -67,6 +67,9 @@ class AdminApplicantTests extends IntegrationTestBase {
         var submittedApplicants = adminApplicantService.getApplicants(
                 null,
                 ApplicationStatus.SUBMITTED,
+                null,
+                null,
+                null,
                 null,
                 "backend"
         );
@@ -80,12 +83,11 @@ class AdminApplicantTests extends IntegrationTestBase {
 
     @Test
     void updatesReviewStatusForSubmittedApplication() {
+        var candidate = createCandidateAccount("Review Kim", "review.kim@example.com", "010-7777-8888");
         var submittedApplication = applicationDraftService.submit(
                 1001L,
+                candidate,
                 new SaveApplicationDraftRequest(
-                        "Review Kim",
-                        "review.kim@example.com",
-                        "010-7777-8888",
                         Map.of(
                                 "introduction", "I have owned applicant workflows and recruiter tools across multiple hiring platforms.",
                                 "coreStrength", "I can convert business review rules into predictable operating flows."
@@ -119,12 +121,11 @@ class AdminApplicantTests extends IntegrationTestBase {
 
     @Test
     void rejectsReviewStatusChangeForDraftApplication() {
+        var candidate = createCandidateAccount("Draft Only", "draft.only@example.com", "010-9999-0000");
         var draftApplication = applicationDraftService.saveDraft(
                 1001L,
+                candidate,
                 new SaveApplicationDraftRequest(
-                        "Draft Only",
-                        "draft.only@example.com",
-                        "010-9999-0000",
                         Map.of("introduction", "This is still a draft."),
                         null, null, null, null, null
                 )
@@ -138,6 +139,7 @@ class AdminApplicantTests extends IntegrationTestBase {
                 )
         ))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Only submitted applications can enter recruiter review.");
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.CONFLICT);
     }
 }

@@ -17,7 +17,7 @@ async function handleDecision(request: Request, { params }: RouteProps) {
 
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
     return NextResponse.json(
-      { message: "Invalid application id." },
+      { message: "유효하지 않은 지원서 ID입니다." },
       { status: 400 },
     );
   }
@@ -45,7 +45,7 @@ async function handleDecision(request: Request, { params }: RouteProps) {
     }
 
     return NextResponse.json(
-      { message: "Failed to update final decision." },
+      { message: "최종 결정 업데이트에 실패했습니다." },
       { status: 500 },
     );
   }

@@ -11,6 +11,8 @@ public interface AdminAccountRepository extends JpaRepository<AdminAccount, Long
 
     Optional<AdminAccount> findByUsernameIgnoreCase(String username);
 
+    boolean existsByUsernameIgnoreCase(String username);
+
     @Query(
             value = """
                     select *
@@ -39,6 +41,36 @@ public interface AdminAccountRepository extends JpaRepository<AdminAccount, Long
                         :username,
                         :displayName,
                         crypt(cast(:password as text), gen_salt('bf')),
+                        'ADMIN',
+                        true,
+                        current_timestamp,
+                        current_timestamp
+                    )
+                    """,
+            nativeQuery = true
+    )
+    void createAccount(
+            @Param("username") String username,
+            @Param("displayName") String displayName,
+            @Param("password") String password
+    );
+
+    @Modifying
+    @Query(
+            value = """
+                    insert into platform.admin_account (
+                        username,
+                        display_name,
+                        password_hash,
+                        role,
+                        active,
+                        created_at,
+                        updated_at
+                    )
+                    values (
+                        :username,
+                        :displayName,
+                        crypt(cast(:password as text), gen_salt('bf')),
                         cast(:role as varchar),
                         true,
                         current_timestamp,
@@ -46,7 +78,7 @@ public interface AdminAccountRepository extends JpaRepository<AdminAccount, Long
                     )
                     on conflict (username) do update
                     set display_name = excluded.display_name,
-                        password_hash = crypt(cast(:password as text), gen_salt('bf')),
+                        password_hash = excluded.password_hash,
                         role = cast(:role as varchar),
                         active = true,
                         updated_at = current_timestamp

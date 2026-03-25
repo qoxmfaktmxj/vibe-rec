@@ -13,7 +13,7 @@ import {
 
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    let message = `API request failed with status ${response.status}.`;
+    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -169,7 +169,7 @@ export async function addInterviewEvaluator(
   void interviewId;
   void evaluatorName;
   throw new AdminApiError(
-    "Evaluator assignment is not supported by the current backend.",
+    "현재 백엔드에서는 면접관 배정을 지원하지 않습니다.",
     501,
   );
 }
@@ -181,7 +181,7 @@ export async function removeInterviewEvaluator(
   void interviewId;
   void evaluatorId;
   throw new AdminApiError(
-    "Evaluator assignment is not supported by the current backend.",
+    "현재 백엔드에서는 면접관 배정을 지원하지 않습니다.",
     501,
   );
 }

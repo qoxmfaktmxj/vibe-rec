@@ -1,5 +1,7 @@
 package com.viberec.api.recruitment.jobposting.web;
 
+import com.viberec.api.candidate.auth.domain.CandidateAccount;
+import com.viberec.api.candidate.auth.service.CandidateAuthService;
 import com.viberec.api.recruitment.application.service.ApplicationDraftService;
 import com.viberec.api.recruitment.application.web.ApplicationDraftResponse;
 import com.viberec.api.recruitment.application.web.SaveApplicationDraftRequest;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,10 +22,16 @@ public class JobPostingController {
 
     private final JobPostingService jobPostingService;
     private final ApplicationDraftService applicationDraftService;
+    private final CandidateAuthService candidateAuthService;
 
-    public JobPostingController(JobPostingService jobPostingService, ApplicationDraftService applicationDraftService) {
+    public JobPostingController(
+            JobPostingService jobPostingService,
+            ApplicationDraftService applicationDraftService,
+            CandidateAuthService candidateAuthService
+    ) {
         this.jobPostingService = jobPostingService;
         this.applicationDraftService = applicationDraftService;
+        this.candidateAuthService = candidateAuthService;
     }
 
     @GetMapping
@@ -38,16 +47,20 @@ public class JobPostingController {
     @PostMapping("/{id}/application-draft")
     public ApplicationDraftResponse saveApplicationDraft(
             @PathVariable Long id,
+            @RequestHeader(value = "X-Candidate-Session", required = false) String sessionToken,
             @Valid @RequestBody SaveApplicationDraftRequest request
     ) {
-        return applicationDraftService.saveDraft(id, request);
+        CandidateAccount candidateAccount = candidateAuthService.requireActiveAccount(sessionToken);
+        return applicationDraftService.saveDraft(id, candidateAccount, request);
     }
 
     @PostMapping("/{id}/application-submit")
     public ApplicationDraftResponse submitApplication(
             @PathVariable Long id,
+            @RequestHeader(value = "X-Candidate-Session", required = false) String sessionToken,
             @Valid @RequestBody SaveApplicationDraftRequest request
     ) {
-        return applicationDraftService.submit(id, request);
+        CandidateAccount candidateAccount = candidateAuthService.requireActiveAccount(sessionToken);
+        return applicationDraftService.submit(id, candidateAccount, request);
     }
 }

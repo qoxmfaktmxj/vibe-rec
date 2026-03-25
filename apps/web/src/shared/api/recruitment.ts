@@ -16,6 +16,7 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = "ApiError";
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
@@ -30,7 +31,7 @@ function getApiBaseUrl() {
 
 async function parseResponse<T>(response: Response) {
   if (!response.ok) {
-    let message = `API request failed with status ${response.status}.`;
+    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -61,6 +62,16 @@ async function apiFetch<T>(path: string, init?: RequestInit) {
   return parseResponse<T>(response);
 }
 
+function withCandidateSession(
+  sessionToken: string,
+  headers?: HeadersInit,
+): HeadersInit {
+  return {
+    ...(headers ?? {}),
+    "X-Candidate-Session": sessionToken,
+  };
+}
+
 export async function getJobPostings() {
   return apiFetch<JobPostingSummary[]>("/job-postings");
 }
@@ -83,14 +94,15 @@ export async function getJobPosting(id: number) {
 export async function saveApplicationDraft(
   jobPostingId: number,
   payload: SaveApplicationDraftPayload,
+  sessionToken: string,
 ) {
   return apiFetch<ApplicationDraftResponse>(
     `/job-postings/${jobPostingId}/application-draft`,
     {
       method: "POST",
-      headers: {
+      headers: withCandidateSession(sessionToken, {
         "Content-Type": "application/json",
-      },
+      }),
       body: JSON.stringify(payload),
     },
   );
@@ -99,14 +111,15 @@ export async function saveApplicationDraft(
 export async function submitApplication(
   jobPostingId: number,
   payload: SaveApplicationDraftPayload,
+  sessionToken: string,
 ) {
   return apiFetch<ApplicationDraftResponse>(
     `/job-postings/${jobPostingId}/application-submit`,
     {
       method: "POST",
-      headers: {
+      headers: withCandidateSession(sessionToken, {
         "Content-Type": "application/json",
-      },
+      }),
       body: JSON.stringify(payload),
     },
   );

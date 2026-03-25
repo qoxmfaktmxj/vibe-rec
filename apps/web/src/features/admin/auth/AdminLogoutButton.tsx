@@ -4,7 +4,7 @@ import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function AdminLogoutButton({
-  redirectTo = "/login",
+  redirectTo = "/admin/login",
 }: {
   redirectTo?: string;
 }) {

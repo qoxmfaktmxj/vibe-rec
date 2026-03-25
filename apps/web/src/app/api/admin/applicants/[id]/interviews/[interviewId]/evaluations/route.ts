@@ -16,7 +16,10 @@ export async function POST(request: Request, { params }: RouteProps) {
   const id = Number(interviewId);
 
   if (!Number.isInteger(id) || id <= 0) {
-    return NextResponse.json({ message: "Invalid interview id." }, { status: 400 });
+    return NextResponse.json(
+      { message: "유효하지 않은 면접 ID입니다." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -38,7 +41,7 @@ export async function POST(request: Request, { params }: RouteProps) {
     }
 
     return NextResponse.json(
-      { message: "Failed to create evaluation." },
+      { message: "평가 등록에 실패했습니다." },
       { status: 500 },
     );
   }

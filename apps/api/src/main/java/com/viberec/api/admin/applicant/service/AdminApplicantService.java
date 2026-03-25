@@ -14,6 +14,7 @@ import com.viberec.api.recruitment.application.web.ResumeEducationDto;
 import com.viberec.api.recruitment.application.web.ResumeExperienceDto;
 import com.viberec.api.recruitment.application.web.ResumeLanguageDto;
 import com.viberec.api.recruitment.application.web.ResumeSkillDto;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -53,15 +54,15 @@ public class AdminApplicantService {
         String normalizedApplicantPhone = normalizeQuery(applicantPhone);
         String normalizedQuery = normalizeQuery(query);
 
-        return applicationRepository.findAdminApplicants(
-                        jobPostingId,
-                        applicationStatus,
-                        reviewStatus,
-                        normalizedApplicantName,
-                        normalizedApplicantEmail,
-                        normalizedApplicantPhone,
-                        normalizedQuery
-                ).stream()
+        return applicationRepository.findAllWithJobPosting().stream()
+                .filter(application -> jobPostingId == null || application.getJobPosting().getId().equals(jobPostingId))
+                .filter(application -> applicationStatus == null || application.getStatus() == applicationStatus)
+                .filter(application -> reviewStatus == null || application.getReviewStatus() == reviewStatus)
+                .filter(application -> matches(application.getApplicantName(), normalizedApplicantName))
+                .filter(application -> matches(application.getApplicantEmail(), normalizedApplicantEmail))
+                .filter(application -> matches(application.getApplicantPhone(), normalizedApplicantPhone))
+                .filter(application -> matchesAny(application, normalizedQuery))
+                .sorted((left, right) -> compareRecency(left, right))
                 .map(this::toSummaryResponse)
                 .toList();
     }
@@ -76,10 +77,7 @@ public class AdminApplicantService {
     }
 
     @Transactional
-    public AdminApplicantDetailResponse updateReviewStatus(
-            Long applicationId,
-            UpdateApplicantReviewStatusRequest request
-    ) {
+    public AdminApplicantDetailResponse updateReviewStatus(Long applicationId, UpdateApplicantReviewStatusRequest request) {
         Application application = loadApplication(applicationId);
         validateReviewTransition(application, request.reviewStatus());
         application.updateReviewStatus(request.reviewStatus(), normalizeReviewNote(request.reviewNote()));
@@ -93,12 +91,12 @@ public class AdminApplicantService {
 
     private Application loadApplication(Long applicationId) {
         return applicationRepository.findWithJobPostingById(applicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Applicant not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
     }
 
     private void validateReviewTransition(Application application, ApplicationReviewStatus targetStatus) {
         if (application.getStatus() != ApplicationStatus.SUBMITTED && targetStatus != ApplicationReviewStatus.NEW) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only submitted applications can enter recruiter review.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only submitted applications can change review status.");
         }
 
         ApplicationReviewStatus currentStatus = application.getReviewStatus();
@@ -111,12 +109,12 @@ public class AdminApplicantService {
         }
 
         if (currentStatus == ApplicationReviewStatus.NEW && targetStatus != ApplicationReviewStatus.IN_REVIEW) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Move the applicant into IN_REVIEW before making a final decision.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Applications must move to IN_REVIEW before a final review result.");
         }
 
         if ((currentStatus == ApplicationReviewStatus.PASSED || currentStatus == ApplicationReviewStatus.REJECTED)
                 && targetStatus == ApplicationReviewStatus.IN_REVIEW) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A final review decision cannot move back to IN_REVIEW.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Final review results cannot move back to IN_REVIEW.");
         }
     }
 
@@ -125,7 +123,7 @@ public class AdminApplicantService {
             return null;
         }
 
-        String normalized = query.trim();
+        String normalized = query.trim().toLowerCase();
         return normalized.isEmpty() ? null : normalized;
     }
 
@@ -136,6 +134,28 @@ public class AdminApplicantService {
 
         String normalized = reviewNote.trim();
         return normalized.isEmpty() ? null : normalized;
+    }
+
+    private boolean matches(String value, String query) {
+        return query == null || (value != null && value.toLowerCase().contains(query));
+    }
+
+    private boolean matchesAny(Application application, String query) {
+        if (query == null) {
+            return true;
+        }
+
+        return matches(application.getApplicantName(), query)
+                || matches(application.getApplicantEmail(), query)
+                || matches(application.getApplicantPhone(), query)
+                || matches(application.getJobPosting().getTitle(), query);
+    }
+
+    private int compareRecency(Application left, Application right) {
+        OffsetDateTime leftTimestamp = left.getSubmittedAt() != null ? left.getSubmittedAt() : left.getDraftSavedAt();
+        OffsetDateTime rightTimestamp = right.getSubmittedAt() != null ? right.getSubmittedAt() : right.getDraftSavedAt();
+        int timestampCompare = rightTimestamp.compareTo(leftTimestamp);
+        return timestampCompare != 0 ? timestampCompare : right.getId().compareTo(left.getId());
     }
 
     private AdminApplicantSummaryResponse toSummaryResponse(Application application) {

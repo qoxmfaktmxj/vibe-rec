@@ -5,53 +5,43 @@ import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-    Optional<Application> findByJobPostingIdAndApplicantEmailIgnoreCase(Long jobPostingId, String applicantEmail);
+    Optional<Application> findByJobPostingIdAndCandidateAccountId(Long jobPostingId, Long candidateAccountId);
 
-    @EntityGraph(attributePaths = "jobPosting")
-    Optional<Application> findWithJobPostingById(Long id);
+    Optional<Application> findByIdAndCandidateAccountId(Long id, Long candidateAccountId);
 
-    @EntityGraph(attributePaths = "jobPosting")
     @Query("""
             select application
             from Application application
-            join application.jobPosting jobPosting
+            join fetch application.jobPosting jobPosting
+            where application.id = :applicationId
+            """)
+    Optional<Application> findWithJobPostingById(@Param("applicationId") Long applicationId);
+
+    @Query("""
+            select application
+            from Application application
+            join fetch application.jobPosting
+            """)
+    List<Application> findAllWithJobPosting();
+
+    @Query("""
+            select distinct application
+            from Application application
+            join fetch application.jobPosting jobPosting
             where (:jobPostingId is null or jobPosting.id = :jobPostingId)
               and (:applicationStatus is null or application.status = :applicationStatus)
               and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
-              and (
-                    :applicantName is null
-                    or lower(application.applicantName) like lower(concat('%', cast(:applicantName as string), '%'))
-                  )
-              and (
-                    :applicantEmail is null
-                    or lower(application.applicantEmail) like lower(concat('%', cast(:applicantEmail as string), '%'))
-                  )
-              and (
-                    :applicantPhone is null
-                    or lower(application.applicantPhone) like lower(concat('%', cast(:applicantPhone as string), '%'))
-                  )
-              and (
-                    :query is null
-                    or lower(application.applicantName) like lower(concat('%', cast(:query as string), '%'))
-                    or lower(application.applicantEmail) like lower(concat('%', cast(:query as string), '%'))
-                    or lower(application.applicantPhone) like lower(concat('%', cast(:query as string), '%'))
-                  )
             order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
             """)
     List<Application> findAdminApplicants(
             @Param("jobPostingId") Long jobPostingId,
             @Param("applicationStatus") ApplicationStatus applicationStatus,
-            @Param("reviewStatus") ApplicationReviewStatus reviewStatus,
-            @Param("applicantName") String applicantName,
-            @Param("applicantEmail") String applicantEmail,
-            @Param("applicantPhone") String applicantPhone,
-            @Param("query") String query
+            @Param("reviewStatus") ApplicationReviewStatus reviewStatus
     );
 }

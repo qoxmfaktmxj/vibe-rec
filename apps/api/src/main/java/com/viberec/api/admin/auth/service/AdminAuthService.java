@@ -8,17 +8,17 @@ import com.viberec.api.admin.auth.repository.AdminSessionRepository;
 import com.viberec.api.admin.auth.web.AdminLoginRequest;
 import com.viberec.api.admin.auth.web.AdminLoginResponse;
 import com.viberec.api.admin.auth.web.AdminSessionResponse;
+import com.viberec.api.admin.auth.web.AdminSignupRequest;
 import com.viberec.api.platform.permission.service.PermissionService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.security.SecureRandom;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -51,10 +51,26 @@ public class AdminAuthService {
     }
 
     @Transactional
+    public AdminLoginResponse signup(AdminSignupRequest request) {
+        String normalizedUsername = normalizeUsername(request.username());
+        if (adminAccountRepository.findByUsernameIgnoreCase(normalizedUsername).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Admin username is already registered.");
+        }
+
+        adminAccountRepository.createAccount(
+                normalizedUsername,
+                normalizeDisplayName(request.displayName()),
+                request.password()
+        );
+
+        return login(new AdminLoginRequest(request.username(), request.password()));
+    }
+
+    @Transactional
     public AdminLoginResponse login(AdminLoginRequest request) {
         String normalizedUsername = normalizeUsername(request.username());
         AdminAccount account = adminAccountRepository.authenticate(normalizedUsername, request.password())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid admin credentials."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin username or password is invalid."));
 
         adminAccountRepository.markAuthenticated(account.getId());
         OffsetDateTime authenticatedAt = OffsetDateTime.now();
@@ -62,7 +78,6 @@ public class AdminAuthService {
         String sessionToken = generateSessionToken();
 
         adminSessionRepository.save(new AdminSession(account, hashSessionToken(sessionToken), expiresAt));
-
         List<String> permissions = permissionService.getPermissionCodes(account.getRole().name());
 
         return new AdminLoginResponse(
@@ -82,7 +97,6 @@ public class AdminAuthService {
         AdminSession session = findActiveSession(sessionToken);
         OffsetDateTime now = OffsetDateTime.now();
         adminSessionRepository.touch(session.getId(), now);
-
         List<String> permissions = permissionService.getPermissionCodes(session.getAdminAccount().getRole().name());
 
         return new AdminSessionResponse(
@@ -103,20 +117,31 @@ public class AdminAuthService {
     }
 
     private String normalizeUsername(String username) {
-        return username.trim().toLowerCase();
+        String normalized = username == null ? "" : username.trim().toLowerCase();
+        if (normalized.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required.");
+        }
+        return normalized;
+    }
+
+    private String normalizeDisplayName(String displayName) {
+        String normalized = displayName == null ? "" : displayName.trim();
+        if (normalized.length() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Display name must be at least 2 characters.");
+        }
+        return normalized;
     }
 
     private AdminSession findActiveSession(String sessionToken) {
         String normalizedToken = normalizeSessionToken(sessionToken);
         return adminSessionRepository.findActiveSessionByTokenHash(hashSessionToken(normalizedToken), OffsetDateTime.now())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is missing or expired."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is invalid or expired."));
     }
 
     private String normalizeSessionToken(String sessionToken) {
         if (sessionToken == null || sessionToken.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is missing or expired.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is invalid or expired.");
         }
-
         return sessionToken.trim();
     }
 

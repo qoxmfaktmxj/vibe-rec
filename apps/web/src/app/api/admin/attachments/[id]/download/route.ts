@@ -29,7 +29,7 @@ export async function GET(
 
   if (!Number.isInteger(attachmentId) || attachmentId <= 0) {
     return NextResponse.json(
-      { message: "Invalid attachment id." },
+      { message: "유효하지 않은 첨부파일 ID입니다." },
       { status: 400 },
     );
   }
@@ -39,7 +39,7 @@ export async function GET(
 
   if (!sessionToken) {
     return NextResponse.json(
-      { message: "Admin session is missing." },
+      { message: "관리자 세션이 없습니다." },
       { status: 401 },
     );
   }

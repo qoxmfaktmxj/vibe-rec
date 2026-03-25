@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { test, expect } = require("playwright/test");
 
 test("round3: public home reflects active admin session", async ({ page }) => {

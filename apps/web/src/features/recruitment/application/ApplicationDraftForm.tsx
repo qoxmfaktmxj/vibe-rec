@@ -2,6 +2,7 @@
 
 import { startTransition, useRef, useState } from "react";
 
+import type { CandidateSession } from "@/entities/candidate/model";
 import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import type {
   ApplicationAttachment,
@@ -18,6 +19,7 @@ import {
 } from "@/shared/lib/recruitment";
 
 interface ApplicationDraftFormProps {
+  candidateSession: CandidateSession;
   jobPostingId: number;
   canSave: boolean;
   helperText: string;
@@ -119,10 +121,6 @@ function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
     fieldErrors.applicantName = "이름은 두 글자 이상 입력해주세요.";
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.applicantEmail.trim())) {
-    fieldErrors.applicantEmail = "올바른 이메일 주소를 입력해주세요.";
-  }
-
   if (!/^[0-9+\-() ]{8,40}$/.test(values.applicantPhone.trim())) {
     fieldErrors.applicantPhone = "올바른 연락처를 입력해주세요.";
   }
@@ -158,11 +156,17 @@ function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
 }
 
 export function ApplicationDraftForm({
+  candidateSession,
   jobPostingId,
   canSave,
   helperText,
 }: ApplicationDraftFormProps) {
-  const [formValues, setFormValues] = useState(initialFormValues);
+  const [formValues, setFormValues] = useState<DraftFormValues>({
+    ...initialFormValues,
+    applicantName: candidateSession.name,
+    applicantEmail: candidateSession.email,
+    applicantPhone: candidateSession.phone,
+  });
   const [state, setState] = useState(initialDraftActionState);
   const [pendingAction, setPendingAction] = useState<FormActionMode | null>(
     null,
@@ -172,7 +176,6 @@ export function ApplicationDraftForm({
   const [attachments, setAttachments] = useState<ApplicationAttachment[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const emailInputRef = useRef<HTMLInputElement>(null);
 
   // Education history
   const [educations, setEducations] = useState<EducationEntry[]>([]);
@@ -190,26 +193,18 @@ export function ApplicationDraftForm({
     }));
 
     setState((current) => {
-      if (!current.fieldErrors[fieldName] && fieldName !== "applicantEmail") {
+      if (!current.fieldErrors[fieldName]) {
         return current;
       }
 
       const nextFieldErrors = { ...current.fieldErrors };
       delete nextFieldErrors[fieldName];
 
-      const shouldClearUploadEmailMessage =
-        fieldName === "applicantEmail" &&
-        current.message?.includes("이메일") &&
-        current.message?.includes("업로드");
-
       return {
         ...current,
         fieldErrors: nextFieldErrors,
-        message: shouldClearUploadEmailMessage ? null : current.message,
-        status:
-          shouldClearUploadEmailMessage && current.status === "error"
-            ? "idle"
-            : current.status,
+        message: current.message,
+        status: current.status,
       };
     });
   }
@@ -258,18 +253,11 @@ export function ApplicationDraftForm({
 
   // --- File upload ---
   async function handleFileUpload(files: FileList) {
-    const applicantEmail =
-      emailInputRef.current?.value.trim() ?? formValues.applicantEmail.trim();
-
-    if (!applicantEmail) {
+    if (!state.applicationId) {
       setState((current) => ({
         ...current,
         status: "error",
-        message: "파일 업로드 전 이메일 주소를 먼저 입력해주세요.",
-        fieldErrors: {
-          ...current.fieldErrors,
-          applicantEmail: "파일 업로드 전 이메일을 입력해주세요.",
-        },
+        message: "파일 업로드 전 지원서를 먼저 임시저장해주세요.",
       }));
       return;
     }
@@ -282,7 +270,7 @@ export function ApplicationDraftForm({
 
       try {
         const response = await fetch(
-          `/api/job-postings/${jobPostingId}/application-draft/attachments?applicantEmail=${encodeURIComponent(applicantEmail)}`,
+          `/api/applications/${state.applicationId}/attachments`,
           {
             method: "POST",
             body: formData,
@@ -346,38 +334,44 @@ export function ApplicationDraftForm({
     }
   }
 
-  function buildPayload() {
-    return {
-      applicantName: formValues.applicantName.trim(),
-      applicantEmail: formValues.applicantEmail.trim(),
-      applicantPhone: formValues.applicantPhone.trim(),
-      resumePayload: {
-        ...(formValues.introduction.trim()
-          ? { introduction: formValues.introduction.trim() }
-          : {}),
-        ...(formValues.coreStrength.trim()
-          ? { coreStrength: formValues.coreStrength.trim() }
-          : {}),
-        ...(formValues.careerYears.trim()
-          ? { careerYears: Number(formValues.careerYears.trim()) }
-          : {}),
-        ...(educations.length > 0
-          ? {
-              education: educations.map((e, i) => ({
-                ...e,
-                sortOrder: i,
-              })),
-            }
-          : {}),
-        ...(careers.length > 0
-          ? {
-              career: careers.map((c, i) => ({
-                ...c,
-                sortOrder: i,
-              })),
-            }
-          : {}),
+function buildPayload() {
+  return {
+    resumePayload: {
+      ...(formValues.introduction.trim()
+        ? { introduction: formValues.introduction.trim() }
+        : {}),
+      ...(formValues.coreStrength.trim()
+        ? { coreStrength: formValues.coreStrength.trim() }
+        : {}),
+      ...(formValues.careerYears.trim()
+        ? { careerYears: Number(formValues.careerYears.trim()) }
+        : {}),
       },
+      ...(educations.length > 0
+        ? {
+            educations: educations.map((education, index) => ({
+              institution: education.schoolName.trim(),
+              degree: education.degree,
+              fieldOfStudy: education.major.trim(),
+              startDate: null,
+              endDate: education.graduatedAt || null,
+              description: "",
+              sortOrder: index,
+            })),
+          }
+        : {}),
+      ...(careers.length > 0
+        ? {
+            experiences: careers.map((career, index) => ({
+              company: career.companyName.trim(),
+              position: career.position.trim(),
+              startDate: career.startedAt || null,
+              endDate: career.endedAt || null,
+              description: career.description.trim(),
+              sortOrder: index,
+            })),
+          }
+        : {}),
     };
   }
 
@@ -435,7 +429,7 @@ export function ApplicationDraftForm({
         return;
       }
 
-      if (!("applicantEmail" in responseBody)) {
+      if (!("status" in responseBody) || !("applicationId" in responseBody)) {
         setState({
           status: "error",
           message: "지원서 응답 데이터가 올바르지 않습니다.",
@@ -456,8 +450,8 @@ export function ApplicationDraftForm({
         status: "success",
         message:
           responseBody.status === "SUBMITTED"
-            ? `${responseBody.applicantEmail} 님의 지원서가 최종 제출되었습니다.`
-            : `${responseBody.applicantEmail} 님의 지원서가 임시저장되었습니다.`,
+            ? `${responseBody.applicantEmail ?? candidateSession.email} 님의 지원서가 최종 제출되었습니다.`
+            : `${responseBody.applicantEmail ?? candidateSession.email} 님의 지원서가 임시저장되었습니다.`,
         fieldErrors: {},
         savedAt: responseBody.draftSavedAt,
         submittedAt: responseBody.submittedAt,
@@ -566,6 +560,10 @@ export function ApplicationDraftForm({
       <form onSubmit={handleSubmit} className="mt-6 space-y-8">
         {/* --- 기본 정보 --- */}
         <div className="grid gap-5">
+          <div className="rounded-lg bg-surface-container-high px-4 py-4 text-sm text-on-surface-variant">
+            로그인된 지원자 계정 정보를 사용합니다. 이름, 이메일, 연락처는 계정 정보와 동기화되어 임의로 변경할 수 없습니다.
+          </div>
+
           <label className="block text-sm font-semibold text-on-surface-variant">
             지원자 이름
             <input
@@ -576,12 +574,10 @@ export function ApplicationDraftForm({
               required
               minLength={2}
               disabled={formDisabled}
+              readOnly
               aria-invalid={Boolean(state.fieldErrors.applicantName)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.applicantName}
-              onChange={(event) =>
-                updateField("applicantName", event.target.value)
-              }
             />
             {state.fieldErrors.applicantName ? (
               <span className="mt-2 block text-xs text-destructive">
@@ -593,19 +589,16 @@ export function ApplicationDraftForm({
           <label className="block text-sm font-semibold text-on-surface-variant">
             이메일
             <input
-              ref={emailInputRef}
               name="applicantEmail"
               type="email"
               autoComplete="email"
               placeholder="applicant@example.com"
               required
               disabled={formDisabled}
+              readOnly
               aria-invalid={Boolean(state.fieldErrors.applicantEmail)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.applicantEmail}
-              onChange={(event) =>
-                updateField("applicantEmail", event.target.value)
-              }
             />
             {state.fieldErrors.applicantEmail ? (
               <span className="mt-2 block text-xs text-destructive">
@@ -623,12 +616,10 @@ export function ApplicationDraftForm({
               placeholder="010-1234-5678"
               required
               disabled={formDisabled}
+              readOnly
               aria-invalid={Boolean(state.fieldErrors.applicantPhone)}
               className={`mt-2 ${inputClassName}`}
               value={formValues.applicantPhone}
-              onChange={(event) =>
-                updateField("applicantPhone", event.target.value)
-              }
             />
             {state.fieldErrors.applicantPhone ? (
               <span className="mt-2 block text-xs text-destructive">
@@ -925,7 +916,7 @@ export function ApplicationDraftForm({
               type="file"
               multiple
               accept={ACCEPTED_FILE_TYPES}
-              disabled={formDisabled || uploadingFiles}
+              disabled={formDisabled || uploadingFiles || !state.applicationId}
               className="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface file:transition hover:file:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
               onChange={(e) => {
                 if (e.target.files && e.target.files.length > 0) {
@@ -936,6 +927,10 @@ export function ApplicationDraftForm({
             {uploadingFiles ? (
               <span className="shrink-0 text-sm text-on-surface-variant">
                 업로드 중...
+              </span>
+            ) : !state.applicationId ? (
+              <span className="shrink-0 text-sm text-on-surface-variant">
+                임시저장 후 업로드 가능
               </span>
             ) : null}
           </div>

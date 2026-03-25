@@ -31,7 +31,7 @@ public class JobPostingService {
     public JobPostingDetailResponse getJobPosting(Long id) {
         JobPosting jobPosting = jobPostingRepository.findWithStepsById(id)
                 .filter(JobPosting::isPublished)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공고를 찾을 수 없습니다."));
 
         return new JobPostingDetailResponse(
                 jobPosting.getId(),

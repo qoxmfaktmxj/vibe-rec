@@ -18,7 +18,10 @@ export async function GET(_request: Request, { params }: RouteProps) {
   const applicationId = Number(id);
 
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
-    return NextResponse.json({ message: "Invalid application id." }, { status: 400 });
+    return NextResponse.json(
+      { message: "유효하지 않은 지원서 ID입니다." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -29,7 +32,10 @@ export async function GET(_request: Request, { params }: RouteProps) {
     if (error instanceof AdminApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
-    return NextResponse.json({ message: "Failed to fetch interviews." }, { status: 500 });
+    return NextResponse.json(
+      { message: "면접 목록을 불러오지 못했습니다." },
+      { status: 500 },
+    );
   }
 }
 
@@ -38,7 +44,10 @@ export async function POST(request: Request, { params }: RouteProps) {
   const applicationId = Number(id);
 
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
-    return NextResponse.json({ message: "Invalid application id." }, { status: 400 });
+    return NextResponse.json(
+      { message: "유효하지 않은 지원서 ID입니다." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -54,6 +63,9 @@ export async function POST(request: Request, { params }: RouteProps) {
     if (error instanceof AdminApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
-    return NextResponse.json({ message: "Failed to schedule interview." }, { status: 500 });
+    return NextResponse.json(
+      { message: "면접 등록에 실패했습니다." },
+      { status: 500 },
+    );
   }
 }

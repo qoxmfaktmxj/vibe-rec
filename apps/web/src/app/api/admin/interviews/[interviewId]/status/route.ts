@@ -16,7 +16,10 @@ export async function PATCH(request: Request, { params }: RouteProps) {
   const id = Number(interviewId);
 
   if (!Number.isInteger(id) || id <= 0) {
-    return NextResponse.json({ message: "Invalid interview id." }, { status: 400 });
+    return NextResponse.json(
+      { message: "유효하지 않은 면접 ID입니다." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -28,6 +31,9 @@ export async function PATCH(request: Request, { params }: RouteProps) {
     if (error instanceof AdminApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
-    return NextResponse.json({ message: "Failed to update interview status." }, { status: 500 });
+    return NextResponse.json(
+      { message: "면접 상태 변경에 실패했습니다." },
+      { status: 500 },
+    );
   }
 }

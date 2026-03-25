@@ -19,7 +19,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
 
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
     return NextResponse.json(
-      { message: "Invalid application id." },
+      { message: "유효하지 않은 지원서 ID입니다." },
       { status: 400 },
     );
   }
@@ -37,7 +37,7 @@ export async function GET(_request: Request, { params }: RouteProps) {
     }
 
     return NextResponse.json(
-      { message: "Failed to fetch notifications." },
+      { message: "통지 내역을 불러오지 못했습니다." },
       { status: 500 },
     );
   }
@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: RouteProps) {
 
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
     return NextResponse.json(
-      { message: "Invalid application id." },
+      { message: "유효하지 않은 지원서 ID입니다." },
       { status: 400 },
     );
   }
@@ -72,7 +72,7 @@ export async function POST(request: Request, { params }: RouteProps) {
     }
 
     return NextResponse.json(
-      { message: "Failed to create notification." },
+      { message: "통지 생성에 실패했습니다." },
       { status: 500 },
     );
   }

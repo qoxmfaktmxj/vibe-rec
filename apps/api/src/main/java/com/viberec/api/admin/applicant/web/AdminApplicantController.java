@@ -34,7 +34,7 @@ public class AdminApplicantController {
     @GetMapping
     @RequiresPermission("APPLICANT_VIEW")
     public List<AdminApplicantSummaryResponse> getApplicants(
-            @RequestHeader("X-Admin-Session") String sessionToken,
+            @RequestHeader(value = "X-Admin-Session", required = false) String sessionToken,
             @RequestParam(required = false) Long jobPostingId,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
             @RequestParam(required = false) ApplicationReviewStatus reviewStatus,
@@ -58,7 +58,7 @@ public class AdminApplicantController {
     @GetMapping("/{id}")
     @RequiresPermission("APPLICANT_VIEW")
     public AdminApplicantDetailResponse getApplicant(
-            @RequestHeader("X-Admin-Session") String sessionToken,
+            @RequestHeader(value = "X-Admin-Session", required = false) String sessionToken,
             @PathVariable Long id
     ) {
         authorize(sessionToken);
@@ -68,7 +68,7 @@ public class AdminApplicantController {
     @PatchMapping("/{id}/review-status")
     @RequiresPermission("APPLICANT_REVIEW")
     public AdminApplicantDetailResponse updateReviewStatus(
-            @RequestHeader("X-Admin-Session") String sessionToken,
+            @RequestHeader(value = "X-Admin-Session", required = false) String sessionToken,
             @PathVariable Long id,
             @Valid @RequestBody UpdateApplicantReviewStatusRequest request
     ) {

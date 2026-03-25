@@ -22,7 +22,7 @@ export async function PATCH(
 
   if (!Number.isInteger(applicationId) || applicationId <= 0) {
     return NextResponse.json(
-      { message: "Invalid application id." },
+      { message: "유효하지 않은 지원서 ID입니다." },
       { status: 400 },
     );
   }
@@ -41,7 +41,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(
-      { message: "Failed to update applicant review status." },
+      { message: "지원서 검토 상태 변경에 실패했습니다." },
       { status: 500 },
     );
   }

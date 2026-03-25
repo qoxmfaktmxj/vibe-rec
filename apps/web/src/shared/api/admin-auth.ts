@@ -6,6 +6,7 @@ import type {
   AdminLoginPayload,
   AdminLoginResponse,
   AdminSession,
+  AdminSignupPayload,
 } from "@/entities/admin/model";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
 
@@ -18,6 +19,7 @@ export class AdminApiError extends Error {
   ) {
     super(message);
     this.name = "AdminApiError";
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
@@ -32,7 +34,7 @@ export function getApiBaseUrl() {
 
 async function parseAdminResponse<T>(response: Response) {
   if (!response.ok) {
-    let message = `API request failed with status ${response.status}.`;
+    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -41,13 +43,27 @@ async function parseAdminResponse<T>(response: Response) {
       };
       message = errorBody.message ?? errorBody.error ?? message;
     } catch {
-      // Keep the default message when the response body is not JSON.
+      // Keep default message.
     }
 
     throw new AdminApiError(message, response.status);
   }
 
   return (await response.json()) as T;
+}
+
+export async function signupAdmin(payload: AdminSignupPayload) {
+  const response = await fetch(`${getApiBaseUrl()}/admin/auth/signup`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return parseAdminResponse<AdminLoginResponse>(response);
 }
 
 export async function loginAdmin(payload: AdminLoginPayload) {
@@ -86,7 +102,7 @@ export async function logoutAdmin(sessionToken: string) {
   });
 
   if (!response.ok && response.status !== 204) {
-    throw new AdminApiError("Failed to sign out.", response.status);
+    throw new AdminApiError("로그아웃에 실패했습니다.", response.status);
   }
 }
 
@@ -114,7 +130,7 @@ export async function getRequiredAdminSessionToken() {
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
   if (!sessionToken) {
-    throw new AdminApiError("Admin session is missing or expired.", 401);
+    throw new AdminApiError("관리자 세션이 없거나 만료되었습니다.", 401);
   }
 
   return sessionToken;

@@ -32,7 +32,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
         String sessionToken = request.getHeader("X-Admin-Session");
         if (sessionToken == null || sessionToken.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is missing or expired.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "관리자 세션이 없거나 만료되었습니다.");
         }
 
         AdminSessionResponse session = adminAuthService.getSession(sessionToken);
@@ -40,7 +40,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
         String requiredPermission = annotation.value();
 
         if (!permissionService.hasPermission(role, requiredPermission)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient permissions.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한이 없습니다.");
         }
 
         return true;

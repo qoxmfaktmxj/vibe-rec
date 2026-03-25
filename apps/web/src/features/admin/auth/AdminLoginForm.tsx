@@ -28,14 +28,14 @@ export function AdminLoginForm() {
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "로그인에 실패했습니다.");
+        setErrorMessage(responseBody.message ?? "Admin sign-in failed.");
         return;
       }
 
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("로그인 중 예기치 않은 오류가 발생했습니다.");
+      setErrorMessage("An unexpected error occurred during admin sign-in.");
     } finally {
       setIsPending(false);
     }
@@ -45,7 +45,7 @@ export function AdminLoginForm() {
     event.preventDefault();
 
     if (!username.trim() || !password) {
-      setErrorMessage("아이디와 비밀번호를 모두 입력해주세요.");
+      setErrorMessage("Enter both username and password.");
       return;
     }
 
@@ -70,7 +70,7 @@ export function AdminLoginForm() {
           className="ml-1 block text-sm font-semibold text-on-surface-variant"
           htmlFor="username"
         >
-          아이디
+          Username
         </label>
         <input
           id="username"
@@ -90,14 +90,14 @@ export function AdminLoginForm() {
           className="ml-1 block text-sm font-semibold text-on-surface-variant"
           htmlFor="password"
         >
-          비밀번호
+          Password
         </label>
         <input
           id="password"
           name="password"
           type="password"
           autoComplete="current-password"
-          placeholder="••••••••"
+          placeholder="Enter your password"
           className={inputClassName}
           value={password}
           disabled={isPending}
@@ -110,7 +110,7 @@ export function AdminLoginForm() {
         disabled={isPending}
         className="w-full rounded-sm bg-primary py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isPending ? "로그인 중..." : "로그인"}
+        {isPending ? "Signing in.." : "Sign in"}
       </button>
     </form>
   );

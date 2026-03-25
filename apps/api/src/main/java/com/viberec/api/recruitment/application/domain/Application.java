@@ -1,5 +1,6 @@
 package com.viberec.api.recruitment.application.domain;
 
+import com.viberec.api.candidate.auth.domain.CandidateAccount;
 import com.viberec.api.recruitment.jobposting.domain.JobPosting;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +28,10 @@ public class Application {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "job_posting_id", nullable = false)
     private JobPosting jobPosting;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "candidate_account_id")
+    private CandidateAccount candidateAccount;
 
     @Column(name = "applicant_name", nullable = false, length = 120)
     private String applicantName;
@@ -85,8 +90,15 @@ public class Application {
     protected Application() {
     }
 
-    public Application(JobPosting jobPosting, String applicantName, String applicantEmail, String applicantPhone) {
+    public Application(
+            JobPosting jobPosting,
+            CandidateAccount candidateAccount,
+            String applicantName,
+            String applicantEmail,
+            String applicantPhone
+    ) {
         this.jobPosting = jobPosting;
+        this.candidateAccount = candidateAccount;
         this.applicantName = applicantName;
         this.applicantEmail = applicantEmail;
         this.applicantPhone = applicantPhone;
@@ -110,15 +122,19 @@ public class Application {
         updatedAt = OffsetDateTime.now();
     }
 
-    public void updateDraft(String applicantName, String applicantPhone) {
+    public void updateDraft(CandidateAccount candidateAccount, String applicantName, String applicantEmail, String applicantPhone) {
+        this.candidateAccount = candidateAccount;
         this.applicantName = applicantName;
+        this.applicantEmail = applicantEmail;
         this.applicantPhone = applicantPhone;
         this.status = ApplicationStatus.DRAFT;
         this.draftSavedAt = OffsetDateTime.now();
     }
 
-    public void submit(String applicantName, String applicantPhone) {
+    public void submit(CandidateAccount candidateAccount, String applicantName, String applicantEmail, String applicantPhone) {
+        this.candidateAccount = candidateAccount;
         this.applicantName = applicantName;
+        this.applicantEmail = applicantEmail;
         this.applicantPhone = applicantPhone;
         this.status = ApplicationStatus.SUBMITTED;
         OffsetDateTime now = OffsetDateTime.now();
@@ -132,49 +148,18 @@ public class Application {
         this.reviewedAt = reviewStatus == ApplicationReviewStatus.NEW ? null : OffsetDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public JobPosting getJobPosting() {
-        return jobPosting;
-    }
-
-    public String getApplicantName() {
-        return applicantName;
-    }
-
-    public String getApplicantEmail() {
-        return applicantEmail;
-    }
-
-    public String getApplicantPhone() {
-        return applicantPhone;
-    }
-
-    public ApplicationStatus getStatus() {
-        return status;
-    }
-
-    public ApplicationReviewStatus getReviewStatus() {
-        return reviewStatus;
-    }
-
-    public String getReviewNote() {
-        return reviewNote;
-    }
-
-    public OffsetDateTime getDraftSavedAt() {
-        return draftSavedAt;
-    }
-
-    public OffsetDateTime getSubmittedAt() {
-        return submittedAt;
-    }
-
-    public OffsetDateTime getReviewedAt() {
-        return reviewedAt;
-    }
+    public Long getId() { return id; }
+    public JobPosting getJobPosting() { return jobPosting; }
+    public CandidateAccount getCandidateAccount() { return candidateAccount; }
+    public String getApplicantName() { return applicantName; }
+    public String getApplicantEmail() { return applicantEmail; }
+    public String getApplicantPhone() { return applicantPhone; }
+    public ApplicationStatus getStatus() { return status; }
+    public ApplicationReviewStatus getReviewStatus() { return reviewStatus; }
+    public String getReviewNote() { return reviewNote; }
+    public OffsetDateTime getDraftSavedAt() { return draftSavedAt; }
+    public OffsetDateTime getSubmittedAt() { return submittedAt; }
+    public OffsetDateTime getReviewedAt() { return reviewedAt; }
 
     public void updateFinalStatus(ApplicationFinalStatus status, String note) {
         this.finalStatus = status;
@@ -182,21 +167,10 @@ public class Application {
         this.finalDecidedAt = OffsetDateTime.now();
     }
 
-    public boolean isSubmitted() {
-        return status == ApplicationStatus.SUBMITTED;
-    }
-
-    public ApplicationFinalStatus getFinalStatus() {
-        return finalStatus;
-    }
-
-    public OffsetDateTime getFinalDecidedAt() {
-        return finalDecidedAt;
-    }
-
-    public String getFinalNote() {
-        return finalNote;
-    }
+    public boolean isSubmitted() { return status == ApplicationStatus.SUBMITTED; }
+    public ApplicationFinalStatus getFinalStatus() { return finalStatus; }
+    public OffsetDateTime getFinalDecidedAt() { return finalDecidedAt; }
+    public String getFinalNote() { return finalNote; }
 
     public void updateNormalizedFields(String introduction, String coreStrength, Integer careerYears) {
         this.introduction = introduction;
@@ -204,15 +178,11 @@ public class Application {
         this.careerYears = careerYears;
     }
 
-    public String getIntroduction() {
-        return introduction;
-    }
+    public String getIntroduction() { return introduction; }
+    public String getCoreStrength() { return coreStrength; }
+    public Integer getCareerYears() { return careerYears; }
 
-    public String getCoreStrength() {
-        return coreStrength;
-    }
-
-    public Integer getCareerYears() {
-        return careerYears;
+    public boolean belongsToCandidate(Long candidateAccountId) {
+        return candidateAccount != null && candidateAccount.getId() != null && candidateAccount.getId().equals(candidateAccountId);
     }
 }
