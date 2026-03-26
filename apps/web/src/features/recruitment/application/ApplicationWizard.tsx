@@ -142,8 +142,10 @@ export function ApplicationWizard({
 
   function handlePrev() {
     startTransition(async () => {
-      await saveDraft(currentStep - 1);
-      setCurrentStep((prev) => Math.max(prev - 1, 1));
+      const success = await saveDraft(currentStep - 1);
+      if (success) {
+        setCurrentStep((prev) => Math.max(prev - 1, 1));
+      }
     });
   }
 

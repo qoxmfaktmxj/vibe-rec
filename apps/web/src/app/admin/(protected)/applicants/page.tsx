@@ -224,35 +224,33 @@ export default async function AdminApplicantsPage({
             Showing {applicants.length} of {applicantPage.totalItems} applicants.
           </p>
           <div className="flex items-center gap-3">
-            <Link
-              href={currentPage > 1 ? paginationHref(currentPage - 1) : paginationHref(1)}
-              aria-disabled={currentPage <= 1}
-              className={`inline-flex items-center justify-center rounded-sm border px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
-                currentPage <= 1
-                  ? "cursor-not-allowed border-outline-variant text-on-surface-variant/50"
-                  : "border-outline text-on-surface hover:border-primary hover:bg-primary hover:text-primary-foreground"
-              }`}
-            >
-              Previous
-            </Link>
+            {currentPage <= 1 ? (
+              <span className="inline-flex cursor-not-allowed items-center justify-center rounded-sm border border-outline-variant px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant/50">
+                Previous
+              </span>
+            ) : (
+              <Link
+                href={paginationHref(currentPage - 1)}
+                className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+              >
+                Previous
+              </Link>
+            )}
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-on-surface-variant">
               Page {currentPage} of {totalPages}
             </span>
-            <Link
-              href={
-                currentPage < totalPages
-                  ? paginationHref(currentPage + 1)
-                  : paginationHref(totalPages)
-              }
-              aria-disabled={currentPage >= totalPages}
-              className={`inline-flex items-center justify-center rounded-sm border px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${
-                currentPage >= totalPages
-                  ? "cursor-not-allowed border-outline-variant text-on-surface-variant/50"
-                  : "border-outline text-on-surface hover:border-primary hover:bg-primary hover:text-primary-foreground"
-              }`}
-            >
-              Next
-            </Link>
+            {currentPage >= totalPages ? (
+              <span className="inline-flex cursor-not-allowed items-center justify-center rounded-sm border border-outline-variant px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant/50">
+                Next
+              </span>
+            ) : (
+              <Link
+                href={paginationHref(currentPage + 1)}
+                className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+              >
+                Next
+              </Link>
+            )}
           </div>
         </div>
       </section>

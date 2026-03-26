@@ -5,6 +5,7 @@ import { getAdminApplicant } from "@/shared/api/admin-applicants";
 import { getAdminAttachments } from "@/shared/api/attachments";
 import {
   formatDateTime,
+  formatFileSize,
   getApplicationReviewStatusClassName,
   getApplicationReviewStatusLabel,
   getApplicationStatusClassName,
@@ -153,7 +154,7 @@ export default async function AdminApplicantDetailPage({
                   <li key={attachment.id} className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-3">
                     <p className="truncate text-sm font-medium text-on-surface">{attachment.originalFilename}</p>
                     <p className="mt-1 text-xs text-on-surface-variant">
-                      {attachment.fileSizeBytes} bytes / {formatDateTime(attachment.uploadedAt)}
+                      {formatFileSize(attachment.fileSizeBytes)} / {formatDateTime(attachment.uploadedAt)}
                     </p>
                     <a
                       href={`/api/admin/attachments/${attachment.id}/download`}
