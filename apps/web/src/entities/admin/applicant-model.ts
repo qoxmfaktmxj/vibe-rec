@@ -28,6 +28,14 @@ export interface AdminApplicantSummary {
   reviewedAt: string | null;
 }
 
+export interface AdminApplicantPage {
+  items: AdminApplicantSummary[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+}
+
 export interface AdminApplicantDetail extends AdminApplicantSummary {
   jobPostingPublicKey: string;
   reviewNote: string | null;
@@ -53,6 +61,8 @@ export interface AdminApplicantFilters {
   applicantEmail?: string;
   applicantPhone?: string;
   query?: string;
+  page?: number;
+  size?: number;
 }
 
 export interface UpdateApplicantReviewStatusPayload {

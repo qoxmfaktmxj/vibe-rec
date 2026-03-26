@@ -6,7 +6,6 @@ import com.viberec.api.admin.auth.web.RequiresPermission;
 import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +32,7 @@ public class AdminApplicantController {
 
     @GetMapping
     @RequiresPermission("APPLICANT_VIEW")
-    public List<AdminApplicantSummaryResponse> getApplicants(
+    public AdminApplicantPageResponse getApplicants(
             @RequestHeader(value = "X-Admin-Session", required = false) String sessionToken,
             @RequestParam(required = false) Long jobPostingId,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
@@ -41,17 +40,21 @@ public class AdminApplicantController {
             @RequestParam(required = false) String applicantName,
             @RequestParam(required = false) String applicantEmail,
             @RequestParam(required = false) String applicantPhone,
-            @RequestParam(required = false) String query
+            @RequestParam(required = false) String query,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "50") Integer size
     ) {
         authorize(sessionToken);
-        return adminApplicantService.getApplicants(
+        return adminApplicantService.getApplicantsPage(
                 jobPostingId,
                 applicationStatus,
                 reviewStatus,
                 applicantName,
                 applicantEmail,
                 applicantPhone,
-                query
+                query,
+                page,
+                size
         );
     }
 

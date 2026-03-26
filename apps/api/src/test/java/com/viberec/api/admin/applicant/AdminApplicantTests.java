@@ -88,6 +88,56 @@ class AdminApplicantTests extends IntegrationTestBase {
     }
 
     @Test
+    void returnsApplicantPagesForLargeResultSets() {
+        for (int index = 1; index <= 55; index++) {
+            var candidate = createCandidateAccount(
+                    "Paged Candidate " + index,
+                    "paged." + index + "@example.com",
+                    "010-5000-" + String.format("%04d", index)
+            );
+            applicationDraftService.submit(
+                    1001L,
+                    candidate,
+                    new SaveApplicationDraftRequest(
+                            Map.of(
+                                    "introduction", "Paged applicant " + index + " has enough background to satisfy the submit validation rules.",
+                                    "coreStrength", "Paged applicant " + index + " keeps the admin review queue structured."
+                            ),
+                            null, null, null, null, null
+                    )
+            );
+        }
+
+        var firstPage = adminApplicantService.getApplicantsPage(
+                null,
+                ApplicationStatus.SUBMITTED,
+                null,
+                null,
+                null,
+                null,
+                "paged candidate",
+                1,
+                50
+        );
+        var secondPage = adminApplicantService.getApplicantsPage(
+                null,
+                ApplicationStatus.SUBMITTED,
+                null,
+                null,
+                null,
+                null,
+                "paged candidate",
+                2,
+                50
+        );
+
+        assertThat(firstPage.totalItems()).isEqualTo(55);
+        assertThat(firstPage.totalPages()).isEqualTo(2);
+        assertThat(firstPage.items()).hasSize(50);
+        assertThat(secondPage.items()).hasSize(5);
+    }
+
+    @Test
     void updatesReviewStatusForSubmittedApplication() {
         var candidate = createCandidateAccount("Review Kim", "review.kim@example.com", "010-7777-8888");
         var submittedApplication = applicationDraftService.submit(

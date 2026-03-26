@@ -1,16 +1,13 @@
 import Link from "next/link";
 
-import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
 import { CandidateLogoutButton } from "@/features/recruitment/application/CandidateLogoutButton";
 import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
-import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 
 export default async function JobPostingListPage() {
-  const [jobPostings, adminSession, candidateSession] = await Promise.all([
+  const [jobPostings, candidateSession] = await Promise.all([
     getJobPostings().catch(() => []),
-    getCurrentAdminSession().catch(() => null),
     getCurrentCandidateSession().catch(() => null),
   ]);
 
@@ -24,6 +21,7 @@ export default async function JobPostingListPage() {
           >
             HireFlow
           </Link>
+
           <div className="hidden items-center gap-8 md:flex">
             <Link href="/job-postings" className="text-[13px] font-normal text-primary">
               채용 공고
@@ -36,17 +34,8 @@ export default async function JobPostingListPage() {
             >
               문의
             </a>
-            {adminSession ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/admin"
-                  className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
-                >
-                  관리자 대시보드
-                </Link>
-                <AdminLogoutButton redirectTo="/job-postings" />
-              </div>
-            ) : candidateSession ? (
+
+            {candidateSession ? (
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
@@ -82,6 +71,7 @@ export default async function JobPostingListPage() {
             현재 채용 공고를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
           </div>
         ) : null}
+
         <div className="mb-10 flex items-end justify-between gap-6">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
@@ -92,10 +82,11 @@ export default async function JobPostingListPage() {
             </h1>
           </div>
         </div>
+
         <JobPostingBrowser
           jobPostings={jobPostings}
           searchable
-          searchPlaceholder="직무명, 한 줄 소개, 근무지, 고용형태로 검색"
+          searchPlaceholder="직무명, 한 줄 소개, 근무지, 고용 형태로 검색"
           emptyMessage="현재 등록된 채용 공고가 없습니다."
         />
       </main>

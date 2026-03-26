@@ -8,7 +8,7 @@ import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 const navItems = [
   {
     href: "/admin",
-    label: "??쒕낫??,
+    label: "대시보드",
     icon: (
       <path
         strokeLinecap="round"
@@ -19,7 +19,7 @@ const navItems = [
   },
   {
     href: "/admin/applicants",
-    label: "吏?먯옄",
+    label: "지원자",
     icon: (
       <path
         strokeLinecap="round"
@@ -30,7 +30,7 @@ const navItems = [
   },
   {
     href: "/",
-    label: "怨듦컻 ?ъ씠??,
+    label: "공개 사이트",
     icon: (
       <path
         strokeLinecap="round"
@@ -69,9 +69,9 @@ export default async function AdminLayout({
         <div className="space-y-4">
           <div className="rounded-sm border border-sidebar-border bg-sidebar-accent px-3 py-4 text-center">
             <p className="text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/70">
-              ?댁쁺 以?
+              관리자 모드
             </p>
-            <p className="mt-2 text-xs font-medium leading-5">梨꾩슜 ?댁쁺 怨듦컙</p>
+            <p className="mt-2 text-xs font-medium leading-5">채용 운영 워크스페이스</p>
           </div>
 
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sm font-semibold uppercase">
@@ -85,14 +85,14 @@ export default async function AdminLayout({
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="space-y-3">
               <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                愿由ъ옄 ?댁쁺
+                관리자 워크스페이스
               </p>
               <div className="space-y-2">
                 <h1 className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
-                  ??쒕낫??
+                  HireFlow 관리자
                 </h1>
                 <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
-                  吏?먯옄 寃?? 硫댁젒 吏꾪뻾, 理쒖쥌 ?섏궗寃곗젙??吏꾪뻾?⑸땲??
+                  지원자 검토, 공고 관리, 채용 진행 현황을 한 화면에서 확인합니다.
                 </p>
               </div>
             </div>
@@ -100,14 +100,10 @@ export default async function AdminLayout({
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <div className="rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm shadow-[0_18px_40px_-30px_rgba(31,41,55,0.28)]">
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">
-                  濡쒓렇???뺣낫
+                  현재 세션
                 </p>
-                <p className="mt-1 font-semibold text-on-surface">
-                  {session.displayName}
-                </p>
-                <p className="text-xs text-on-surface-variant">
-                  {session.role} 沅뚰븳 ?ъ슜 以?
-                </p>
+                <p className="mt-1 font-semibold text-on-surface">{session.displayName}</p>
+                <p className="text-xs text-on-surface-variant">{session.role}</p>
               </div>
               <AdminLogoutButton redirectTo="/admin/login" />
             </div>
@@ -119,4 +115,3 @@ export default async function AdminLayout({
     </div>
   );
 }
-

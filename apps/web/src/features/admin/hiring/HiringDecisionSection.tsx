@@ -27,23 +27,23 @@ const finalStatusOptions: Array<{
 }> = [
   {
     value: "OFFER_MADE",
-    label: "泥섏슦 ?쒖븞",
-    description: "吏?먯옄?먭쾶 泥섏슦瑜??꾨떖???곹깭?낅땲??",
+    label: "Offer made",
+    description: "The candidate has received an offer.",
   },
   {
     value: "ACCEPTED",
-    label: "?섎씫",
-    description: "吏?먯옄媛 泥섏슦瑜??섎씫?덉뒿?덈떎.",
+    label: "Accepted",
+    description: "The candidate accepted the offer.",
   },
   {
     value: "DECLINED",
-    label: "嫄곗젅",
-    description: "吏?먯옄媛 泥섏슦瑜?嫄곗젅?덉뒿?덈떎.",
+    label: "Declined",
+    description: "The candidate declined the offer.",
   },
   {
     value: "WITHDRAWN",
-    label: "泥좏쉶",
-    description: "吏?먯옄媛 ?꾪삎?먯꽌 泥좏쉶?덉뒿?덈떎.",
+    label: "Withdrawn",
+    description: "The candidate withdrew from the process.",
   },
 ];
 
@@ -60,7 +60,7 @@ export function HiringDecisionSection({
   const router = useRouter();
 
   const [finalStatus, setFinalStatus] = useState<ApplicationFinalStatus>(
-    (currentFinalStatus as ApplicationFinalStatus) ?? "OFFER_MADE",
+    currentFinalStatus ?? "OFFER_MADE",
   );
   const [note, setNote] = useState(currentNote ?? "");
   const [message, setMessage] = useState<string | null>(null);
@@ -89,18 +89,20 @@ export function HiringDecisionSection({
             },
           );
 
-          const body = (await response.json()) as { message?: string };
+          const body = (await response.json().catch(() => null)) as {
+            message?: string;
+          } | null;
           if (!response.ok) {
             setIsError(true);
-            setMessage(body.message ?? "理쒖쥌 寃곗젙????ν븯吏 紐삵뻽?듬땲??");
+            setMessage(body?.message ?? "Failed to save the final decision.");
             return;
           }
 
-          setMessage("理쒖쥌 寃곗젙????ν뻽?듬땲??");
+          setMessage("Final decision updated.");
           router.refresh();
         } catch {
           setIsError(true);
-          setMessage("?ㅽ듃?뚰겕 ?ㅻ쪟濡?理쒖쥌 寃곗젙????ν븯吏 紐삵뻽?듬땲??");
+          setMessage("A network error occurred while updating the final decision.");
         } finally {
           setIsPending(false);
         }
@@ -113,48 +115,36 @@ export function HiringDecisionSection({
     finalStatusOptions[0];
 
   return (
-    <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+    <section className="rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-3">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-            理쒖쥌 寃곗젙
+            Final decision
           </p>
           <div className="space-y-2">
             <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-              理쒖쥌 寃곌낵瑜?紐낇솗?섍쾶 ?④린?몄슂
+              Record the closing outcome
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
-              寃?좉? ?⑷꺽 ?곹깭媛 ?섎㈃ 理쒖쥌 寃곗젙???????덉뒿?덈떎. ?댄썑 ?곹깭?
-              硫붾え瑜?媛숈? ?붾㈃?먯꽌 怨꾩냽 ?뺤씤?????덉뒿?덈떎.
+              Final decisions are available only after the review status reaches Passed.
             </p>
           </div>
         </div>
 
         <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-5 py-4 xl:w-[320px]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-            ?좏깮???곹깭
+            Selected outcome
           </p>
-          <p className="mt-2 text-lg font-semibold text-on-surface">
-            {selectedOption.label}
-          </p>
-          <p className="mt-1 text-sm text-on-surface-variant">
-            {selectedOption.description}
-          </p>
+          <p className="mt-2 text-lg font-semibold text-on-surface">{selectedOption.label}</p>
+          <p className="mt-1 text-sm text-on-surface-variant">{selectedOption.description}</p>
         </div>
       </div>
 
       {!isEligible ? (
         <div className="mt-6 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-6 py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-            寃곗젙 ?좉툑
-          </p>
-          <p className="mt-2 text-sm leading-7 text-on-surface">
-            理쒖쥌 寃곗젙? 寃???곹깭媛 <span className="font-semibold">?⑷꺽</span>??
-            ?뚮쭔 ?섏젙?????덉뒿?덈떎. ?꾩옱 寃???곹깭??" "}
-            <span className="font-semibold">
-              {getApplicationReviewStatusLabel(reviewStatus)}
-            </span>
-            ?낅땲??
+          <p className="text-sm leading-7 text-on-surface">
+            Final decisions are locked until review status is Passed. Current review status: {" "}
+            <span className="font-semibold">{getApplicationReviewStatusLabel(reviewStatus)}</span>
           </p>
         </div>
       ) : null}
@@ -162,20 +152,14 @@ export function HiringDecisionSection({
       {currentFinalStatus ? (
         <div className="mt-6 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-6 py-5">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-semibold text-on-surface-variant">
-              ?꾩옱 寃곌낵
-            </span>
+            <span className="text-sm font-semibold text-on-surface-variant">Current outcome</span>
             <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getFinalStatusClassName(currentFinalStatus as ApplicationFinalStatus)}`}
+              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getFinalStatusClassName(currentFinalStatus)}`}
             >
-              {getFinalStatusLabel(
-                currentFinalStatus as ApplicationFinalStatus,
-              )}
+              {getFinalStatusLabel(currentFinalStatus)}
             </span>
             {currentDecidedAt ? (
-              <span className="text-xs text-outline">
-                ????쒓컖 {formatDateTime(currentDecidedAt)}
-              </span>
+              <span className="text-xs text-outline">Decided at {formatDateTime(currentDecidedAt)}</span>
             ) : null}
           </div>
           {currentNote ? (
@@ -201,12 +185,10 @@ export function HiringDecisionSection({
 
       <form onSubmit={handleSubmit} className="mt-6 grid gap-5 xl:grid-cols-[1fr_1.2fr]">
         <label className="block text-sm font-semibold text-on-surface-variant">
-          寃곌낵
+          Final outcome
           <select
             value={finalStatus}
-            onChange={(e) =>
-              setFinalStatus(e.target.value as ApplicationFinalStatus)
-            }
+            onChange={(e) => setFinalStatus(e.target.value as ApplicationFinalStatus)}
             disabled={isPending || !isEligible}
             className={inputClassName}
           >
@@ -219,14 +201,14 @@ export function HiringDecisionSection({
         </label>
 
         <label className="block text-sm font-semibold text-on-surface-variant">
-          寃곗젙 硫붾え
+          Decision note
           <textarea
             rows={4}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             disabled={isPending || !isEligible}
             className={`${inputClassName} resize-y`}
-            placeholder="泥섏슦 議곌굔, ?섎씫 諛곌꼍, 醫낅즺 ?ъ쑀 ???꾩슂??留λ씫??湲곕줉?섏꽭??"
+            placeholder="Summarize the final decision or next action."
           />
         </label>
 
@@ -236,13 +218,12 @@ export function HiringDecisionSection({
           className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 xl:col-span-2"
         >
           {isPending
-            ? "???以?.."
+            ? "Saving..."
             : isEligible
-              ? "理쒖쥌 寃곗젙 ???
-              : "寃???⑷꺽 ?????媛??}
+              ? "Save final decision"
+              : "Review must pass first"}
         </button>
       </form>
     </section>
   );
 }
-

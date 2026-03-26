@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,8 +36,7 @@ export function AdminLogoutButton({
       disabled={isPending}
       className="rounded-sm border border-outline-variant bg-card px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {isPending ? "濡쒓렇?꾩썐 以?.." : "濡쒓렇?꾩썐"}
+      {isPending ? "로그아웃 중..." : "로그아웃"}
     </button>
   );
 }
-

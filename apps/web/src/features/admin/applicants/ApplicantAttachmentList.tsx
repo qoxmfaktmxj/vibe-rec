@@ -17,7 +17,7 @@ export function ApplicantAttachmentList({
   if (attachments.length === 0) {
     return (
       <p className="text-sm text-on-surface-variant">
-        ?깅줉??泥⑤? ?뚯씪???놁뒿?덈떎.
+        No attachments have been uploaded.
       </p>
     );
   }
@@ -48,8 +48,7 @@ export function ApplicantAttachmentList({
                 {attachment.originalFilename}
               </p>
               <p className="text-xs text-outline">
-                {formatFileSize(attachment.fileSizeBytes)} &bull;{" "}
-                {formatDateTime(attachment.uploadedAt)}
+                {formatFileSize(attachment.fileSizeBytes)} &bull; {formatDateTime(attachment.uploadedAt)}
               </p>
             </div>
           </div>
@@ -57,11 +56,10 @@ export function ApplicantAttachmentList({
             href={`/api/admin/attachments/${attachment.id}/download`}
             className="ml-4 shrink-0 rounded-lg bg-surface-container-high px-4 py-2 text-xs font-semibold text-on-surface transition hover:bg-surface-container-highest"
           >
-            ?ㅼ슫濡쒕뱶
+            Download
           </a>
         </li>
       ))}
     </ul>
   );
 }
-

@@ -1,6 +1,7 @@
 package com.viberec.api.admin.applicant.service;
 
 import com.viberec.api.admin.applicant.web.AdminApplicantDetailResponse;
+import com.viberec.api.admin.applicant.web.AdminApplicantPageResponse;
 import com.viberec.api.admin.applicant.web.AdminApplicantSummaryResponse;
 import com.viberec.api.admin.applicant.web.UpdateApplicantReviewStatusRequest;
 import com.viberec.api.recruitment.application.domain.Application;
@@ -16,6 +17,7 @@ import com.viberec.api.recruitment.application.web.ResumeLanguageDto;
 import com.viberec.api.recruitment.application.web.ResumeSkillDto;
 import java.util.List;
 import java.util.Map;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Transactional(readOnly = true)
 public class AdminApplicantService {
+    private static final int DEFAULT_PAGE_SIZE = 50;
+    private static final int MAX_PAGE_SIZE = 200;
 
     private final ApplicationRepository applicationRepository;
     private final ApplicationResumeRawRepository applicationResumeRawRepository;
@@ -59,6 +63,41 @@ public class AdminApplicantService {
                 ).stream()
                 .map(this::toSummaryResponse)
                 .toList();
+    }
+
+    public AdminApplicantPageResponse getApplicantsPage(
+            Long jobPostingId,
+            ApplicationStatus applicationStatus,
+            ApplicationReviewStatus reviewStatus,
+            String applicantName,
+            String applicantEmail,
+            String applicantPhone,
+            String query,
+            Integer page,
+            Integer size
+    ) {
+        int normalizedPage = normalizePage(page);
+        int normalizedSize = normalizePageSize(size);
+        var resultPage = applicationRepository.findAdminApplicantsPage(
+                jobPostingId,
+                applicationStatus,
+                reviewStatus,
+                normalizeFilterValue(applicantName),
+                normalizeFilterValue(applicantEmail),
+                normalizeFilterValue(applicantPhone),
+                normalizeFilterValue(query),
+                PageRequest.of(normalizedPage - 1, normalizedSize)
+        );
+
+        return new AdminApplicantPageResponse(
+                resultPage.getContent().stream()
+                        .map(this::toSummaryResponse)
+                        .toList(),
+                normalizedPage,
+                normalizedSize,
+                resultPage.getTotalElements(),
+                resultPage.getTotalPages()
+        );
     }
 
     public AdminApplicantDetailResponse getApplicant(Long applicationId) {
@@ -138,6 +177,20 @@ public class AdminApplicantService {
 
         String normalized = reviewNote.trim();
         return normalized.isEmpty() ? null : normalized;
+    }
+
+    private int normalizePage(Integer page) {
+        if (page == null || page < 1) {
+            return 1;
+        }
+        return page;
+    }
+
+    private int normalizePageSize(Integer size) {
+        if (size == null || size < 1) {
+            return DEFAULT_PAGE_SIZE;
+        }
+        return Math.min(size, MAX_PAGE_SIZE);
     }
 
     private AdminApplicantSummaryResponse toSummaryResponse(Application application) {

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { JobPostingEditorForm } from "@/features/admin/job-postings/JobPostingEditorForm";
@@ -37,25 +37,24 @@ export default async function AdminEditJobPostingPage({
             Job posting #{jobPostingId}
           </p>
           <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
-            공고 수정
+            Edit job posting
           </h1>
           <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-            채용 구분, 모집 방식, 공개 일정, 상태를 한 화면에서 수정합니다.
+            Update the category, recruitment mode, and publication schedule in one place.
           </p>
         </div>
-
         <div className="flex gap-3">
           <Link
             href={`/admin/job-postings/${jobPostingId}/questions`}
             className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
           >
-            질문 관리
+            Edit questions
           </Link>
           <Link
             href="/admin"
             className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
           >
-            대시보드로
+            Back to dashboard
           </Link>
         </div>
       </div>

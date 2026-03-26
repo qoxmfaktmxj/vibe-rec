@@ -16,10 +16,10 @@ interface NotificationSectionProps {
 }
 
 const notificationTypeOptions = [
-  { value: "OFFER", label: "泥섏슦 ?쒖븞" },
-  { value: "REJECTION", label: "遺덊빀寃??덈궡" },
-  { value: "INTERVIEW_INVITE", label: "硫댁젒 ?덈궡" },
-  { value: "GENERAL", label: "?쇰컲 ?덈궡" },
+  { value: "OFFER", label: "Offer" },
+  { value: "REJECTION", label: "Rejection" },
+  { value: "INTERVIEW_INVITE", label: "Interview invite" },
+  { value: "GENERAL", label: "General" },
 ];
 
 const inputClassName =
@@ -56,14 +56,14 @@ export function NotificationSection({
             },
           );
 
-          const body = (await response.json()) as { message?: string };
+          const body = (await response.json().catch(() => null)) as { message?: string } | null;
           if (!response.ok) {
             setIsError(true);
-            setMessage(body.message ?? "?뚮┝????ν븯吏 紐삵뻽?듬땲??");
+            setMessage(body?.message ?? "Failed to send the notification.");
             return;
           }
 
-          setMessage("?뚮┝ ?대젰????ν뻽?듬땲??");
+          setMessage("Notification recorded.");
           setShowForm(false);
           setType("GENERAL");
           setTitle("");
@@ -71,7 +71,7 @@ export function NotificationSection({
           router.refresh();
         } catch {
           setIsError(true);
-          setMessage("?ㅽ듃?뚰겕 ?ㅻ쪟濡??뚮┝????ν븯吏 紐삵뻽?듬땲??");
+          setMessage("A network error occurred while sending the notification.");
         } finally {
           setIsPending(false);
         }
@@ -80,19 +80,18 @@ export function NotificationSection({
   }
 
   return (
-    <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+    <section className="rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="space-y-3">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-            吏?먯옄 而ㅻ??덉??댁뀡
+            Notifications
           </p>
           <div className="space-y-2">
             <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-              諛쒖넚 ?대젰???쒓납?먯꽌 愿由ы븯?몄슂
+              Record applicant communication
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
-              吏?먯옄?먭쾶 ?꾨떖???덈궡 ?댁슜???④꺼 ?먮㈃ ?ㅼ쓬 ?④퀎 ?대떦?먮룄 理쒖떊
-              ?곹솴??諛붾줈 ?뚯븙?????덉뒿?덈떎.
+              Keep a history of the messages sent to the applicant.
             </p>
           </div>
         </div>
@@ -102,7 +101,7 @@ export function NotificationSection({
           onClick={() => setShowForm((current) => !current)}
           className="rounded-xl bg-surface-container-high px-4 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
         >
-          {showForm ? "?낅젰 ?リ린" : "?뚮┝ 異붽?"}
+          {showForm ? "Close" : "Add notification"}
         </button>
       </div>
 
@@ -123,19 +122,10 @@ export function NotificationSection({
           onSubmit={handleSubmit}
           className="mt-6 space-y-4 rounded-2xl border border-outline-variant/70 bg-surface-container-low p-6"
         >
-          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-            ???뚮┝
-          </h3>
-
           <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
             <label className="block text-sm font-semibold text-on-surface-variant">
-              ?좏삎
-              <select
-                value={type}
-                onChange={(event) => setType(event.target.value)}
-                disabled={isPending}
-                className={inputClassName}
-              >
+              Type
+              <select value={type} onChange={(event) => setType(event.target.value)} disabled={isPending} className={inputClassName}>
                 {notificationTypeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -145,30 +135,14 @@ export function NotificationSection({
             </label>
 
             <label className="block text-sm font-semibold text-on-surface-variant">
-              ?쒕ぉ
-              <input
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                required
-                disabled={isPending}
-                className={inputClassName}
-                placeholder="?대젰?먯꽌 諛붾줈 ?앸퀎?????덈뒗 吏㏃? ?쒕ぉ"
-              />
+              Title
+              <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} required disabled={isPending} className={inputClassName} placeholder="Short subject line" />
             </label>
           </div>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            ?댁슜
-            <textarea
-              rows={4}
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              required
-              disabled={isPending}
-              className={`${inputClassName} resize-y`}
-              placeholder="?ㅼ젣 諛쒖넚 ?댁슜 ?먮뒗 ?붿빟 硫붾え瑜??④꺼 二쇱꽭??"
-            />
+            Content
+            <textarea rows={4} value={content} onChange={(event) => setContent(event.target.value)} required disabled={isPending} className={`${inputClassName} resize-y`} placeholder="Summarize the message that was sent." />
           </label>
 
           <button
@@ -176,18 +150,16 @@ export function NotificationSection({
             disabled={isPending}
             className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? "???以?.." : "?뚮┝ ???}
+            {isPending ? "Saving..." : "Save notification"}
           </button>
         </form>
       ) : null}
 
       {notifications.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
-          <p className="text-sm font-semibold text-on-surface">
-            ?꾩쭅 ?뚮┝ ?대젰???놁뒿?덈떎
-          </p>
+          <p className="text-sm font-semibold text-on-surface">No notifications yet.</p>
           <p className="mt-2 text-sm leading-7 text-on-surface-variant">
-            泥?而ㅻ??덉??댁뀡 ?대젰???④꺼 吏?먯옄蹂?湲곕줉???쒖옉??蹂댁꽭??
+            Record the first communication to build the applicant timeline.
           </p>
         </div>
       ) : (
@@ -203,20 +175,14 @@ export function NotificationSection({
                 >
                   {getNotificationTypeLabel(notification.type)}
                 </span>
-                <span className="font-semibold text-on-surface">
-                  {notification.title}
-                </span>
-                <span className="ml-auto text-xs text-outline">
-                  {formatDateTime(notification.createdAt)}
-                </span>
+                <span className="font-semibold text-on-surface">{notification.title}</span>
+                <span className="ml-auto text-xs text-outline">{formatDateTime(notification.createdAt)}</span>
               </div>
               <p className="mt-2 whitespace-pre-line text-sm leading-7 text-on-surface-variant">
                 {notification.content}
               </p>
               {notification.sentByName ? (
-                <p className="mt-2 text-xs text-outline">
-                  湲곕줉?? {notification.sentByName}
-                </p>
+                <p className="mt-2 text-xs text-outline">Recorded by {notification.sentByName}</p>
               ) : null}
             </div>
           ))}
@@ -225,4 +191,3 @@ export function NotificationSection({
     </section>
   );
 }
-

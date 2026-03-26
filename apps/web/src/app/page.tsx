@@ -1,10 +1,8 @@
 import Link from "next/link";
 
-import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
 import { CandidateLogoutButton } from "@/features/recruitment/application/CandidateLogoutButton";
 import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { LegalLayerLinks } from "@/features/recruitment/legal/LegalLayerLinks";
-import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 import { isJobPostingOpenForApplications } from "@/shared/lib/recruitment";
@@ -15,9 +13,8 @@ const navLinks = [
 ] as const;
 
 export default async function Home() {
-  const [jobPostings, adminSession, candidateSession] = await Promise.all([
+  const [jobPostings, candidateSession] = await Promise.all([
     getJobPostings().catch(() => []),
-    getCurrentAdminSession().catch(() => null),
     getCurrentCandidateSession().catch(() => null),
   ]);
 
@@ -55,17 +52,7 @@ export default async function Home() {
                 </Link>
               ),
             )}
-            {adminSession ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/admin"
-                  className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
-                >
-                  관리자 대시보드
-                </Link>
-                <AdminLogoutButton redirectTo="/" />
-              </div>
-            ) : candidateSession ? (
+            {candidateSession ? (
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">

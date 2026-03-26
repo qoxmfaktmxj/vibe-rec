@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { cookies } from "next/headers";
+﻿import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { JobPostingQuestionEditor } from "@/features/admin/questions/JobPostingQuestionEditor";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
@@ -20,28 +20,24 @@ async function getAdminJobPostingQuestions(jobPostingId: number) {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
-  if (!sessionToken) {
-    return [];
-  }
+  if (!sessionToken) return [];
 
   const response = await fetch(`${baseUrl}/job-postings/${jobPostingId}/questions`, {
     cache: "no-store",
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      "X-Admin-Session": sessionToken,
+    },
   });
 
-  if (!response.ok) {
-    return [];
-  }
-
-  return response.json() as Promise<
-    Array<{
-      questionText: string;
-      questionType: string;
-      choices: string | null;
-      required: boolean;
-      sortOrder: number;
-    }>
-  >;
+  if (!response.ok) return [];
+  return response.json() as Promise<Array<{
+    questionText: string;
+    questionType: string;
+    choices: string | null;
+    required: boolean;
+    sortOrder: number;
+  }>>;
 }
 
 export default async function AdminQuestionPage({ params }: QuestionPageProps) {
@@ -58,20 +54,21 @@ export default async function AdminQuestionPage({ params }: QuestionPageProps) {
   }
 
   const rawQuestions = await getAdminJobPostingQuestions(jobPostingId);
-  const initialQuestions = rawQuestions.map((question, index) => ({
-    questionText: question.questionText,
-    questionType: question.questionType as "TEXT" | "CHOICE" | "SCALE",
-    choices: question.choices
+
+  const initialQuestions = rawQuestions.map((q, i) => ({
+    questionText: q.questionText,
+    questionType: q.questionType as "TEXT" | "CHOICE" | "SCALE",
+    choices: q.choices
       ? (() => {
           try {
-            return JSON.parse(question.choices) as string[];
+            return JSON.parse(q.choices as string) as string[];
           } catch {
             return [];
           }
         })()
       : [],
-    required: question.required,
-    sortOrder: question.sortOrder ?? index,
+    required: q.required,
+    sortOrder: q.sortOrder ?? i,
   }));
 
   return (
@@ -82,15 +79,14 @@ export default async function AdminQuestionPage({ params }: QuestionPageProps) {
             Job posting #{jobPostingId}
           </p>
           <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-            공고별 질문 관리
+            Manage application questions
           </h1>
         </div>
-
         <Link
-          href={`/admin/job-postings/${jobPostingId}`}
+          href="/admin"
           className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
         >
-          공고 수정으로
+          Back to dashboard
         </Link>
       </div>
 

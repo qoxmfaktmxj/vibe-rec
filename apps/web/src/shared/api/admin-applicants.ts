@@ -1,9 +1,9 @@
-﻿import "server-only";
+import "server-only";
 
 import type {
   AdminApplicantDetail,
   AdminApplicantFilters,
-  AdminApplicantSummary,
+  AdminApplicantPage,
   UpdateApplicantReviewStatusPayload,
 } from "@/entities/admin/applicant-model";
 import {
@@ -14,7 +14,7 @@ import {
 
 async function parseAdminApplicantResponse<T>(response: Response) {
   if (!response.ok) {
-    let message = `API ?붿껌???ㅽ뙣?덉뒿?덈떎. (?곹깭 肄붾뱶: ${response.status})`;
+    let message = `Admin applicant request failed. (status: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -63,6 +63,14 @@ function buildApplicantsQuery(filters: AdminApplicantFilters) {
     searchParams.set("query", filters.query.trim());
   }
 
+  if (filters.page && filters.page > 1) {
+    searchParams.set("page", String(filters.page));
+  }
+
+  if (filters.size) {
+    searchParams.set("size", String(filters.size));
+  }
+
   const queryString = searchParams.toString();
   return queryString ? `?${queryString}` : "";
 }
@@ -80,7 +88,7 @@ export async function getAdminApplicants(filters: AdminApplicantFilters) {
     },
   );
 
-  return parseAdminApplicantResponse<AdminApplicantSummary[]>(response);
+  return parseAdminApplicantResponse<AdminApplicantPage>(response);
 }
 
 export async function getAdminApplicant(applicationId: number) {
@@ -124,4 +132,3 @@ export async function updateAdminApplicantReviewStatus(
 
   return parseAdminApplicantResponse<AdminApplicantDetail>(response);
 }
-

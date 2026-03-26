@@ -5,6 +5,8 @@ import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -86,5 +88,55 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             @Param("applicantEmail") String applicantEmail,
             @Param("applicantPhone") String applicantPhone,
             @Param("query") String query
+    );
+
+    @Query(
+            value = """
+                    select application
+                    from Application application
+                    join fetch application.jobPosting jobPosting
+                    where (:jobPostingId is null or jobPosting.id = :jobPostingId)
+                      and (:applicationStatus is null or application.status = :applicationStatus)
+                      and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
+                      and (:applicantName = '' or lower(application.applicantName) like concat('%', :applicantName, '%'))
+                      and (:applicantEmail = '' or lower(application.applicantEmail) like concat('%', :applicantEmail, '%'))
+                      and (:applicantPhone = '' or lower(application.applicantPhone) like concat('%', :applicantPhone, '%'))
+                      and (
+                            :query = ''
+                            or lower(application.applicantName) like concat('%', :query, '%')
+                            or lower(application.applicantEmail) like concat('%', :query, '%')
+                            or lower(application.applicantPhone) like concat('%', :query, '%')
+                            or lower(jobPosting.title) like concat('%', :query, '%')
+                      )
+                    order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
+                    """,
+            countQuery = """
+                    select count(application)
+                    from Application application
+                    join application.jobPosting jobPosting
+                    where (:jobPostingId is null or jobPosting.id = :jobPostingId)
+                      and (:applicationStatus is null or application.status = :applicationStatus)
+                      and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
+                      and (:applicantName = '' or lower(application.applicantName) like concat('%', :applicantName, '%'))
+                      and (:applicantEmail = '' or lower(application.applicantEmail) like concat('%', :applicantEmail, '%'))
+                      and (:applicantPhone = '' or lower(application.applicantPhone) like concat('%', :applicantPhone, '%'))
+                      and (
+                            :query = ''
+                            or lower(application.applicantName) like concat('%', :query, '%')
+                            or lower(application.applicantEmail) like concat('%', :query, '%')
+                            or lower(application.applicantPhone) like concat('%', :query, '%')
+                            or lower(jobPosting.title) like concat('%', :query, '%')
+                      )
+                    """
+    )
+    Page<Application> findAdminApplicantsPage(
+            @Param("jobPostingId") Long jobPostingId,
+            @Param("applicationStatus") ApplicationStatus applicationStatus,
+            @Param("reviewStatus") ApplicationReviewStatus reviewStatus,
+            @Param("applicantName") String applicantName,
+            @Param("applicantEmail") String applicantEmail,
+            @Param("applicantPhone") String applicantPhone,
+            @Param("query") String query,
+            Pageable pageable
     );
 }

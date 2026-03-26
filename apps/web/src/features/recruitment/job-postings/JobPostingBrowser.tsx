@@ -37,11 +37,13 @@ function JobPostingSection({
   description,
   jobPostings,
   emptyMessage,
+  hideRecruitmentModeBadge = false,
 }: {
   title: string;
   description: string;
   jobPostings: JobPostingSummary[];
   emptyMessage: string;
+  hideRecruitmentModeBadge?: boolean;
 }) {
   return (
     <section className="space-y-4">
@@ -59,7 +61,11 @@ function JobPostingSection({
         </span>
       </div>
 
-      <JobPostingList jobPostings={jobPostings} emptyMessage={emptyMessage} />
+      <JobPostingList
+        jobPostings={jobPostings}
+        emptyMessage={emptyMessage}
+        hideRecruitmentModeBadge={hideRecruitmentModeBadge}
+      />
     </section>
   );
 }
@@ -68,7 +74,7 @@ export function JobPostingBrowser({
   jobPostings,
   emptyMessage = "현재 등록된 채용 공고가 없습니다.",
   searchable = false,
-  searchPlaceholder = "직무명, 소개, 근무지, 고용형태로 검색",
+  searchPlaceholder = "직무명, 한 줄 소개, 근무지, 고용 형태로 검색",
 }: JobPostingBrowserProps) {
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] =
@@ -109,8 +115,8 @@ export function JobPostingBrowser({
             title: getRecruitmentCategoryLabel(categoryFilter),
             description:
               categoryFilter === "NEW_GRAD"
-                ? "졸업 예정자와 초기 커리어 지원자를 위한 공고입니다."
-                : "실무 경험을 바탕으로 바로 전개할 수 있는 포지션입니다.",
+                ? "졸업 예정자와 초기 경력 지원자를 위한 공고입니다."
+                : "실무 경험을 바탕으로 바로 합류할 수 있는 포지션입니다.",
             jobPostings:
               categoryFilter === "NEW_GRAD"
                 ? groupedJobPostings.newGrad
@@ -126,7 +132,7 @@ export function JobPostingBrowser({
             key: "NEW_GRAD",
             title: "신입 채용",
             description:
-              "졸업 예정자와 초기 커리어 지원자를 위한 공고를 모아볼 수 있습니다.",
+              "졸업 예정자와 초기 경력 지원자를 위한 공고를 모아서 볼 수 있습니다.",
             jobPostings: groupedJobPostings.newGrad,
             emptyMessage: searchable
               ? "조건에 맞는 신입 채용 공고가 없습니다."
@@ -136,7 +142,7 @@ export function JobPostingBrowser({
             key: "EXPERIENCED",
             title: "경력 채용",
             description:
-              "즉시 전력화가 가능한 경력 포지션을 확인할 수 있습니다.",
+              "즉시 투입 가능한 경력 포지션을 이 섹션에서 확인할 수 있습니다.",
             jobPostings: groupedJobPostings.experienced,
             emptyMessage: searchable
               ? "조건에 맞는 경력 채용 공고가 없습니다."
@@ -156,7 +162,7 @@ export function JobPostingBrowser({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-                채용 탐색
+                채용 검색
               </p>
               <div className="flex flex-wrap gap-2">
                 {categoryFilters.map((filter) => {
@@ -209,9 +215,10 @@ export function JobPostingBrowser({
 
         <JobPostingSection
           title="상시 채용"
-          description="기간 제한 없이 지원을 받고 순차적으로 검토하는 포지션입니다."
+          description="마감일 없이 지원을 받는 공고를 별도 섹션으로 분리했습니다."
           jobPostings={groupedJobPostings.rolling}
           emptyMessage={rollingEmptyMessage}
+          hideRecruitmentModeBadge
         />
       </div>
     </div>

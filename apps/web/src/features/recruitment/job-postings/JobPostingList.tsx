@@ -10,11 +10,13 @@ import {
 interface JobPostingListProps {
   jobPostings: JobPostingSummary[];
   emptyMessage?: string;
+  hideRecruitmentModeBadge?: boolean;
 }
 
 export function JobPostingList({
   jobPostings,
   emptyMessage = "현재 표시할 채용 공고가 없습니다.",
+  hideRecruitmentModeBadge = false,
 }: JobPostingListProps) {
   if (jobPostings.length === 0) {
     return (
@@ -38,15 +40,18 @@ export function JobPostingList({
               <span className="rounded-sm bg-surface-container-low px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-on-surface">
                 {getRecruitmentCategoryLabel(jobPosting.recruitmentCategory)}
               </span>
-              <span
-                className={`rounded-sm px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] ${
-                  isRolling
-                    ? "bg-primary/10 text-primary"
-                    : "bg-stone-100 text-stone-700"
-                }`}
-              >
-                {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
-              </span>
+
+              {!hideRecruitmentModeBadge ? (
+                <span
+                  className={`rounded-sm px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] ${
+                    isRolling
+                      ? "bg-primary/10 text-primary"
+                      : "bg-stone-100 text-stone-700"
+                  }`}
+                >
+                  {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
+                </span>
+              ) : null}
             </div>
 
             <div className="mt-4 space-y-3">
@@ -62,14 +67,14 @@ export function JobPostingList({
               <p>{jobPosting.employmentType}</p>
               <p>{jobPosting.location}</p>
               <p>{formatRecruitmentPeriod(jobPosting)}</p>
-              <p>{jobPosting.stepCount}단계</p>
+              <p>총 {jobPosting.stepCount}단계</p>
             </div>
 
             <Link
               href={`/job-postings/${jobPosting.id}`}
               className="mt-auto inline-flex w-fit self-start pt-6 text-[11px] font-semibold tracking-[0.04em] text-primary transition-colors hover:text-primary-foreground"
             >
-              {isRolling ? "인재풀 등록" : "상세 보기"}
+              {isRolling ? "상세 보기" : "공고 보기"}
             </Link>
           </article>
         );

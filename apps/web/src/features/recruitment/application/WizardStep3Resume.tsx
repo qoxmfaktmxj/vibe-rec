@@ -28,10 +28,9 @@ interface WizardStep3Props {
   data: Step3Data;
   onChange: (data: Step3Data) => void;
   disabled: boolean;
-  sessionToken: string;
 }
 
-export function WizardStep3Resume({ data, onChange, disabled, sessionToken: _sessionToken }: WizardStep3Props) {
+export function WizardStep3Resume({ data, onChange, disabled }: WizardStep3Props) {
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
 

@@ -1,4 +1,4 @@
-﻿import "server-only";
+import "server-only";
 
 import { cookies } from "next/headers";
 
@@ -34,7 +34,7 @@ export function getApiBaseUrl() {
 
 async function parseAdminResponse<T>(response: Response) {
   if (!response.ok) {
-    let message = `API ?붿껌???ㅽ뙣?덉뒿?덈떎. (?곹깭 肄붾뱶: ${response.status})`;
+    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -102,7 +102,7 @@ export async function logoutAdmin(sessionToken: string) {
   });
 
   if (!response.ok && response.status !== 204) {
-    throw new AdminApiError("濡쒓렇?꾩썐???ㅽ뙣?덉뒿?덈떎.", response.status);
+    throw new AdminApiError("로그아웃에 실패했습니다.", response.status);
   }
 }
 
@@ -130,7 +130,7 @@ export async function getRequiredAdminSessionToken() {
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
   if (!sessionToken) {
-    throw new AdminApiError("愿由ъ옄 ?몄뀡???녾굅??留뚮즺?섏뿀?듬땲??", 401);
+    throw new AdminApiError("관리자 세션이 필요합니다.", 401);
   }
 
   return sessionToken;

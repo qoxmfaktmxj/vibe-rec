@@ -268,7 +268,7 @@ export function getDraftAvailability(posting: JobPostingAvailability) {
   if (now < opensAt) {
     return {
       canSave: false,
-      reason: "지원 기간이 시작되면 지원서를 작성할 수 있습니다.",
+      reason: "지원 기간이 시작된 이후에 지원서를 작성할 수 있습니다.",
     };
   }
 
@@ -276,7 +276,7 @@ export function getDraftAvailability(posting: JobPostingAvailability) {
     return {
       canSave: true,
       reason:
-        "상시 채용 공고입니다. 지원서를 작성하고 제출하면 순차 검토가 진행됩니다.",
+        "상시 채용 공고입니다. 지원서를 작성하고 제출하면 순차적으로 검토가 진행됩니다.",
     };
   }
 

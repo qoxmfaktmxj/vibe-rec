@@ -68,7 +68,6 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
       <main className="mx-auto max-w-4xl px-6 py-10 md:px-16">
         <ApplicationWizard
           candidateSession={candidateSession}
-          sessionToken={sessionToken}
           jobPostingId={jobPostingId}
           jobPostingTitle={jobPosting.title}
           initialApplication={existingApplication}

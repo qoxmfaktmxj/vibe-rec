@@ -53,14 +53,14 @@ export function AdminAuthForm({
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "愿由ъ옄 ?몄쬆???ㅽ뙣?덉뒿?덈떎.");
+        setErrorMessage(responseBody.message ?? "Admin authentication failed.");
         return;
       }
 
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("愿由ъ옄 ?몄쬆 以??덇린移??딆? ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+      setErrorMessage("A network error occurred while processing the request.");
     } finally {
       setIsPending(false);
     }
@@ -70,23 +70,23 @@ export function AdminAuthForm({
     event.preventDefault();
 
     if (!username.trim() || !password) {
-      setErrorMessage("?꾩씠?붿? 鍮꾨?踰덊샇瑜?紐⑤몢 ?낅젰?섏꽭??");
+      setErrorMessage("Enter both username and password.");
       return;
     }
 
     if (mode === "signup") {
       if (!displayName.trim()) {
-        setErrorMessage("?쒖떆 ?대쫫???낅젰?섏꽭??");
+        setErrorMessage("Enter a display name.");
         return;
       }
 
       if (password.length < 8) {
-        setErrorMessage("鍮꾨?踰덊샇??8???댁긽?댁뼱???⑸땲??");
+        setErrorMessage("Password must be at least 8 characters.");
         return;
       }
 
       if (password !== confirmPassword) {
-        setErrorMessage("鍮꾨?踰덊샇 ?뺤씤???쇱튂?섏? ?딆뒿?덈떎.");
+        setErrorMessage("Password confirmation does not match.");
         return;
       }
     }
@@ -111,7 +111,7 @@ export function AdminAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          濡쒓렇??
+          Login
         </button>
         <button
           type="button"
@@ -122,7 +122,7 @@ export function AdminAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          愿由ъ옄 怨꾩젙 ?앹꽦
+          Sign up
         </button>
       </div>
 
@@ -139,14 +139,14 @@ export function AdminAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="displayName"
             >
-              ?쒖떆 ?대쫫
+              Display name
             </label>
             <input
               id="displayName"
               name="displayName"
               type="text"
               autoComplete="name"
-              placeholder="梨꾩슜 ?댁쁺 愿由ъ옄"
+              placeholder="Recruiting Admin"
               className={inputClassName}
               value={displayName}
               disabled={isPending}
@@ -160,7 +160,7 @@ export function AdminAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="username"
           >
-            ?꾩씠??
+            Username
           </label>
           <input
             id="username"
@@ -180,14 +180,14 @@ export function AdminAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="password"
           >
-            鍮꾨?踰덊샇
+            Password
           </label>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            placeholder="鍮꾨?踰덊샇瑜??낅젰?섏꽭??
+            placeholder="Enter your password"
             className={inputClassName}
             value={password}
             disabled={isPending}
@@ -201,14 +201,14 @@ export function AdminAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="confirmPassword"
             >
-              鍮꾨?踰덊샇 ?뺤씤
+              Confirm password
             </label>
             <input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               autoComplete="new-password"
-              placeholder="鍮꾨?踰덊샇瑜??ㅼ떆 ?낅젰?섏꽭??
+              placeholder="Re-enter your password"
               className={inputClassName}
               value={confirmPassword}
               disabled={isPending}
@@ -224,14 +224,13 @@ export function AdminAuthForm({
         >
           {isPending
             ? mode === "signup"
-              ? "怨꾩젙 ?앹꽦 以?.."
-              : "濡쒓렇??以?.."
+              ? "Creating account..."
+              : "Logging in..."
             : mode === "signup"
-              ? "愿由ъ옄 怨꾩젙 留뚮뱾湲?
-              : "濡쒓렇??}
+              ? "Create admin account"
+              : "Log in"}
         </button>
       </form>
     </div>
   );
 }
-

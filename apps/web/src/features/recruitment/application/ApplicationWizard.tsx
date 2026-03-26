@@ -21,7 +21,6 @@ import { WizardStep4QuestionsSubmit } from "./WizardStep4QuestionsSubmit";
 
 interface ApplicationWizardProps {
   candidateSession: CandidateSession;
-  sessionToken: string;
   jobPostingId: number;
   jobPostingTitle: string;
   initialApplication: CandidateApplicationDetail | null;
@@ -30,7 +29,6 @@ interface ApplicationWizardProps {
 
 export function ApplicationWizard({
   candidateSession,
-  sessionToken,
   jobPostingId,
   jobPostingTitle,
   initialApplication,
@@ -225,7 +223,6 @@ export function ApplicationWizard({
             data={step3Data}
             onChange={setStep3Data}
             disabled={isPending}
-            sessionToken={sessionToken}
           />
         )}
 

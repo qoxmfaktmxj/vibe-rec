@@ -18,20 +18,26 @@ interface JobPostingQuestionEditorProps {
   initialQuestions: QuestionItem[];
 }
 
-export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: JobPostingQuestionEditorProps) {
+export function JobPostingQuestionEditor({
+  jobPostingId,
+  initialQuestions,
+}: JobPostingQuestionEditorProps) {
   const [isPending, startTransition] = useTransition();
   const [questions, setQuestions] = useState<QuestionItem[]>(initialQuestions);
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   function addQuestion() {
-    setQuestions([...questions, {
-      questionText: "",
-      questionType: "TEXT",
-      choices: [],
-      required: true,
-      sortOrder: questions.length,
-    }]);
+    setQuestions([
+      ...questions,
+      {
+        questionText: "",
+        questionType: "TEXT",
+        choices: [],
+        required: true,
+        sortOrder: questions.length,
+      },
+    ]);
   }
 
   function updateQuestion(index: number, patch: Partial<QuestionItem>) {
@@ -39,7 +45,11 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
   }
 
   function removeQuestion(index: number) {
-    setQuestions(questions.filter((_, i) => i !== index).map((q, i) => ({ ...q, sortOrder: i })));
+    setQuestions(
+      questions
+        .filter((_, i) => i !== index)
+        .map((q, i) => ({ ...q, sortOrder: i })),
+    );
   }
 
   function addChoice(questionIndex: number) {
@@ -56,16 +66,18 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
 
   function removeChoice(questionIndex: number, choiceIndex: number) {
     const q = questions[questionIndex];
-    updateQuestion(questionIndex, { choices: q.choices.filter((_, i) => i !== choiceIndex) });
+    updateQuestion(questionIndex, {
+      choices: q.choices.filter((_, i) => i !== choiceIndex),
+    });
   }
 
   function handleSave() {
     startTransition(async () => {
       setError(null);
-      setSaveStatus("???以?..");
+      setSaveStatus("Saving...");
       try {
         const payload = questions.map((q) => ({
-          questionText: q.questionText,
+          questionText: q.questionText.trim(),
           questionType: q.questionType,
           choices: q.questionType === "CHOICE" ? JSON.stringify(q.choices) : null,
           required: q.required,
@@ -78,11 +90,16 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
           body: JSON.stringify(payload),
         });
 
-        if (!response.ok) throw new Error("??μ뿉 ?ㅽ뙣?덉뒿?덈떎.");
-        setSaveStatus("????꾨즺!");
+        if (!response.ok) {
+          const body = (await response.json().catch(() => null)) as
+            | { message?: string; error?: string }
+            | null;
+          throw new Error(body?.message ?? body?.error ?? "Failed to save questions.");
+        }
+        setSaveStatus("Questions saved.");
         setTimeout(() => setSaveStatus(null), 3000);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "??μ뿉 ?ㅽ뙣?덉뒿?덈떎.");
+        setError(e instanceof Error ? e.message : "Failed to save questions.");
         setSaveStatus(null);
       }
     });
@@ -91,37 +108,37 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-headline text-lg font-medium text-on-surface">而ㅼ뒪? 吏덈Ц 愿由?/h2>
+        <h2 className="font-headline text-lg font-medium text-on-surface">Posting questions</h2>
         <button
           type="button"
           onClick={addQuestion}
           className="rounded-lg bg-surface-container-high px-4 py-2 text-xs font-semibold text-on-surface transition hover:bg-surface-container-highest"
         >
-          + 吏덈Ц 異붽?
+          Add question
         </button>
       </div>
 
       {questions.length === 0 && (
         <p className="py-8 text-center text-sm text-on-surface-variant">
-          異붽???吏덈Ц???놁뒿?덈떎. ??踰꾪듉???대┃?섏뿬 吏덈Ц??異붽??섏꽭??
+          No custom questions yet. Add one to start building the application form.
         </p>
       )}
 
       {questions.map((q, qIdx) => (
         <div key={qIdx} className="space-y-4 rounded-sm border border-outline-variant bg-card p-5">
           <div className="flex items-start justify-between gap-2">
-            <span className="text-xs font-medium text-outline">吏덈Ц {qIdx + 1}</span>
+            <span className="text-xs font-medium text-outline">Question {qIdx + 1}</span>
             <button
               type="button"
               onClick={() => removeQuestion(qIdx)}
               className="text-xs text-outline transition hover:text-destructive"
             >
-              ??젣
+              Remove
             </button>
           </div>
 
           <input
-            placeholder="吏덈Ц ?댁슜???낅젰?섏꽭??
+            placeholder="Enter the question text"
             disabled={isPending}
             className={inputClassName}
             value={q.questionText}
@@ -130,19 +147,21 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-xs text-on-surface-variant">?좏삎:</label>
+              <label className="text-xs text-on-surface-variant">Type:</label>
               <select
                 disabled={isPending}
                 className={`w-32 ${inputClassName}`}
                 value={q.questionType}
-                onChange={(e) => updateQuestion(qIdx, {
-                  questionType: e.target.value as "TEXT" | "CHOICE" | "SCALE",
-                  choices: e.target.value === "CHOICE" ? q.choices : [],
-                })}
+                onChange={(e) =>
+                  updateQuestion(qIdx, {
+                    questionType: e.target.value as "TEXT" | "CHOICE" | "SCALE",
+                    choices: e.target.value === "CHOICE" ? q.choices : [],
+                  })
+                }
               >
-                <option value="TEXT">?띿뒪??/option>
-                <option value="CHOICE">?좏깮??/option>
-                <option value="SCALE">泥숇룄 (1-5)</option>
+                <option value="TEXT">Text</option>
+                <option value="CHOICE">Choice</option>
+                <option value="SCALE">Scale (1-5)</option>
               </select>
             </div>
 
@@ -153,17 +172,17 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
                 onChange={(e) => updateQuestion(qIdx, { required: e.target.checked })}
                 className="h-4 w-4"
               />
-              ?꾩닔
+              Required
             </label>
           </div>
 
           {q.questionType === "CHOICE" && (
             <div className="space-y-2 pl-4">
-              <span className="text-xs text-on-surface-variant">?좏깮吏:</span>
+              <span className="text-xs text-on-surface-variant">Choices:</span>
               {q.choices.map((choice, cIdx) => (
                 <div key={cIdx} className="flex items-center gap-2">
                   <input
-                    placeholder={`?좏깮吏 ${cIdx + 1}`}
+                    placeholder={`Choice ${cIdx + 1}`}
                     disabled={isPending}
                     className={`flex-1 ${inputClassName}`}
                     value={choice}
@@ -174,7 +193,7 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
                     onClick={() => removeChoice(qIdx, cIdx)}
                     className="text-xs text-outline hover:text-destructive"
                   >
-                    ??젣
+                    Remove
                   </button>
                 </div>
               ))}
@@ -183,7 +202,7 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
                 onClick={() => addChoice(qIdx)}
                 className="text-xs text-primary hover:underline"
               >
-                + ?좏깮吏 異붽?
+                Add choice
               </button>
             </div>
           )}
@@ -204,9 +223,9 @@ export function JobPostingQuestionEditor({ jobPostingId, initialQuestions }: Job
           onClick={handleSave}
           className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
         >
-          吏덈Ц ???        </button>
+          Save questions
+        </button>
       </div>
     </div>
   );
 }
-

@@ -26,3 +26,4 @@ uploads/
 .omx/
 apps/api/.data/
 .claude/
+.gstack/
