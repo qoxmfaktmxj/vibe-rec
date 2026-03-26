@@ -56,6 +56,15 @@ public class AdminJobPostingController {
         return adminJobPostingService.createJobPosting(request);
     }
 
+    @GetMapping("/admin/job-postings")
+    @RequiresPermission("APPLICANT_VIEW")
+    public List<AdminJobPostingResponse> getJobPostings(
+            @RequestHeader("X-Admin-Session") String sessionToken
+    ) {
+        authorize(sessionToken);
+        return adminJobPostingService.getJobPostings();
+    }
+
     @GetMapping("/admin/job-postings/{id}")
     @RequiresPermission("APPLICANT_VIEW")
     public AdminJobPostingResponse getJobPosting(
