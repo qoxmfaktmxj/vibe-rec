@@ -19,7 +19,7 @@ class VibeRecApiApplicationTests extends IntegrationTestBase {
         Map<String, Object> payload = platformController.ping();
 
         assertThat(payload)
-                .containsEntry("application", "vibe-rec-api")
+                .containsEntry("application", "hireflow-api")
                 .containsEntry("status", "ok");
     }
 }

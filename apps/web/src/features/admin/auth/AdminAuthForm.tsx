@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -53,14 +53,14 @@ export function AdminAuthForm({
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "Admin authentication failed.");
+        setErrorMessage(responseBody.message ?? "愿由ъ옄 ?몄쬆???ㅽ뙣?덉뒿?덈떎.");
         return;
       }
 
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("An unexpected error occurred during admin authentication.");
+      setErrorMessage("愿由ъ옄 ?몄쬆 以??덇린移??딆? ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
     } finally {
       setIsPending(false);
     }
@@ -70,23 +70,23 @@ export function AdminAuthForm({
     event.preventDefault();
 
     if (!username.trim() || !password) {
-      setErrorMessage("Enter both username and password.");
+      setErrorMessage("?꾩씠?붿? 鍮꾨?踰덊샇瑜?紐⑤몢 ?낅젰?섏꽭??");
       return;
     }
 
     if (mode === "signup") {
       if (!displayName.trim()) {
-        setErrorMessage("Enter a display name.");
+        setErrorMessage("?쒖떆 ?대쫫???낅젰?섏꽭??");
         return;
       }
 
       if (password.length < 8) {
-        setErrorMessage("Password must be at least 8 characters.");
+        setErrorMessage("鍮꾨?踰덊샇??8???댁긽?댁뼱???⑸땲??");
         return;
       }
 
       if (password !== confirmPassword) {
-        setErrorMessage("Password confirmation does not match.");
+        setErrorMessage("鍮꾨?踰덊샇 ?뺤씤???쇱튂?섏? ?딆뒿?덈떎.");
         return;
       }
     }
@@ -111,7 +111,7 @@ export function AdminAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          Sign in
+          濡쒓렇??
         </button>
         <button
           type="button"
@@ -122,7 +122,7 @@ export function AdminAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          Sign up
+          愿由ъ옄 怨꾩젙 ?앹꽦
         </button>
       </div>
 
@@ -139,14 +139,14 @@ export function AdminAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="displayName"
             >
-              Display name
+              ?쒖떆 ?대쫫
             </label>
             <input
               id="displayName"
               name="displayName"
               type="text"
               autoComplete="name"
-              placeholder="Hiring Admin"
+              placeholder="梨꾩슜 ?댁쁺 愿由ъ옄"
               className={inputClassName}
               value={displayName}
               disabled={isPending}
@@ -160,7 +160,7 @@ export function AdminAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="username"
           >
-            Username
+            ?꾩씠??
           </label>
           <input
             id="username"
@@ -180,14 +180,14 @@ export function AdminAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="password"
           >
-            Password
+            鍮꾨?踰덊샇
           </label>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            placeholder="Enter your password"
+            placeholder="鍮꾨?踰덊샇瑜??낅젰?섏꽭??
             className={inputClassName}
             value={password}
             disabled={isPending}
@@ -201,14 +201,14 @@ export function AdminAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="confirmPassword"
             >
-              Confirm password
+              鍮꾨?踰덊샇 ?뺤씤
             </label>
             <input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               autoComplete="new-password"
-              placeholder="Re-enter your password"
+              placeholder="鍮꾨?踰덊샇瑜??ㅼ떆 ?낅젰?섏꽭??
               className={inputClassName}
               value={confirmPassword}
               disabled={isPending}
@@ -224,13 +224,14 @@ export function AdminAuthForm({
         >
           {isPending
             ? mode === "signup"
-              ? "Creating account.."
-              : "Signing in.."
+              ? "怨꾩젙 ?앹꽦 以?.."
+              : "濡쒓렇??以?.."
             : mode === "signup"
-              ? "Create admin account"
-              : "Sign in"}
+              ? "愿由ъ옄 怨꾩젙 留뚮뱾湲?
+              : "濡쒓렇??}
         </button>
       </form>
     </div>
   );
 }
+

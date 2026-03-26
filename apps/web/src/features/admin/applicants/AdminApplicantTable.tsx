@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import type {
   AdminApplicantSummary,
@@ -15,12 +15,12 @@ function getApplicationStatusMeta(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
       return {
-        label: "Submitted",
+        label: "?쒖텧 ?꾨즺",
         className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
       };
     case "DRAFT":
       return {
-        label: "Draft",
+        label: "?꾩떆 ???,
         className: "bg-amber-50 text-amber-800 ring-amber-200",
       };
     default:
@@ -35,22 +35,22 @@ function getReviewStatusMeta(status: ApplicationReviewStatus) {
   switch (status) {
     case "NEW":
       return {
-        label: "New",
+        label: "?좉퇋",
         className: "bg-primary-container text-primary ring-primary/10",
       };
     case "IN_REVIEW":
       return {
-        label: "In review",
+        label: "寃??以?,
         className: "bg-sky-50 text-sky-800 ring-sky-200",
       };
     case "PASSED":
       return {
-        label: "Passed",
+        label: "?⑷꺽",
         className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
       };
     case "REJECTED":
       return {
-        label: "Rejected",
+        label: "遺덊빀寃?,
         className: "bg-rose-50 text-rose-800 ring-rose-200",
       };
     default:
@@ -66,115 +66,104 @@ export function AdminApplicantTable({
 }: AdminApplicantTableProps) {
   if (applicants.length === 0) {
     return (
-      <section className="ambient-shadow rounded-[28px] border border-dashed border-outline-variant bg-card px-6 py-14 text-center">
+      <div className="border-t border-outline-variant px-6 py-14 text-center">
         <p className="font-headline text-2xl font-semibold tracking-[-0.04em] text-on-surface">
-          No applicants match these filters
+          議곌굔??留욌뒗 吏?먯옄媛 ?놁뒿?덈떎
         </p>
         <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-          Widen the search or clear a filter to bring more candidates back into
-          view.
+          寃??踰붿쐞瑜?醫곹엳嫄곕굹 ?꾪꽣瑜??댁젣?????ㅼ떆 ?뺤씤?섏꽭??
         </p>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="ambient-shadow overflow-hidden rounded-[28px] border border-outline-variant/70 bg-card">
-      <div className="border-b border-outline-variant/70 px-6 py-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
-          Candidate list
-        </p>
-        <h3 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-          Active applicants
-        </h3>
-      </div>
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-left text-sm">
+        <thead className="bg-surface-container-low">
+          <tr className="border-b border-outline-variant text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+            <th className="px-6 py-4">吏?먯옄</th>
+            <th className="px-6 py-4">怨듦퀬</th>
+            <th className="px-6 py-4">吏???곹깭</th>
+            <th className="px-6 py-4">寃???곹깭</th>
+            <th className="px-6 py-4">理쒓렐 ?쒕룞</th>
+            <th className="px-6 py-4 text-right">?닿린</th>
+          </tr>
+        </thead>
+        <tbody>
+          {applicants.map((applicant) => {
+            const applicationStatus = getApplicationStatusMeta(
+              applicant.applicationStatus,
+            );
+            const reviewStatus = getReviewStatusMeta(applicant.reviewStatus);
+            const activityTimestamp =
+              applicant.reviewedAt ?? applicant.submittedAt ?? applicant.draftSavedAt;
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-surface-container-low">
-            <tr className="border-b border-outline-variant text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-              <th className="px-6 py-4">Candidate</th>
-              <th className="px-6 py-4">Posting</th>
-              <th className="px-6 py-4">Application</th>
-              <th className="px-6 py-4">Review</th>
-              <th className="px-6 py-4">Last activity</th>
-              <th className="px-6 py-4 text-right">Open</th>
-            </tr>
-          </thead>
-          <tbody>
-            {applicants.map((applicant) => {
-              const applicationStatus = getApplicationStatusMeta(
-                applicant.applicationStatus,
-              );
-              const reviewStatus = getReviewStatusMeta(applicant.reviewStatus);
-              const activityTimestamp =
-                applicant.reviewedAt ?? applicant.submittedAt ?? applicant.draftSavedAt;
-
-              return (
-                <tr
-                  key={applicant.applicationId}
-                  className="border-b border-outline-variant/70 align-top transition-colors hover:bg-surface-container-low/50 last:border-b-0"
-                >
-                  <td className="px-6 py-5">
-                    <div className="space-y-1.5">
-                      <p className="font-headline text-lg font-semibold tracking-[-0.04em] text-on-surface">
-                        {applicant.applicantName}
-                      </p>
-                      <p className="text-sm text-on-surface-variant">
-                        {applicant.applicantEmail}
-                      </p>
-                      <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-on-surface-variant">
-                        {applicant.applicantPhone}
-                      </p>
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-5">
-                    <p className="font-medium text-on-surface">
-                      {applicant.jobPostingTitle}
+            return (
+              <tr
+                key={applicant.applicationId}
+                className="border-b border-outline-variant/70 align-top transition-colors hover:bg-surface-container-low/50 last:border-b-0"
+              >
+                <td className="px-6 py-5">
+                  <div className="space-y-1.5">
+                    <p className="font-headline text-lg font-semibold tracking-[-0.04em] text-on-surface">
+                      {applicant.applicantName}
                     </p>
-                    <p className="mt-1 text-xs text-on-surface-variant">
-                      Application #{applicant.applicationId}
+                    <p className="text-sm text-on-surface-variant">
+                      {applicant.applicantEmail}
                     </p>
-                  </td>
-
-                  <td className="px-6 py-5">
-                    <span
-                      className={`inline-flex min-w-[96px] items-center justify-center rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${applicationStatus.className}`}
-                    >
-                      {applicationStatus.label}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-5">
-                    <span
-                      className={`inline-flex min-w-[96px] items-center justify-center rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${reviewStatus.className}`}
-                    >
-                      {reviewStatus.label}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-5 text-sm text-on-surface-variant">
-                    <p>{formatDateTime(activityTimestamp)}</p>
-                    <p className="mt-1 text-xs">
-                      Submitted: {formatDateTime(applicant.submittedAt)}
+                    <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-on-surface-variant">
+                      {applicant.applicantPhone}
                     </p>
-                  </td>
+                  </div>
+                </td>
 
-                  <td className="px-6 py-5 text-right">
-                    <Link
-                      href={`/admin/applicants/${applicant.applicationId}`}
-                      className="inline-flex items-center justify-center rounded-xl border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                    >
-                      Open
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </section>
+                <td className="px-6 py-5">
+                  <p className="font-medium text-on-surface">
+                    {applicant.jobPostingTitle}
+                  </p>
+                  <p className="mt-1 text-xs text-on-surface-variant">
+                    吏?먯꽌 #{applicant.applicationId}
+                  </p>
+                </td>
+
+                <td className="px-6 py-5">
+                  <span
+                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${applicationStatus.className}`}
+                  >
+                    {applicationStatus.label}
+                  </span>
+                </td>
+
+                <td className="px-6 py-5">
+                  <span
+                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${reviewStatus.className}`}
+                  >
+                    {reviewStatus.label}
+                  </span>
+                </td>
+
+                <td className="px-6 py-5 text-sm text-on-surface-variant">
+                  <p>{formatDateTime(activityTimestamp)}</p>
+                  <p className="mt-1 text-xs">
+                    ?쒖텧: {formatDateTime(applicant.submittedAt)}
+                  </p>
+                </td>
+
+                <td className="px-6 py-5 text-right">
+                  <Link
+                    href={`/admin/applicants/${applicant.applicationId}`}
+                    className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    ?곸꽭 蹂닿린
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
+

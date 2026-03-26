@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
@@ -8,7 +8,7 @@ import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 const navItems = [
   {
     href: "/admin",
-    label: "Dashboard",
+    label: "??쒕낫??,
     icon: (
       <path
         strokeLinecap="round"
@@ -19,7 +19,7 @@ const navItems = [
   },
   {
     href: "/admin/applicants",
-    label: "Applicants",
+    label: "吏?먯옄",
     icon: (
       <path
         strokeLinecap="round"
@@ -30,7 +30,7 @@ const navItems = [
   },
   {
     href: "/",
-    label: "Public site",
+    label: "怨듦컻 ?ъ씠??,
     icon: (
       <path
         strokeLinecap="round"
@@ -58,22 +58,20 @@ export default async function AdminLayout({
         <div className="space-y-8">
           <Link
             href="/admin"
-            className="flex h-12 w-12 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent shadow-[0_18px_36px_-26px_rgba(0,0,0,0.45)]"
+            className="flex h-12 w-12 items-center justify-center rounded-sm border border-sidebar-border bg-sidebar-accent shadow-[0_18px_36px_-26px_rgba(0,0,0,0.45)]"
           >
-            <span className="font-headline text-xl font-semibold">V</span>
+            <span className="font-headline text-xl font-semibold">H</span>
           </Link>
 
           <AdminRailNav items={navItems} />
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-sidebar-border bg-sidebar-accent px-3 py-4 text-center">
+          <div className="rounded-sm border border-sidebar-border bg-sidebar-accent px-3 py-4 text-center">
             <p className="text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/70">
-              Active
+              ?댁쁺 以?
             </p>
-            <p className="mt-2 text-xs font-medium leading-5">
-              Hiring workspace
-            </p>
+            <p className="mt-2 text-xs font-medium leading-5">梨꾩슜 ?댁쁺 怨듦컙</p>
           </div>
 
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sm font-semibold uppercase">
@@ -87,29 +85,28 @@ export default async function AdminLayout({
           <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="space-y-3">
               <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                Admin operations
+                愿由ъ옄 ?댁쁺
               </p>
               <div className="space-y-2">
                 <h1 className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
-                  Recruiting command center
+                  ??쒕낫??
                 </h1>
                 <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
-                  Review applicants, move interviews forward, and capture
-                  hiring decisions without leaving the same workflow surface.
+                  吏?먯옄 寃?? 硫댁젒 吏꾪뻾, 理쒖쥌 ?섏궗寃곗젙??吏꾪뻾?⑸땲??
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <div className="rounded-2xl border border-outline-variant bg-card px-4 py-3 text-sm shadow-[0_18px_40px_-30px_rgba(31,41,55,0.28)]">
+              <div className="rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm shadow-[0_18px_40px_-30px_rgba(31,41,55,0.28)]">
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">
-                  Signed in
+                  濡쒓렇???뺣낫
                 </p>
                 <p className="mt-1 font-semibold text-on-surface">
                   {session.displayName}
                 </p>
                 <p className="text-xs text-on-surface-variant">
-                  {session.role} permissions active
+                  {session.role} 沅뚰븳 ?ъ슜 以?
                 </p>
               </div>
               <AdminLogoutButton redirectTo="/admin/login" />
@@ -122,3 +119,4 @@ export default async function AdminLayout({
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Sora } from "next/font/google";
+
 import "./globals.css";
 
 const body = Sora({
@@ -21,8 +22,8 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vibe Rec",
-  description: "Precision-first recruiting workspace.",
+  title: "HireFlow",
+  description: "채용 운영과 지원 경험을 한 흐름으로 연결하는 HireFlow 워크스페이스",
 };
 
 export default function RootLayout({

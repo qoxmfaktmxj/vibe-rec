@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
 import { CandidateLogoutButton } from "@/features/recruitment/application/CandidateLogoutButton";
-import { JobPostingList } from "@/features/recruitment/job-postings/JobPostingList";
+import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
@@ -22,13 +22,10 @@ export default async function JobPostingListPage() {
             href="/"
             className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
           >
-            Vibe Rec
+            HireFlow
           </Link>
           <div className="hidden items-center gap-8 md:flex">
-            <Link
-              href="/job-postings"
-              className="text-[13px] font-normal text-primary"
-            >
+            <Link href="/job-postings" className="text-[13px] font-normal text-primary">
               채용 공고
             </Link>
             <a
@@ -82,20 +79,25 @@ export default async function JobPostingListPage() {
       <main className="mx-auto max-w-7xl px-6 py-16 md:px-16">
         {jobPostings.length === 0 ? (
           <div className="mb-8 rounded-sm border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
-            현재 공고 목록을 불러오지 못했습니다. 나머지 페이지는 계속 이용할 수 있습니다.
+            현재 채용 공고를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
           </div>
         ) : null}
         <div className="mb-10 flex items-end justify-between gap-6">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
-              주요 공고
+              채용 공고
             </p>
             <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
               전체 채용 공고
             </h1>
           </div>
         </div>
-        <JobPostingList jobPostings={jobPostings} />
+        <JobPostingBrowser
+          jobPostings={jobPostings}
+          searchable
+          searchPlaceholder="직무명, 한 줄 소개, 근무지, 고용형태로 검색"
+          emptyMessage="현재 등록된 채용 공고가 없습니다."
+        />
       </main>
     </div>
   );

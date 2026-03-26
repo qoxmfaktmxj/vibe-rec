@@ -75,6 +75,12 @@ public class Application {
     @Column(name = "career_years")
     private Integer careerYears;
 
+    @Column(name = "current_step", nullable = false)
+    private Short currentStep = 1;
+
+    @Column(name = "motivation_fit", columnDefinition = "text")
+    private String motivationFit;
+
     @Column(name = "draft_saved_at", nullable = false)
     private OffsetDateTime draftSavedAt;
 
@@ -104,6 +110,7 @@ public class Application {
         this.applicantPhone = applicantPhone;
         this.status = ApplicationStatus.DRAFT;
         this.reviewStatus = ApplicationReviewStatus.NEW;
+        this.currentStep = 1;
         this.draftSavedAt = OffsetDateTime.now();
     }
 
@@ -172,15 +179,26 @@ public class Application {
     public OffsetDateTime getFinalDecidedAt() { return finalDecidedAt; }
     public String getFinalNote() { return finalNote; }
 
-    public void updateNormalizedFields(String introduction, String coreStrength, Integer careerYears) {
+    public void updateNormalizedFields(String introduction, String coreStrength, Integer careerYears, String motivationFit) {
         this.introduction = introduction;
         this.coreStrength = coreStrength;
         this.careerYears = careerYears;
+        this.motivationFit = motivationFit;
+    }
+
+    public void updateCurrentStep(Short currentStep) {
+        this.currentStep = currentStep;
+    }
+
+    public void updateMotivationFit(String motivationFit) {
+        this.motivationFit = motivationFit;
     }
 
     public String getIntroduction() { return introduction; }
     public String getCoreStrength() { return coreStrength; }
     public Integer getCareerYears() { return careerYears; }
+    public Short getCurrentStep() { return currentStep; }
+    public String getMotivationFit() { return motivationFit; }
 
     public boolean belongsToCandidate(Long candidateAccountId) {
         return candidateAccount != null && candidateAccount.getId() != null && candidateAccount.getId().equals(candidateAccountId);

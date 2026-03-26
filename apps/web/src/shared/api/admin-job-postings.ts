@@ -1,5 +1,9 @@
-import "server-only";
+﻿import "server-only";
 
+import type {
+  AdminJobPosting,
+  UpdateAdminJobPostingPayload,
+} from "@/entities/admin/model";
 import type { JobPostingStep } from "@/entities/recruitment/model";
 import {
   AdminApiError,
@@ -9,7 +13,7 @@ import {
 
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
+    let message = `API ?붿껌???ㅽ뙣?덉뒿?덈떎. (?곹깭 肄붾뱶: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -27,6 +31,44 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
+export async function getAdminJobPosting(jobPostingId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}`,
+    {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+    },
+  );
+
+  return parseResponse<AdminJobPosting>(response);
+}
+
+export async function updateAdminJobPosting(
+  jobPostingId: number,
+  payload: UpdateAdminJobPostingPayload,
+) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}`,
+    {
+      method: "PUT",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  return parseResponse<AdminJobPosting>(response);
+}
+
 export async function getAdminJobPostingSteps(jobPostingId: number) {
   const sessionToken = await getRequiredAdminSessionToken();
   const response = await fetch(
@@ -42,3 +84,4 @@ export async function getAdminJobPostingSteps(jobPostingId: number) {
 
   return parseResponse<JobPostingStep[]>(response);
 }
+

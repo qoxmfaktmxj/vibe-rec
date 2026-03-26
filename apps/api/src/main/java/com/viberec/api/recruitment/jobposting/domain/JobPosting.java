@@ -44,6 +44,14 @@ public class JobPosting {
     @Column(name = "employment_type", nullable = false, length = 40)
     private String employmentType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recruitment_category", nullable = false, length = 20)
+    private RecruitmentCategory recruitmentCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recruitment_mode", nullable = false, length = 20)
+    private RecruitmentMode recruitmentMode;
+
     @Column(nullable = false, length = 120)
     private String location;
 
@@ -57,7 +65,7 @@ public class JobPosting {
     @Column(name = "opens_at", nullable = false)
     private OffsetDateTime opensAt;
 
-    @Column(name = "closes_at", nullable = false)
+    @Column(name = "closes_at")
     private OffsetDateTime closesAt;
 
     @Column(name = "created_at", nullable = false)
@@ -69,6 +77,39 @@ public class JobPosting {
     @OneToMany(mappedBy = "jobPosting", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("stepOrder asc")
     private List<JobPostingStep> steps = new ArrayList<>();
+
+    protected JobPosting() {
+    }
+
+    public JobPosting(
+            Long legacyAnnoId,
+            String publicKey,
+            String title,
+            String headline,
+            String description,
+            String employmentType,
+            RecruitmentCategory recruitmentCategory,
+            RecruitmentMode recruitmentMode,
+            String location,
+            JobPostingStatus status,
+            boolean published,
+            OffsetDateTime opensAt,
+            OffsetDateTime closesAt
+    ) {
+        this.legacyAnnoId = legacyAnnoId;
+        this.publicKey = publicKey;
+        this.title = title;
+        this.headline = headline;
+        this.description = description;
+        this.employmentType = employmentType;
+        this.recruitmentCategory = recruitmentCategory;
+        this.recruitmentMode = recruitmentMode;
+        this.location = location;
+        this.status = status;
+        this.published = published;
+        this.opensAt = opensAt;
+        this.closesAt = closesAt;
+    }
 
     @PrePersist
     void onCreate() {
@@ -110,6 +151,14 @@ public class JobPosting {
         return employmentType;
     }
 
+    public RecruitmentCategory getRecruitmentCategory() {
+        return recruitmentCategory;
+    }
+
+    public RecruitmentMode getRecruitmentMode() {
+        return recruitmentMode;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -130,8 +179,53 @@ public class JobPosting {
         return closesAt;
     }
 
+    public void updatePosting(
+            Long legacyAnnoId,
+            String publicKey,
+            String title,
+            String headline,
+            String description,
+            String employmentType,
+            RecruitmentCategory recruitmentCategory,
+            RecruitmentMode recruitmentMode,
+            String location,
+            JobPostingStatus status,
+            boolean published,
+            OffsetDateTime opensAt,
+            OffsetDateTime closesAt
+    ) {
+        this.legacyAnnoId = legacyAnnoId;
+        this.publicKey = publicKey;
+        this.title = title;
+        this.headline = headline;
+        this.description = description;
+        this.employmentType = employmentType;
+        this.recruitmentCategory = recruitmentCategory;
+        this.recruitmentMode = recruitmentMode;
+        this.location = location;
+        this.status = status;
+        this.published = published;
+        this.opensAt = opensAt;
+        this.closesAt = closesAt;
+    }
+
+    public boolean isRollingRecruitment() {
+        return recruitmentMode == RecruitmentMode.ROLLING;
+    }
+
+    public boolean isAcceptingApplicationsAt(OffsetDateTime now) {
+        if (status != JobPostingStatus.OPEN || now.isBefore(opensAt)) {
+            return false;
+        }
+
+        if (isRollingRecruitment()) {
+            return true;
+        }
+
+        return closesAt != null && !now.isAfter(closesAt);
+    }
+
     public List<JobPostingStep> getSteps() {
         return steps;
     }
 }
-

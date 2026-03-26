@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 import type { JobPostingDetail } from "@/entities/recruitment/model";
 import {
   formatDateRange,
+  formatRecruitmentPeriod,
+  getRecruitmentCategoryLabel,
+  getRecruitmentModeLabel,
   getStepTypeLabel,
 } from "@/shared/lib/recruitment";
 
@@ -23,17 +26,19 @@ const postingTranslations: Record<
 > = {
   "platform-backend-engineer": {
     title: "플랫폼 백엔드 엔지니어",
-    headline: "PostgreSQL 중심 아키텍처로 차세대 채용 플랫폼을 구축합니다.",
+    headline:
+      "PostgreSQL 중심 아키텍처로 차세대 채용 플랫폼을 구현합니다.",
     description:
-      "채용 공고, 지원서, 평가, 오퍼 흐름을 현대화하면서도 기존 운영과의 정합성을 유지하는 역할입니다.",
+      "채용 공고, 지원서, 평가, 오퍼 흐름을 아우르면서도 기존 운영과의 정합성을 유지하는 역할입니다.",
     employmentType: "정규직",
     location: "서울",
   },
   "product-designer": {
     title: "프로덕트 디자이너",
-    headline: "지원자와 채용 담당자를 위한 경험을 설계합니다.",
+    headline:
+      "지원자와 채용 담당자를 위한 경험을 설계합니다.",
     description:
-      "지원자 여정과 채용 운영 화면 전반을 함께 설계하고, 리서치와 UI 품질을 연결하는 역할입니다.",
+      "지원자 여정과 채용 운영 화면 전반을 설계하고, 리서치와 UI 완성도를 함께 높이는 역할입니다.",
     employmentType: "계약직",
     location: "서울",
   },
@@ -43,14 +48,18 @@ const stepTitleTranslations: Record<string, string> = {
   "Document Review": "서류 검토",
   "Technical Interview": "기술 면접",
   "Leadership Interview": "리더십 면접",
-  "Offer Discussion": "오퍼 협의",
+  "Offer Discussion": "처우 협의",
 };
 
 const stepDescriptionTranslations: Record<string, string> = {
-  "Review resumes and core fit for the role.": "이력서와 직무 적합도를 검토합니다.",
-  "Assess backend design, delivery ownership, and collaboration.": "백엔드 설계 역량, 전달 책임감, 협업 방식을 확인합니다.",
-  "Validate cross-functional communication and operating style.": "협업 커뮤니케이션과 업무 운영 방식을 점검합니다.",
-  "Align compensation, onboarding, and start date.": "보상, 온보딩, 입사 일정을 조율합니다.",
+  "Review resumes and core fit for the role.":
+    "이력서와 직무 적합도를 검토합니다.",
+  "Assess backend design, delivery ownership, and collaboration.":
+    "백엔드 설계 역량, 전달 책임감, 협업 방식을 확인합니다.",
+  "Validate cross-functional communication and operating style.":
+    "협업 커뮤니케이션과 업무 운영 방식을 점검합니다.",
+  "Align compensation, onboarding, and start date.":
+    "보상, 온보딩, 입사 일정을 조율합니다.",
 };
 
 export function JobPostingDetailView({
@@ -63,21 +72,37 @@ export function JobPostingDetailView({
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_420px]">
       <div className="space-y-8">
         <section className="rounded-sm border border-outline-variant bg-card p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant pb-5">
-            <div>
+          <div className="flex flex-wrap items-start justify-between gap-6 border-b border-outline-variant pb-5">
+            <div className="min-w-0">
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
                 {jobPosting.publicKey}
               </p>
               <h1 className="mt-3 font-headline text-4xl font-medium tracking-[-0.05em] text-on-surface">
                 {translated?.title ?? jobPosting.title}
               </h1>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-sm bg-surface-container-low px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-on-surface">
+                  {getRecruitmentCategoryLabel(jobPosting.recruitmentCategory)}
+                </span>
+                <span
+                  className={`rounded-sm px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] ${
+                    jobPosting.recruitmentMode === "ROLLING"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-stone-100 text-stone-700"
+                  }`}
+                >
+                  {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
+                </span>
+              </div>
             </div>
+
             <div className="space-y-1 text-right font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
               <p>{translated?.employmentType ?? jobPosting.employmentType}</p>
               <p>{translated?.location ?? jobPosting.location}</p>
-              <p>{formatDateRange(jobPosting.opensAt, jobPosting.closesAt)}</p>
+              <p>{formatRecruitmentPeriod(jobPosting)}</p>
             </div>
           </div>
+
           <p className="mt-6 text-base leading-8 text-on-surface-variant">
             {translated?.headline ?? jobPosting.headline}
           </p>
@@ -100,6 +125,7 @@ export function JobPostingDetailView({
               총 {jobPosting.steps.length}단계
             </span>
           </div>
+
           <ol className="mt-6 space-y-4">
             {jobPosting.steps.map((step) => (
               <li

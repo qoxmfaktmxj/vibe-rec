@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AdminApplicantFilters,
   ApplicationReviewStatus,
 } from "@/entities/admin/applicant-model";
@@ -8,10 +8,10 @@ import { getAdminApplicants } from "@/shared/api/admin-applicants";
 import { getJobPostings } from "@/shared/api/recruitment";
 
 const selectClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:bg-card";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:bg-card";
 
 const inputClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card";
 
 const fieldLabelClassName =
   "text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant";
@@ -62,51 +62,26 @@ export default async function AdminApplicantsPage({
 
   return (
     <div className="space-y-6">
-      <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-card px-6 py-6 md:px-7">
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="space-y-3">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-              Applicant queue
-            </p>
-            <div className="space-y-2">
-              <h2 className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
-                Review the pipeline at a glance
-              </h2>
-              <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
-                Search candidates quickly, narrow by stage, and jump straight
-                into the next action that moves hiring forward.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            <StatCard label="Visible applicants" value={applicants.length} />
-            <StatCard label="Submitted" value={submittedCount} />
-            <StatCard label="In review / passed" value={`${inReviewCount} / ${passedCount}`} />
-          </div>
-        </div>
-      </section>
-
-      <form className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-card px-5 py-5 md:px-6">
+      <form className="border border-outline-variant bg-card px-5 py-5 shadow-[0_18px_40px_-30px_rgba(31,41,55,0.25)]">
         <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_auto]">
           <label className={`${fieldLabelClassName} xl:col-span-2`}>
-            Quick search
+            ?듯빀 寃??
             <input
               name="query"
               defaultValue={normalizedFilters.query ?? ""}
               className={inputClassName}
-              placeholder="Search by name, email, phone, or posting"
+              placeholder="?대쫫, ?대찓?? ?꾪솕踰덊샇, 怨듦퀬紐낆쑝濡?寃??
             />
           </label>
 
           <label className={fieldLabelClassName}>
-            Job posting
+            怨듦퀬
             <select
               name="jobPostingId"
               defaultValue={normalizedFilters.jobPostingId?.toString() ?? ""}
               className={selectClassName}
             >
-              <option value="">All</option>
+              <option value="">?꾩껜</option>
               {jobPostings.map((jobPosting) => (
                 <option key={jobPosting.id} value={jobPosting.id}>
                   {jobPosting.title}
@@ -116,56 +91,56 @@ export default async function AdminApplicantsPage({
           </label>
 
           <label className={fieldLabelClassName}>
-            Application
+            吏???곹깭
             <select
               name="applicationStatus"
               defaultValue={normalizedFilters.applicationStatus ?? ""}
               className={selectClassName}
             >
-              <option value="">All</option>
-              <option value="DRAFT">Draft</option>
-              <option value="SUBMITTED">Submitted</option>
+              <option value="">?꾩껜</option>
+              <option value="DRAFT">?꾩떆 ???/option>
+              <option value="SUBMITTED">?쒖텧 ?꾨즺</option>
             </select>
           </label>
 
           <label className={fieldLabelClassName}>
-            Review
+            寃???곹깭
             <select
               name="reviewStatus"
               defaultValue={normalizedFilters.reviewStatus ?? ""}
               className={selectClassName}
             >
-              <option value="">All</option>
-              <option value="NEW">New</option>
-              <option value="IN_REVIEW">In review</option>
-              <option value="PASSED">Passed</option>
-              <option value="REJECTED">Rejected</option>
+              <option value="">?꾩껜</option>
+              <option value="NEW">?좉퇋</option>
+              <option value="IN_REVIEW">寃??以?/option>
+              <option value="PASSED">?⑷꺽</option>
+              <option value="REJECTED">遺덊빀寃?/option>
             </select>
           </label>
 
           <label className={fieldLabelClassName}>
-            Applicant
+            吏?먯옄紐?
             <input
               name="applicantName"
               defaultValue={normalizedFilters.applicantName ?? ""}
               className={inputClassName}
-              placeholder="Name"
+              placeholder="?대쫫"
             />
           </label>
 
           <div className="flex items-end">
             <button
               type="submit"
-              className="w-full rounded-xl bg-primary px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+              className="w-full border border-primary bg-primary px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
-              Apply filters
+              ?꾪꽣 ?곸슜
             </button>
           </div>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className={fieldLabelClassName}>
-            Email
+            ?대찓??
             <input
               name="applicantEmail"
               defaultValue={normalizedFilters.applicantEmail ?? ""}
@@ -175,7 +150,7 @@ export default async function AdminApplicantsPage({
           </label>
 
           <label className={fieldLabelClassName}>
-            Phone
+            ?꾪솕踰덊샇
             <input
               name="applicantPhone"
               defaultValue={normalizedFilters.applicantPhone ?? ""}
@@ -186,7 +161,26 @@ export default async function AdminApplicantsPage({
         </div>
       </form>
 
-      <AdminApplicantTable applicants={applicants} />
+      <section className="border border-outline-variant bg-card">
+        <div className="flex flex-col gap-4 border-b border-outline-variant px-6 py-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-2">
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+              吏?먯옄 紐⑸줉
+            </p>
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+              ?꾩옱 吏?먯옄
+            </h2>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatCard label="議고쉶??吏?먯옄" value={applicants.length} />
+            <StatCard label="?쒖텧 ?꾨즺" value={submittedCount} />
+            <StatCard label="寃??以?/ ?⑷꺽" value={`${inReviewCount} / ${passedCount}`} />
+          </div>
+        </div>
+
+        <AdminApplicantTable applicants={applicants} />
+      </section>
     </div>
   );
 }
@@ -199,7 +193,7 @@ function StatCard({
   value: number | string;
 }) {
   return (
-    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-lowest px-4 py-4">
+    <div className="min-w-[140px] border border-outline-variant bg-surface-container-lowest px-4 py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
         {label}
       </p>
@@ -209,3 +203,4 @@ function StatCard({
     </div>
   );
 }
+

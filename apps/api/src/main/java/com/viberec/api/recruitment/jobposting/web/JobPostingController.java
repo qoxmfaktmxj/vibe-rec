@@ -2,7 +2,9 @@ package com.viberec.api.recruitment.jobposting.web;
 
 import com.viberec.api.candidate.auth.domain.CandidateAccount;
 import com.viberec.api.candidate.auth.service.CandidateAuthService;
+import com.viberec.api.recruitment.application.service.CandidateApplicationQueryService;
 import com.viberec.api.recruitment.application.service.ApplicationDraftService;
+import com.viberec.api.recruitment.application.web.CandidateApplicationDetailResponse;
 import com.viberec.api.recruitment.application.web.ApplicationDraftResponse;
 import com.viberec.api.recruitment.application.web.SaveApplicationDraftRequest;
 import com.viberec.api.recruitment.jobposting.service.JobPostingService;
@@ -22,15 +24,18 @@ public class JobPostingController {
 
     private final JobPostingService jobPostingService;
     private final ApplicationDraftService applicationDraftService;
+    private final CandidateApplicationQueryService candidateApplicationQueryService;
     private final CandidateAuthService candidateAuthService;
 
     public JobPostingController(
             JobPostingService jobPostingService,
             ApplicationDraftService applicationDraftService,
+            CandidateApplicationQueryService candidateApplicationQueryService,
             CandidateAuthService candidateAuthService
     ) {
         this.jobPostingService = jobPostingService;
         this.applicationDraftService = applicationDraftService;
+        this.candidateApplicationQueryService = candidateApplicationQueryService;
         this.candidateAuthService = candidateAuthService;
     }
 
@@ -42,6 +47,20 @@ public class JobPostingController {
     @GetMapping("/{id}")
     public JobPostingDetailResponse getJobPosting(@PathVariable Long id) {
         return jobPostingService.getJobPosting(id);
+    }
+
+    @GetMapping("/{id}/application")
+    public CandidateApplicationDetailResponse getCandidateApplication(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Candidate-Session", required = false) String sessionToken
+    ) {
+        CandidateAccount candidateAccount = candidateAuthService.requireActiveAccount(sessionToken);
+        return candidateApplicationQueryService.getCandidateApplication(id, candidateAccount);
+    }
+
+    @GetMapping("/{id}/questions")
+    public List<JobPostingQuestionResponse> getQuestions(@PathVariable Long id) {
+        return jobPostingService.getQuestionsForJobPosting(id);
     }
 
     @PostMapping("/{id}/application-draft")

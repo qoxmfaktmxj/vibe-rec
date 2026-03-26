@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.viberec.api.candidate.auth.repository.CandidateAccountRepository;
+import com.viberec.api.candidate.auth.repository.CandidateSessionRepository;
 import com.viberec.api.candidate.auth.service.CandidateAuthService;
 import com.viberec.api.candidate.auth.web.CandidateSignupRequest;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
@@ -35,6 +37,12 @@ class CandidateApplicationAuthorizationTests extends IntegrationTestBase {
     private ApplicationResumeRawRepository applicationResumeRawRepository;
 
     @Autowired
+    private CandidateSessionRepository candidateSessionRepository;
+
+    @Autowired
+    private CandidateAccountRepository candidateAccountRepository;
+
+    @Autowired
     private AttachmentService attachmentService;
 
     @Autowired
@@ -46,6 +54,8 @@ class CandidateApplicationAuthorizationTests extends IntegrationTestBase {
     void cleanApplications() {
         applicationResumeRawRepository.deleteAll();
         applicationRepository.deleteAll();
+        candidateSessionRepository.deleteAll();
+        candidateAccountRepository.deleteAll();
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
@@ -57,6 +67,23 @@ class CandidateApplicationAuthorizationTests extends IntegrationTestBase {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .content("{\"resumePayload\":{\"introduction\":\"I am trying without a session.\"}}")
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void requiresCandidateSessionForCandidateApplicationReads() throws Exception {
+        mockMvc.perform(
+                        get("/api/job-postings/1001/application")
+                                .contextPath("/api")
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(
+                        get("/api/candidate/applications")
+                                .contextPath("/api")
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized());
     }

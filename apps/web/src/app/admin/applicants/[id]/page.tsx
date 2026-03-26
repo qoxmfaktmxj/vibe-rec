@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -56,41 +56,41 @@ export default async function AdminApplicantDetailPage({
 
   const finalOutcomeLabel = applicant.finalStatus
     ? getFinalStatusLabel(applicant.finalStatus)
-    : "Pending";
+    : "誘몄젙";
   const narrativeItems = [
     applicant.introduction
-      ? { label: "Introduction", value: applicant.introduction }
+      ? { label: "?먭린?뚭컻", value: applicant.introduction }
       : null,
     applicant.coreStrength
-      ? { label: "Core strength", value: applicant.coreStrength }
+      ? { label: "?듭떖 媛뺤젏", value: applicant.coreStrength }
       : null,
     applicant.careerYears !== null
-      ? { label: "Career years", value: `${applicant.careerYears} years` }
+      ? { label: "寃쎈젰 ?곗감", value: `${applicant.careerYears}?? }
       : null,
   ].filter((item): item is { label: string; value: string } => item !== null);
 
   const timelineMetrics = [
     {
-      label: "Attachments",
+      label: "泥⑤? ?뚯씪",
       value: attachments.length,
-      helper: "Candidate files",
+      helper: "吏?먯옄媛 ?쒖텧???뚯씪 ??,
     },
     {
-      label: "Interviews",
+      label: "硫댁젒",
       value: interviews.length,
-      helper: "Scheduled or completed",
+      helper: "?덉젙 ?먮뒗 ?꾨즺??硫댁젒",
     },
     {
-      label: "Notifications",
+      label: "?뚮┝ 湲곕줉",
       value: notifications.length,
-      helper: "Logged communication",
+      helper: "湲곕줉??而ㅻ??덉??댁뀡 ??,
     },
     {
-      label: "Final outcome",
+      label: "理쒖쥌 寃곌낵",
       value: finalOutcomeLabel,
       helper: applicant.finalDecidedAt
-        ? `Saved ${formatDateTime(applicant.finalDecidedAt)}`
-        : "No decision yet",
+        ? `????쒓컖 ${formatDateTime(applicant.finalDecidedAt)}`
+        : "?꾩쭅 寃곗젙?섏? ?딆븯?듬땲??,
     },
   ];
 
@@ -149,25 +149,25 @@ export default async function AdminApplicantDetailPage({
               href="/admin/applicants"
               className="inline-flex items-center justify-center rounded-xl border border-outline px-4 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
             >
-              Back to applicants
+              吏?먯옄 紐⑸줉?쇰줈
             </Link>
           </div>
         </div>
 
         <div className="mt-7 grid gap-4 lg:grid-cols-4">
           <SummaryCard
-            label="Draft saved"
+            label="?꾩떆 ???
             value={formatDateTime(applicant.draftSavedAt)}
           />
           <SummaryCard
-            label="Submitted"
+            label="?쒖텧 ?꾨즺"
             value={formatDateTime(applicant.submittedAt)}
           />
           <SummaryCard
-            label="Last reviewed"
+            label="理쒓렐 寃??
             value={formatDateTime(applicant.reviewedAt)}
           />
-          <SummaryCard label="Current final state" value={finalOutcomeLabel} />
+          <SummaryCard label="?꾩옱 理쒖쥌 ?곹깭" value={finalOutcomeLabel} />
         </div>
       </section>
 
@@ -177,10 +177,10 @@ export default async function AdminApplicantDetailPage({
             <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
               <div className="space-y-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                  Candidate snapshot
+                  吏?먯옄 ?붿빟
                 </p>
                 <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-                  Workflow context before you act
+                  ?ㅼ쓬 ?≪뀡 ?꾩뿉 ?듭떖 ?섏튂瑜??뺤씤?섏꽭??
                 </h2>
               </div>
             </div>
@@ -201,10 +201,10 @@ export default async function AdminApplicantDetailPage({
             <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                  Candidate narrative
+                  吏?먯옄 ?쒖닠???뺣낫
                 </p>
                 <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-                  What stands out before the next decision
+                  吏?먯꽌??吏곸젒 ?묒꽦???듭떖 ?댁슜
                 </h2>
               </div>
 
@@ -241,14 +241,14 @@ export default async function AdminApplicantDetailPage({
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                  Attachments
+                  泥⑤? ?뚯씪
                 </p>
                 <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-                  Candidate files
+                  ?쒖텧 ?뚯씪
                 </h2>
               </div>
               <span className="rounded-full bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface-variant">
-                {attachments.length} file{attachments.length === 1 ? "" : "s"}
+                {attachments.length}媛??뚯씪
               </span>
             </div>
             <div className="mt-6">
@@ -260,16 +260,16 @@ export default async function AdminApplicantDetailPage({
             <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                  Structured profile
+                  援ъ“???대젰??
                 </p>
                 <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-                  Normalized resume details
+                  ?뺣━???대젰 ?뺣낫
                 </h2>
               </div>
 
               <div className="mt-6 space-y-8">
                 {applicant.educations.length > 0 ? (
-                  <InfoListSection title="Education">
+                  <InfoListSection title="?숇젰">
                     {applicant.educations.map((education) => (
                       <InfoCard
                         key={education.id}
@@ -279,7 +279,7 @@ export default async function AdminApplicantDetailPage({
                           .join(" / ")}
                         meta={
                           education.startDate || education.endDate
-                            ? `${education.startDate ?? "Unknown"} - ${education.endDate ?? "Present"}`
+                            ? `${education.startDate ?? "誘몄긽"} - ${education.endDate ?? "?ы븰/議몄뾽 ?덉젙"}`
                             : undefined
                         }
                         description={education.description ?? undefined}
@@ -289,7 +289,7 @@ export default async function AdminApplicantDetailPage({
                 ) : null}
 
                 {applicant.experiences.length > 0 ? (
-                  <InfoListSection title="Experience">
+                  <InfoListSection title="寃쎈젰">
                     {applicant.experiences.map((experience) => (
                       <InfoCard
                         key={experience.id}
@@ -297,7 +297,7 @@ export default async function AdminApplicantDetailPage({
                         subtitle={experience.position ?? undefined}
                         meta={
                           experience.startDate || experience.endDate
-                            ? `${experience.startDate ?? "Unknown"} - ${experience.endDate ?? "Present"}`
+                            ? `${experience.startDate ?? "誘몄긽"} - ${experience.endDate ?? "?ъ쭅 以?}`
                             : undefined
                         }
                         description={experience.description ?? undefined}
@@ -307,7 +307,7 @@ export default async function AdminApplicantDetailPage({
                 ) : null}
 
                 {applicant.skills.length > 0 ? (
-                  <InfoListSection title="Skills">
+                  <InfoListSection title="湲곗닠 諛???웾">
                     <div className="flex flex-wrap gap-2">
                       {applicant.skills.map((skill) => (
                         <span
@@ -324,7 +324,7 @@ export default async function AdminApplicantDetailPage({
                           {skill.years ? (
                             <span className="text-primary/60">
                               {" / "}
-                              {skill.years} yrs
+                              {skill.years}??
                             </span>
                           ) : null}
                         </span>
@@ -334,7 +334,7 @@ export default async function AdminApplicantDetailPage({
                 ) : null}
 
                 {applicant.certifications.length > 0 ? (
-                  <InfoListSection title="Certifications">
+                  <InfoListSection title="?먭꺽利?>
                     {applicant.certifications.map((certification) => (
                       <InfoCard
                         key={certification.id}
@@ -342,7 +342,7 @@ export default async function AdminApplicantDetailPage({
                         subtitle={certification.issuer ?? undefined}
                         meta={
                           certification.issuedDate
-                            ? `Issued ${certification.issuedDate}`
+                            ? `痍⑤뱷??${certification.issuedDate}`
                             : undefined
                         }
                       />
@@ -351,7 +351,7 @@ export default async function AdminApplicantDetailPage({
                 ) : null}
 
                 {applicant.languages.length > 0 ? (
-                  <InfoListSection title="Languages">
+                  <InfoListSection title="?댄븰">
                     {applicant.languages.map((language) => (
                       <InfoCard
                         key={language.id}
@@ -374,21 +374,21 @@ export default async function AdminApplicantDetailPage({
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-                  Raw payload
+                  ?먮낯 payload
                 </p>
                 <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-                  Original application data
+                  ?먮낯 吏???곗씠??
                 </h2>
               </div>
             </div>
 
             <details className="mt-6 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-5 py-4">
               <summary className="cursor-pointer list-none text-sm font-semibold text-on-surface marker:hidden">
-                Show original payload
+                ?먮낯 payload 蹂닿린
               </summary>
               <p className="mt-2 text-sm leading-7 text-on-surface-variant">
-                Open this only when the normalized profile above is missing
-                context or the source payload needs verification.
+                援ъ“?붾맂 ?뺣낫留뚯쑝濡?留λ씫??遺議깊븯嫄곕굹 ?먮낯 媛믪쓣 吏곸젒 ?뺤씤?댁빞 ??
+                ???댁뼱 蹂댁꽭??
               </p>
               <pre className="mt-4 max-h-[420px] overflow-auto rounded-2xl bg-[#1e2022] p-5 text-xs leading-6 text-[#e1e3e4]">
                 {JSON.stringify(applicant.resumePayload, null, 2)}
@@ -493,3 +493,4 @@ function InfoCard({
     </div>
   );
 }
+

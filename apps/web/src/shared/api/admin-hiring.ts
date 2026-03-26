@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 
 import type {
   ApplicationFinalStatus,
@@ -13,7 +13,7 @@ import {
 
 async function parseHiringResponse<T>(response: Response) {
   if (!response.ok) {
-    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
+    let message = `API ?붿껌???ㅽ뙣?덉뒿?덈떎. (?곹깭 肄붾뱶: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -97,3 +97,4 @@ export async function getNotifications(applicationId: number) {
 
   return parseHiringResponse<NotificationResponse[]>(response);
 }
+

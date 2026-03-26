@@ -1,8 +1,11 @@
 import "server-only";
 
 import type {
+  CandidateApplicationDetail,
+  CandidateApplicationSummary,
   ApplicationDraftResponse,
   JobPostingDetail,
+  JobPostingQuestion,
   JobPostingSummary,
   SaveApplicationDraftPayload,
 } from "@/entities/recruitment/model";
@@ -91,6 +94,10 @@ export async function getJobPosting(id: number) {
   return parseResponse<JobPostingDetail>(response);
 }
 
+export async function getJobPostingQuestions(id: number) {
+  return apiFetch<JobPostingQuestion[]>(`/job-postings/${id}/questions`);
+}
+
 export async function saveApplicationDraft(
   jobPostingId: number,
   payload: SaveApplicationDraftPayload,
@@ -124,3 +131,29 @@ export async function submitApplication(
     },
   );
 }
+
+export async function getCandidateApplicationForJobPosting(
+  jobPostingId: number,
+  sessionToken: string,
+) {
+  const response = await fetch(`${getApiBaseUrl()}/job-postings/${jobPostingId}/application`, {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      ...withCandidateSession(sessionToken),
+    },
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  return parseResponse<CandidateApplicationDetail>(response);
+}
+
+export async function getCandidateApplications(sessionToken: string) {
+  return apiFetch<CandidateApplicationSummary[]>("/candidate/applications", {
+    headers: withCandidateSession(sessionToken),
+  });
+}
+

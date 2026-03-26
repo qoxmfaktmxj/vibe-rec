@@ -19,6 +19,18 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             select application
             from Application application
             join fetch application.jobPosting jobPosting
+            where jobPosting.id = :jobPostingId
+              and application.candidateAccount.id = :candidateAccountId
+            """)
+    Optional<Application> findWithJobPostingByJobPostingIdAndCandidateAccountId(
+            @Param("jobPostingId") Long jobPostingId,
+            @Param("candidateAccountId") Long candidateAccountId
+    );
+
+    @Query("""
+            select application
+            from Application application
+            join fetch application.jobPosting jobPosting
             where application.id = :applicationId
             """)
     Optional<Application> findWithJobPostingById(@Param("applicationId") Long applicationId);
@@ -29,6 +41,23 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             join fetch application.jobPosting
             """)
     List<Application> findAllWithJobPosting();
+
+    @Query("""
+            SELECT COUNT(DISTINCT a) FROM Application a
+            JOIN ApplicationAnswer aa ON aa.application = a
+            WHERE a.jobPosting.id = :jobPostingId
+              AND a.status = 'SUBMITTED'
+            """)
+    long countSubmittedApplicationsWithAnswers(@Param("jobPostingId") Long jobPostingId);
+
+    @Query("""
+            select application
+            from Application application
+            join fetch application.jobPosting jobPosting
+            where application.candidateAccount.id = :candidateAccountId
+            order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
+            """)
+    List<Application> findAllWithJobPostingByCandidateAccountId(@Param("candidateAccountId") Long candidateAccountId);
 
     @Query("""
             select application

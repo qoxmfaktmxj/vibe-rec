@@ -38,14 +38,14 @@ export default function NotFound() {
             홈으로 이동
           </Link>
           <Link
-            href="/"
+            href="/job-postings"
             className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
           >
             공고 보기
           </Link>
         </div>
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-on-surface-variant">
-          Vibe Rec
+          HireFlow
         </p>
       </div>
     </main>

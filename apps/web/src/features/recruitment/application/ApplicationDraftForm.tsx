@@ -1,21 +1,22 @@
-"use client";
+﻿"use client";
 
-import { startTransition, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 
 import type { CandidateSession } from "@/entities/candidate/model";
 import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import type {
+  ApplicationAnswer,
   ApplicationAttachment,
-  ApplicationDraftResponse,
+  CandidateApplicationDetail,
+  JobPostingQuestion,
+  ResumeEducation,
+  ResumeExperience,
+  SaveApplicationDraftPayload,
 } from "@/entities/recruitment/model";
 import {
-  type DraftActionState,
-  type DraftFieldName,
-  initialDraftActionState,
-} from "@/features/recruitment/application/draft-state";
-import {
   formatDateTime,
-  getApplicationStatusLabel,
+  formatFileSize,
+  getApplicationStatusClassName,
 } from "@/shared/lib/recruitment";
 
 interface ApplicationDraftFormProps {
@@ -23,6 +24,8 @@ interface ApplicationDraftFormProps {
   jobPostingId: number;
   canSave: boolean;
   helperText: string;
+  initialApplication?: CandidateApplicationDetail | null;
+  questions: JobPostingQuestion[];
 }
 
 interface DraftFormValues {
@@ -32,46 +35,31 @@ interface DraftFormValues {
   introduction: string;
   coreStrength: string;
   careerYears: string;
+  motivationFit: string;
 }
 
 interface EducationEntry {
-  schoolName: string;
-  major: string;
+  institution: string;
   degree: string;
-  graduatedAt: string;
+  fieldOfStudy: string;
+  endDate: string;
 }
 
 interface CareerEntry {
-  companyName: string;
+  company: string;
   position: string;
-  startedAt: string;
-  endedAt: string;
+  startDate: string;
+  endDate: string;
   description: string;
 }
 
 type FormActionMode = "draft" | "submit";
+type StepState = 1 | 2 | 3 | 4;
 
-const DEGREE_OPTIONS = [
-  { value: "", label: "학위 선택" },
-  { value: "HIGH_SCHOOL", label: "고등학교 졸업" },
-  { value: "ASSOCIATE", label: "전문학사" },
-  { value: "BACHELOR", label: "학사" },
-  { value: "MASTER", label: "석사" },
-  { value: "DOCTORATE", label: "박사" },
-];
-
-const ACCEPTED_FILE_TYPES =
-  ".pdf,.doc,.docx,.jpg,.jpeg,.png";
-
+const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
 const inputClassName =
-  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
-
-const selectClassName =
-  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
-
-const sectionHeadingClassName =
-  "text-lg font-bold text-on-surface";
-
+  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary";
+const textareaClassName = `${inputClassName} min-h-[128px] resize-y`;
 const initialFormValues: DraftFormValues = {
   applicantName: "",
   applicantEmail: "",
@@ -79,31 +67,79 @@ const initialFormValues: DraftFormValues = {
   introduction: "",
   coreStrength: "",
   careerYears: "",
+  motivationFit: "",
 };
+const formSteps: Array<{ value: StepState; label: string; description: string }> = [
+  { value: 1, label: "기본 정보", description: "계정 기반 기본 정보와 지원 방향을 확인합니다." },
+  { value: 2, label: "이력 작성", description: "자기소개, 학력, 경력 정보를 채웁니다." },
+  { value: 3, label: "공고 질문", description: "공고별 질문에 맞춰 추가 답변을 작성합니다." },
+  { value: 4, label: "제출 확인", description: "첨부파일과 최종 제출 상태를 확인합니다." },
+];
 
-function emptyEducation(): EducationEntry {
-  return { schoolName: "", major: "", degree: "", graduatedAt: "" };
-}
-
-function emptyCareer(): CareerEntry {
+function toEducationEntry(education: ResumeEducation): EducationEntry {
   return {
-    companyName: "",
-    position: "",
-    startedAt: "",
-    endedAt: "",
-    description: "",
+    institution: education.institution ?? "",
+    degree: education.degree ?? "",
+    fieldOfStudy: education.fieldOfStudy ?? "",
+    endDate: education.endDate ?? "",
   };
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+function toCareerEntry(experience: ResumeExperience): CareerEntry {
+  return {
+    company: experience.company ?? "",
+    position: experience.position ?? "",
+    startDate: experience.startDate ?? "",
+    endDate: experience.endDate ?? "",
+    description: experience.description ?? "",
+  };
 }
 
-function normalizeAttachmentSummary(
-  attachment: AttachmentSummary,
-): ApplicationAttachment {
+function buildInitialValues(candidateSession: CandidateSession, initialApplication?: CandidateApplicationDetail | null): DraftFormValues {
+  const resumePayload = initialApplication?.resumePayload ?? {};
+  const introduction = typeof resumePayload.introduction === "string" ? resumePayload.introduction : "";
+  const coreStrength = typeof resumePayload.coreStrength === "string" ? resumePayload.coreStrength : "";
+  const motivationFit = typeof initialApplication?.motivationFit === "string"
+    ? initialApplication.motivationFit
+    : typeof resumePayload.motivationFit === "string"
+      ? resumePayload.motivationFit
+      : "";
+  const careerYearsValue = resumePayload.careerYears;
+  const careerYears = typeof careerYearsValue === "number" || typeof careerYearsValue === "string"
+    ? String(careerYearsValue)
+    : "";
+
+  return {
+    ...initialFormValues,
+    applicantName: initialApplication?.applicantName ?? candidateSession.name,
+    applicantEmail: initialApplication?.applicantEmail ?? candidateSession.email,
+    applicantPhone: initialApplication?.applicantPhone ?? candidateSession.phone,
+    introduction,
+    coreStrength,
+    careerYears,
+    motivationFit,
+  };
+}
+
+function buildInitialAnswers(questions: JobPostingQuestion[], initialApplication?: CandidateApplicationDetail | null): ApplicationAnswer[] {
+  const answerMap = new Map((initialApplication?.answers ?? []).map((answer) => [answer.questionId, answer]));
+  return questions.map((question) => {
+    const answer = answerMap.get(question.id);
+    return {
+      questionId: question.id,
+      answerText: answer?.answerText ?? null,
+      answerChoice: answer?.answerChoice ?? null,
+      answerScale: answer?.answerScale ?? null,
+    };
+  });
+}
+
+function getStatusLabel(status: "DRAFT" | "SUBMITTED") {
+  return status === "SUBMITTED" ? "제출 완료" : "임시저장";
+}
+
+function normalizeAttachment(attachment: ApplicationAttachment | AttachmentSummary): ApplicationAttachment {
+  if ("originalName" in attachment) return attachment;
   return {
     id: attachment.id,
     applicationId: attachment.applicationId,
@@ -114,45 +150,21 @@ function normalizeAttachmentSummary(
   };
 }
 
-function validateDraftFields(values: DraftFormValues, mode: FormActionMode) {
-  const fieldErrors: DraftActionState["fieldErrors"] = {};
+function parseQuestionChoices(raw: string | null) {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((value): value is string => typeof value === "string").map((value) => value.trim()).filter(Boolean);
+    }
+  } catch {}
+  return raw.split(/[\n,|]/).map((value) => value.trim()).filter(Boolean);
+}
 
-  if (values.applicantName.trim().length < 2) {
-    fieldErrors.applicantName = "이름은 두 글자 이상 입력해주세요.";
-  }
-
-  if (!/^[0-9+\-() ]{8,40}$/.test(values.applicantPhone.trim())) {
-    fieldErrors.applicantPhone = "올바른 연락처를 입력해주세요.";
-  }
-
-  if (
-    values.introduction.trim() &&
-    values.introduction.trim().length < 20
-  ) {
-    fieldErrors.introduction =
-      "자기소개는 20자 이상 입력해주세요.";
-  }
-
-  if (mode === "submit" && values.introduction.trim().length < 20) {
-    fieldErrors.introduction =
-      "최종 제출 전 자기소개를 20자 이상 입력해주세요.";
-  }
-
-  if (mode === "submit" && values.coreStrength.trim().length < 10) {
-    fieldErrors.coreStrength =
-      "최종 제출 전 핵심 역량을 10자 이상 입력해주세요.";
-  }
-
-  if (
-    values.careerYears.trim() &&
-    (!/^\d+$/.test(values.careerYears.trim()) ||
-      Number(values.careerYears.trim()) > 40)
-  ) {
-    fieldErrors.careerYears =
-      "경력 연수는 0~40 사이의 숫자로 입력해주세요.";
-  }
-
-  return fieldErrors;
+function getStepClassName(step: StepState, currentStep: StepState) {
+  if (step === currentStep) return "border-primary bg-primary text-primary-foreground";
+  if (step < currentStep) return "border-primary bg-primary/10 text-primary";
+  return "border-outline-variant bg-surface-container-low text-on-surface-variant";
 }
 
 export function ApplicationDraftForm({
@@ -160,837 +172,349 @@ export function ApplicationDraftForm({
   jobPostingId,
   canSave,
   helperText,
+  initialApplication = null,
+  questions,
 }: ApplicationDraftFormProps) {
-  const [formValues, setFormValues] = useState<DraftFormValues>({
-    ...initialFormValues,
-    applicantName: candidateSession.name,
-    applicantEmail: candidateSession.email,
-    applicantPhone: candidateSession.phone,
-  });
-  const [state, setState] = useState(initialDraftActionState);
-  const [pendingAction, setPendingAction] = useState<FormActionMode | null>(
-    null,
-  );
-
-  // Attachments
+  const [formValues, setFormValues] = useState(() => buildInitialValues(candidateSession, initialApplication));
+  const [educations, setEducations] = useState<EducationEntry[]>(() => initialApplication?.educations.map(toEducationEntry) ?? []);
+  const [careers, setCareers] = useState<CareerEntry[]>(() => initialApplication?.experiences.map(toCareerEntry) ?? []);
+  const [application, setApplication] = useState<CandidateApplicationDetail | null>(initialApplication);
+  const [currentStep, setCurrentStep] = useState<StepState>(((initialApplication?.currentStep ?? 1) as StepState) || 1);
+  const [answers, setAnswers] = useState<ApplicationAnswer[]>(() => buildInitialAnswers(questions, initialApplication));
   const [attachments, setAttachments] = useState<ApplicationAttachment[]>([]);
+  const [message, setMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<FormActionMode | null>(null);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Education history
-  const [educations, setEducations] = useState<EducationEntry[]>([]);
+  const isSubmitted = application?.status === "SUBMITTED";
+  const formDisabled = !canSave || isSubmitted || pendingAction !== null;
+  const statusLabel = useMemo(() => (application ? getStatusLabel(application.status) : null), [application]);
 
-  // Career history
-  const [careers, setCareers] = useState<CareerEntry[]>([]);
-
-  const isPending = pendingAction !== null;
-  const isSubmitted = state.currentStatus === "SUBMITTED";
-
-  function updateField(fieldName: DraftFieldName, value: string) {
-    setFormValues((current) => ({
-      ...current,
-      [fieldName]: value,
-    }));
-
-    setState((current) => {
-      if (!current.fieldErrors[fieldName]) {
-        return current;
-      }
-
-      const nextFieldErrors = { ...current.fieldErrors };
-      delete nextFieldErrors[fieldName];
-
-      return {
-        ...current,
-        fieldErrors: nextFieldErrors,
-        message: current.message,
-        status: current.status,
-      };
-    });
-  }
-
-  // --- Education helpers ---
-  function addEducation() {
-    setEducations((current) => [...current, emptyEducation()]);
-  }
-
-  function removeEducation(index: number) {
-    setEducations((current) => current.filter((_, i) => i !== index));
-  }
-
-  function updateEducation(
-    index: number,
-    field: keyof EducationEntry,
-    value: string,
-  ) {
-    setEducations((current) =>
-      current.map((entry, i) =>
-        i === index ? { ...entry, [field]: value } : entry,
-      ),
-    );
-  }
-
-  // --- Career helpers ---
-  function addCareer() {
-    setCareers((current) => [...current, emptyCareer()]);
-  }
-
-  function removeCareer(index: number) {
-    setCareers((current) => current.filter((_, i) => i !== index));
-  }
-
-  function updateCareer(
-    index: number,
-    field: keyof CareerEntry,
-    value: string,
-  ) {
-    setCareers((current) =>
-      current.map((entry, i) =>
-        i === index ? { ...entry, [field]: value } : entry,
-      ),
-    );
-  }
-
-  // --- File upload ---
-  async function handleFileUpload(files: FileList) {
-    if (!state.applicationId) {
-      setState((current) => ({
-        ...current,
-        status: "error",
-        message: "파일 업로드 전 지원서를 먼저 임시저장해주세요.",
-      }));
-      return;
+  useEffect(() => {
+    async function loadAttachments(applicationId: number) {
+      const response = await fetch(`/api/applications/${applicationId}/attachments`, { cache: "no-store" });
+      if (!response.ok) return;
+      const data = (await response.json()) as AttachmentSummary[];
+      setAttachments(data.map(normalizeAttachment));
     }
+    if (application?.applicationId) void loadAttachments(application.applicationId);
+  }, [application?.applicationId]);
 
-    setUploadingFiles(true);
-
-    for (const file of Array.from(files)) {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const response = await fetch(
-          `/api/applications/${state.applicationId}/attachments`,
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
-
-        if (!response.ok) {
-          const errorBody = (await response.json()) as { message?: string };
-          setState((current) => ({
-            ...current,
-            status: "error",
-            message:
-              errorBody.message ??
-              `파일 "${file.name}" 업로드에 실패했습니다.`,
-          }));
-          continue;
-        }
-
-        const attachment = (await response.json()) as ApplicationAttachment;
-        setAttachments((current) => [...current, attachment]);
-      } catch {
-        setState((current) => ({
-          ...current,
-          status: "error",
-          message: `파일 "${file.name}" 업로드 중 오류가 발생했습니다.`,
-        }));
-      }
-    }
-
-    setUploadingFiles(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  function updateField(field: keyof DraftFormValues, value: string) {
+    setFormValues((current) => ({ ...current, [field]: value }));
   }
 
-  async function handleDeleteAttachment(attachmentId: number) {
-    try {
-      const response = await fetch(`/api/attachments/${attachmentId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorBody = (await response.json()) as { message?: string };
-        setState((current) => ({
-          ...current,
-          status: "error",
-          message: errorBody.message ?? "파일 삭제에 실패했습니다.",
-        }));
-        return;
-      }
-
-      setAttachments((current) =>
-        current.filter((a) => a.id !== attachmentId),
-      );
-    } catch {
-      setState((current) => ({
-        ...current,
-        status: "error",
-        message: "파일 삭제 중 오류가 발생했습니다.",
-      }));
-    }
+  function updateEducation(index: number, field: keyof EducationEntry, value: string) {
+    setEducations((current) => current.map((education, currentIndex) => currentIndex === index ? { ...education, [field]: value } : education));
   }
 
-function buildPayload() {
-  return {
-    resumePayload: {
-      ...(formValues.introduction.trim()
-        ? { introduction: formValues.introduction.trim() }
-        : {}),
-      ...(formValues.coreStrength.trim()
-        ? { coreStrength: formValues.coreStrength.trim() }
-        : {}),
-      ...(formValues.careerYears.trim()
-        ? { careerYears: Number(formValues.careerYears.trim()) }
-        : {}),
+  function updateCareer(index: number, field: keyof CareerEntry, value: string) {
+    setCareers((current) => current.map((career, currentIndex) => currentIndex === index ? { ...career, [field]: value } : career));
+  }
+
+  function updateAnswer(questionId: number, patch: Partial<ApplicationAnswer>) {
+    setAnswers((current) => current.map((answer) => answer.questionId === questionId ? { ...answer, ...patch } : answer));
+  }
+
+  function buildPayload(): SaveApplicationDraftPayload {
+    const payload: SaveApplicationDraftPayload = {
+      resumePayload: {
+        introduction: formValues.introduction.trim(),
+        coreStrength: formValues.coreStrength.trim(),
+        currentStep,
+        motivationFit: formValues.motivationFit.trim(),
+        answers,
       },
-      ...(educations.length > 0
-        ? {
-            educations: educations.map((education, index) => ({
-              institution: education.schoolName.trim(),
-              degree: education.degree,
-              fieldOfStudy: education.major.trim(),
-              startDate: null,
-              endDate: education.graduatedAt || null,
-              description: "",
-              sortOrder: index,
-            })),
-          }
-        : {}),
-      ...(careers.length > 0
-        ? {
-            experiences: careers.map((career, index) => ({
-              company: career.companyName.trim(),
-              position: career.position.trim(),
-              startDate: career.startedAt || null,
-              endDate: career.endedAt || null,
-              description: career.description.trim(),
-              sortOrder: index,
-            })),
-          }
-        : {}),
     };
-  }
 
-  async function refreshAttachments(applicationId: number) {
-    const response = await fetch(`/api/applications/${applicationId}/attachments`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return;
+    if (formValues.careerYears.trim()) {
+      payload.resumePayload.careerYears = Number(formValues.careerYears.trim());
     }
 
-    const responseBody = (await response.json()) as AttachmentSummary[];
-    setAttachments(responseBody.map(normalizeAttachmentSummary));
+    if (educations.length > 0) {
+      payload.educations = educations.map((education, index) => ({
+        institution: education.institution.trim(),
+        degree: education.degree.trim(),
+        fieldOfStudy: education.fieldOfStudy.trim(),
+        startDate: null,
+        endDate: education.endDate || null,
+        description: "",
+        sortOrder: index,
+      }));
+    }
+
+    if (careers.length > 0) {
+      payload.experiences = careers.map((career, index) => ({
+        company: career.company.trim(),
+        position: career.position.trim(),
+        startDate: career.startDate || null,
+        endDate: career.endDate || null,
+        description: career.description.trim(),
+        sortOrder: index,
+      }));
+    }
+
+    return payload;
   }
 
-  async function submitDraft(mode: FormActionMode) {
-    const endpoint =
-      mode === "draft"
-        ? `/api/job-postings/${jobPostingId}/application-draft`
-        : `/api/job-postings/${jobPostingId}/application-submit`;
+  async function refreshApplication() {
+    const response = await fetch(`/api/job-postings/${jobPostingId}/application`, { cache: "no-store" });
+    if (!response.ok) return;
+    const detail = (await response.json()) as CandidateApplicationDetail;
+    setApplication(detail);
+    setCurrentStep(((detail.currentStep ?? 1) as StepState) || 1);
+    setAnswers(buildInitialAnswers(questions, detail));
+  }
+
+  async function handleSubmit(mode: FormActionMode) {
+    setPendingAction(mode);
+    setMessage(null);
+    setErrorMessage(null);
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        mode === "draft"
+          ? `/api/job-postings/${jobPostingId}/application-draft`
+          : `/api/job-postings/${jobPostingId}/application-submit`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(buildPayload()),
         },
-        body: JSON.stringify(buildPayload()),
-      });
+      );
 
-      const responseBody = (await response.json()) as
-        | ApplicationDraftResponse
-        | { message?: string };
-
+      const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        const errorMessage =
-          "message" in responseBody
-            ? responseBody.message
-            : undefined;
-        setState({
-          status: "error",
-          message:
-            errorMessage ??
-            (mode === "submit"
-              ? "지원서 제출에 실패했습니다."
-              : "임시저장에 실패했습니다."),
-          fieldErrors: {},
-          savedAt: null,
-          submittedAt: null,
-          applicationId: null,
-          currentStatus:
-            errorMessage?.includes("already submitted") ? "SUBMITTED" : null,
-        });
+        setErrorMessage(responseBody.message ?? (mode === "draft" ? "지원서를 임시저장하지 못했습니다." : "지원서를 제출하지 못했습니다."));
         return;
       }
 
-      if (!("status" in responseBody) || !("applicationId" in responseBody)) {
-        setState({
-          status: "error",
-          message: "지원서 응답 데이터가 올바르지 않습니다.",
-          fieldErrors: {},
-          savedAt: null,
-          submittedAt: null,
-          applicationId: null,
-          currentStatus: null,
-        });
-        return;
-      }
-
-      if (responseBody.applicationId) {
-        await refreshAttachments(responseBody.applicationId);
-      }
-
-      setState({
-        status: "success",
-        message:
-          responseBody.status === "SUBMITTED"
-            ? `${responseBody.applicantEmail ?? candidateSession.email} 님의 지원서가 최종 제출되었습니다.`
-            : `${responseBody.applicantEmail ?? candidateSession.email} 님의 지원서가 임시저장되었습니다.`,
-        fieldErrors: {},
-        savedAt: responseBody.draftSavedAt,
-        submittedAt: responseBody.submittedAt,
-        applicationId: responseBody.applicationId,
-        currentStatus: responseBody.status,
-      });
+      await refreshApplication();
+      setMessage(mode === "draft" ? "임시저장되었습니다." : "지원서 제출이 완료되었습니다.");
     } catch {
-      setState({
-        status: "error",
-        message:
-          mode === "submit"
-            ? "지원서 제출 중 예기치 않은 오류가 발생했습니다."
-            : "임시저장 중 예기치 않은 오류가 발생했습니다.",
-        fieldErrors: {},
-        savedAt: null,
-        submittedAt: null,
-        applicationId: null,
-        currentStatus: null,
-      });
+      setErrorMessage(mode === "draft" ? "임시저장 중 오류가 발생했습니다." : "제출 중 오류가 발생했습니다.");
     } finally {
       setPendingAction(null);
     }
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const nativeEvent = event.nativeEvent as SubmitEvent;
-    const submitter = nativeEvent.submitter as HTMLButtonElement | null;
-    const mode = submitter?.value === "submit" ? "submit" : "draft";
-
-    const fieldErrors = validateDraftFields(formValues, mode);
-    if (Object.keys(fieldErrors).length > 0) {
-      setState({
-        status: "error",
-        message: "입력 내용을 확인하고 다시 시도해주세요.",
-        fieldErrors,
-        savedAt: null,
-        submittedAt: null,
-        applicationId: null,
-        currentStatus: null,
-      });
+  async function handleFileUpload(files: FileList) {
+    if (!application?.applicationId) {
+      setErrorMessage("임시저장 후 첨부파일을 업로드할 수 있습니다.");
       return;
     }
 
-    setPendingAction(mode);
-    setState((current) => ({
-      ...current,
-      status: "idle",
-      message: null,
-      fieldErrors: {},
-    }));
+    setUploadingFiles(true);
+    setErrorMessage(null);
 
-    startTransition(() => {
-      void submitDraft(mode);
-    });
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch(`/api/applications/${application.applicationId}/attachments`, {
+        method: "POST",
+        body: formData,
+      });
+      const responseBody = await response.json().catch(() => null);
+      if (!response.ok) {
+        setErrorMessage(responseBody?.message ?? `${file.name} 업로드에 실패했습니다.`);
+        continue;
+      }
+      setAttachments((current) => [...current, normalizeAttachment(responseBody as AttachmentSummary)]);
+    }
+
+    setUploadingFiles(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  const formDisabled = !canSave || isPending || isSubmitted;
+  async function handleDeleteAttachment(attachmentId: number) {
+    const response = await fetch(`/api/attachments/${attachmentId}`, { method: "DELETE" });
+    if (!response.ok) {
+      setErrorMessage("첨부파일을 삭제하지 못했습니다.");
+      return;
+    }
+    setAttachments((current) => current.filter((attachment) => attachment.id !== attachmentId));
+  }
 
   return (
-    <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-7">
-      <h2 className="font-headline text-2xl font-bold text-on-surface">
-        지원하기
-      </h2>
-      <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
-        {helperText}
-      </p>
-
-      {state.message ? (
-        <div
-          className={`mt-5 rounded-lg px-4 py-3 text-sm ${
-            state.status === "success"
-              ? "bg-secondary-container text-[#00731e]"
-              : "bg-error-container text-destructive"
-          }`}
-        >
-          <p>{state.message}</p>
-          {state.status === "success" && state.savedAt ? (
-            <p className="mt-2 text-xs opacity-80">
-              상태:{" "}
-              {getApplicationStatusLabel(state.currentStatus ?? "DRAFT")} |
-              저장 시각: {formatDateTime(state.savedAt)}
-              {state.submittedAt
-                ? ` | 제출 시각: ${formatDateTime(state.submittedAt)}`
-                : ""}
-              {state.applicationId
-                ? ` | 지원서 #${state.applicationId}`
-                : ""}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-
-      {!canSave ? (
-        <div className="mt-5 rounded-lg bg-surface-container-high px-4 py-4 text-sm text-on-surface-variant">
-          현재 지원 기간이 아니라 임시저장 및 제출이 비활성화되어 있습니다.
-        </div>
-      ) : null}
-
-      {isSubmitted ? (
-        <div className="mt-5 rounded-lg bg-secondary-container/50 px-4 py-4 text-sm text-[#00731e]">
-          이미 최종 제출된 지원서입니다. 추가 수정이 불가합니다.
-        </div>
-      ) : null}
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-8">
-        {/* --- 기본 정보 --- */}
-        <div className="grid gap-5">
-          <div className="rounded-lg bg-surface-container-high px-4 py-4 text-sm text-on-surface-variant">
-            로그인된 지원자 계정 정보를 사용합니다. 이름, 이메일, 연락처는 계정 정보와 동기화되어 임의로 변경할 수 없습니다.
-          </div>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            지원자 이름
-            <input
-              name="applicantName"
-              type="text"
-              autoComplete="name"
-              placeholder="김지원"
-              required
-              minLength={2}
-              disabled={formDisabled}
-              readOnly
-              aria-invalid={Boolean(state.fieldErrors.applicantName)}
-              className={`mt-2 ${inputClassName}`}
-              value={formValues.applicantName}
-            />
-            {state.fieldErrors.applicantName ? (
-              <span className="mt-2 block text-xs text-destructive">
-                {state.fieldErrors.applicantName}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            이메일
-            <input
-              name="applicantEmail"
-              type="email"
-              autoComplete="email"
-              placeholder="applicant@example.com"
-              required
-              disabled={formDisabled}
-              readOnly
-              aria-invalid={Boolean(state.fieldErrors.applicantEmail)}
-              className={`mt-2 ${inputClassName}`}
-              value={formValues.applicantEmail}
-            />
-            {state.fieldErrors.applicantEmail ? (
-              <span className="mt-2 block text-xs text-destructive">
-                {state.fieldErrors.applicantEmail}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            연락처
-            <input
-              name="applicantPhone"
-              type="tel"
-              autoComplete="tel"
-              placeholder="010-1234-5678"
-              required
-              disabled={formDisabled}
-              readOnly
-              aria-invalid={Boolean(state.fieldErrors.applicantPhone)}
-              className={`mt-2 ${inputClassName}`}
-              value={formValues.applicantPhone}
-            />
-            {state.fieldErrors.applicantPhone ? (
-              <span className="mt-2 block text-xs text-destructive">
-                {state.fieldErrors.applicantPhone}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            자기소개
-            <textarea
-              name="introduction"
-              rows={5}
-              placeholder="관련 경험과 지원 동기를 간략히 소개해주세요."
-              disabled={formDisabled}
-              aria-invalid={Boolean(state.fieldErrors.introduction)}
-              className={`mt-2 resize-y ${inputClassName}`}
-              value={formValues.introduction}
-              onChange={(event) =>
-                updateField("introduction", event.target.value)
-              }
-            />
-            {state.fieldErrors.introduction ? (
-              <span className="mt-2 block text-xs text-destructive">
-                {state.fieldErrors.introduction}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            핵심 역량
-            <textarea
-              name="coreStrength"
-              rows={4}
-              placeholder="이 직무에서 발휘할 수 있는 가장 강점을 설명해주세요."
-              disabled={formDisabled}
-              className={`mt-2 resize-y ${inputClassName}`}
-              value={formValues.coreStrength}
-              onChange={(event) =>
-                updateField("coreStrength", event.target.value)
-              }
-            />
-            {state.fieldErrors.coreStrength ? (
-              <span className="mt-2 block text-xs text-destructive">
-                {state.fieldErrors.coreStrength}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            경력 연수
-            <input
-              name="careerYears"
-              type="number"
-              min={0}
-              max={40}
-              placeholder="6"
-              disabled={formDisabled}
-              aria-invalid={Boolean(state.fieldErrors.careerYears)}
-              className={`mt-2 ${inputClassName}`}
-              value={formValues.careerYears}
-              onChange={(event) =>
-                updateField("careerYears", event.target.value)
-              }
-            />
-            {state.fieldErrors.careerYears ? (
-              <span className="mt-2 block text-xs text-destructive">
-                {state.fieldErrors.careerYears}
-              </span>
-            ) : null}
-          </label>
-        </div>
-
-        {/* --- 학력 사항 --- */}
+    <section className="rounded-sm border border-outline-variant bg-card p-7">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center justify-between">
-            <h3 className={sectionHeadingClassName}>학력 사항</h3>
-            <button
-              type="button"
-              disabled={formDisabled}
-              onClick={addEducation}
-              className="rounded-lg bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              + 학력 추가
-            </button>
-          </div>
-
-          {educations.length === 0 ? (
-            <p className="mt-3 text-sm text-on-surface-variant">
-              등록된 학력이 없습니다. 위 버튼을 눌러 추가하세요.
-            </p>
-          ) : null}
-
-          <div className="mt-4 space-y-4">
-            {educations.map((edu, index) => (
-              <div
-                key={index}
-                className="rounded-lg bg-surface-container p-5"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-on-surface-variant">
-                    학력 #{index + 1}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={formDisabled}
-                    onClick={() => removeEducation(index)}
-                    className="rounded-md px-3 py-1 text-xs font-medium text-destructive transition hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    삭제
-                  </button>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-on-surface-variant">
-                    학교명
-                    <input
-                      type="text"
-                      placeholder="서울대학교"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={edu.schoolName}
-                      onChange={(e) =>
-                        updateEducation(index, "schoolName", e.target.value)
-                      }
-                    />
-                  </label>
-                  <label className="block text-sm text-on-surface-variant">
-                    전공
-                    <input
-                      type="text"
-                      placeholder="컴퓨터공학"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={edu.major}
-                      onChange={(e) =>
-                        updateEducation(index, "major", e.target.value)
-                      }
-                    />
-                  </label>
-                  <label className="block text-sm text-on-surface-variant">
-                    학위
-                    <select
-                      disabled={formDisabled}
-                      className={`mt-1 ${selectClassName}`}
-                      value={edu.degree}
-                      onChange={(e) =>
-                        updateEducation(index, "degree", e.target.value)
-                      }
-                    >
-                      {DEGREE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block text-sm text-on-surface-variant">
-                    졸업일
-                    <input
-                      type="date"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={edu.graduatedAt}
-                      onChange={(e) =>
-                        updateEducation(index, "graduatedAt", e.target.value)
-                      }
-                    />
-                  </label>
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">지원서 작성</h2>
+          <p className="mt-2 text-sm leading-7 text-on-surface-variant">{helperText}</p>
         </div>
+        {statusLabel ? (
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ${getApplicationStatusClassName(application!.status)}`}>
+            {statusLabel}
+          </span>
+        ) : null}
+      </div>
 
-        {/* --- 경력 사항 --- */}
-        <div>
-          <div className="flex items-center justify-between">
-            <h3 className={sectionHeadingClassName}>경력 사항</h3>
-            <button
-              type="button"
-              disabled={formDisabled}
-              onClick={addCareer}
-              className="rounded-lg bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              + 경력 추가
-            </button>
-          </div>
+      <div className="mt-6 grid gap-3 md:grid-cols-4">
+        {formSteps.map((step) => (
+          <button
+            key={step.value}
+            type="button"
+            disabled={isSubmitted}
+            onClick={() => setCurrentStep(step.value)}
+            className={`rounded-lg border px-4 py-4 text-left transition-colors ${getStepClassName(step.value, currentStep)}`}
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.16em]">Step {step.value}</p>
+            <p className="mt-2 text-sm font-semibold">{step.label}</p>
+            <p className="mt-2 text-xs leading-6 opacity-90">{step.description}</p>
+          </button>
+        ))}
+      </div>
 
-          {careers.length === 0 ? (
-            <p className="mt-3 text-sm text-on-surface-variant">
-              등록된 경력이 없습니다. 위 버튼을 눌러 추가하세요.
-            </p>
-          ) : null}
+      {message ? <div className="mt-5 rounded-lg bg-secondary-container px-4 py-3 text-sm text-[#00731e]">{message}</div> : null}
+      {errorMessage ? <div className="mt-5 rounded-lg bg-error-container px-4 py-3 text-sm text-destructive">{errorMessage}</div> : null}
 
-          <div className="mt-4 space-y-4">
-            {careers.map((career, index) => (
-              <div
-                key={index}
-                className="rounded-lg bg-surface-container p-5"
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-on-surface-variant">
-                    경력 #{index + 1}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={formDisabled}
-                    onClick={() => removeCareer(index)}
-                    className="rounded-md px-3 py-1 text-xs font-medium text-destructive transition hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    삭제
-                  </button>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block text-sm text-on-surface-variant">
-                    회사명
-                    <input
-                      type="text"
-                      placeholder="네이버"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={career.companyName}
-                      onChange={(e) =>
-                        updateCareer(index, "companyName", e.target.value)
-                      }
-                    />
-                  </label>
-                  <label className="block text-sm text-on-surface-variant">
-                    직책
-                    <input
-                      type="text"
-                      placeholder="백엔드 개발자"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={career.position}
-                      onChange={(e) =>
-                        updateCareer(index, "position", e.target.value)
-                      }
-                    />
-                  </label>
-                  <label className="block text-sm text-on-surface-variant">
-                    입사일
-                    <input
-                      type="date"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={career.startedAt}
-                      onChange={(e) =>
-                        updateCareer(index, "startedAt", e.target.value)
-                      }
-                    />
-                  </label>
-                  <label className="block text-sm text-on-surface-variant">
-                    퇴사일
-                    <input
-                      type="date"
-                      disabled={formDisabled}
-                      className={`mt-1 ${inputClassName}`}
-                      value={career.endedAt}
-                      onChange={(e) =>
-                        updateCareer(index, "endedAt", e.target.value)
-                      }
-                    />
-                  </label>
-                </div>
-                <label className="mt-3 block text-sm text-on-surface-variant">
-                  업무 내용
-                  <textarea
-                    rows={3}
-                    placeholder="담당 업무 및 성과를 간략히 기술해주세요."
-                    disabled={formDisabled}
-                    className={`mt-1 resize-y ${inputClassName}`}
-                    value={career.description}
-                    onChange={(e) =>
-                      updateCareer(index, "description", e.target.value)
-                    }
-                  />
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* --- 첨부파일 --- */}
-        <div>
-          <h3 className={sectionHeadingClassName}>첨부파일</h3>
-          <p className="mt-1 text-xs text-on-surface-variant">
-            PDF, DOC, DOCX, JPG, PNG 파일을 업로드할 수 있습니다.
+      {application ? (
+        <div className="mt-5 rounded-lg bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">
+          <p>{isSubmitted ? "이미 제출된 지원서입니다. 아래 내용은 읽기 전용으로 표시됩니다." : "이전에 저장한 지원서를 불러왔습니다. 이어서 작성할 수 있습니다."}</p>
+          <p className="mt-2">
+            마지막 저장: {formatDateTime(application.draftSavedAt)}
+            {application.submittedAt ? ` | 제출 완료: ${formatDateTime(application.submittedAt)}` : ""}
           </p>
+        </div>
+      ) : null}
 
-          <div className="mt-3 flex items-center gap-3">
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept={ACCEPTED_FILE_TYPES}
-              disabled={formDisabled || uploadingFiles || !state.applicationId}
-              className="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface file:transition hover:file:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  void handleFileUpload(e.target.files);
-                }
-              }}
-            />
-            {uploadingFiles ? (
-              <span className="shrink-0 text-sm text-on-surface-variant">
-                업로드 중...
-              </span>
-            ) : !state.applicationId ? (
-              <span className="shrink-0 text-sm text-on-surface-variant">
-                임시저장 후 업로드 가능
-              </span>
-            ) : null}
+      <form className="mt-6 space-y-7" onSubmit={(event) => event.preventDefault()}>
+        <section className="grid gap-5">
+          <div className="rounded-lg bg-surface-container-low px-4 py-4 text-sm leading-7 text-on-surface-variant">
+            로그인한 지원자 계정 정보를 기본값으로 사용합니다. 이름, 이메일, 휴대전화는 계정 정보와 동기화되어 읽기 전용입니다.
           </div>
 
-          {attachments.length > 0 ? (
-            <ul className="mt-4 space-y-2">
-              {attachments.map((attachment) => (
-                <li
-                  key={attachment.id}
-                  className="flex items-center justify-between rounded-lg bg-surface-container px-4 py-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <a
-                      href={`/api/attachments/${attachment.id}/download`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="truncate text-sm font-medium text-primary hover:underline"
-                    >
-                      {attachment.originalName}
-                    </a>
-                    <span className="ml-2 text-xs text-on-surface-variant">
-                      {formatFileSize(attachment.fileSize)}
-                    </span>
+          <label className="block text-sm font-semibold text-on-surface-variant">이름<input className={inputClassName} value={formValues.applicantName} readOnly disabled /></label>
+          <label className="block text-sm font-semibold text-on-surface-variant">이메일<input className={inputClassName} value={formValues.applicantEmail} readOnly disabled /></label>
+          <label className="block text-sm font-semibold text-on-surface-variant">휴대전화<input className={inputClassName} value={formValues.applicantPhone} readOnly disabled /></label>
+          <label className="block text-sm font-semibold text-on-surface-variant">
+            이 공고에 지원하는 이유
+            <textarea className={textareaClassName} value={formValues.motivationFit} disabled={formDisabled} onChange={(event) => updateField("motivationFit", event.target.value)} placeholder="이 공고를 선택한 이유와 팀에 기여할 수 있는 지점을 작성해 주세요." />
+          </label>
+        </section>
+
+        <section className="grid gap-5">
+          <label className="block text-sm font-semibold text-on-surface-variant">자기소개<textarea className={textareaClassName} value={formValues.introduction} disabled={formDisabled} onChange={(event) => updateField("introduction", event.target.value)} placeholder="지원 동기와 본인의 강점을 중심으로 작성해 주세요." /></label>
+          <label className="block text-sm font-semibold text-on-surface-variant">핵심 강점<textarea className={textareaClassName} value={formValues.coreStrength} disabled={formDisabled} onChange={(event) => updateField("coreStrength", event.target.value)} placeholder="이 직무에서 발휘할 수 있는 핵심 강점을 적어 주세요." /></label>
+          <label className="block text-sm font-semibold text-on-surface-variant">경력 연차<input className={inputClassName} type="number" min={0} max={40} value={formValues.careerYears} disabled={formDisabled} onChange={(event) => updateField("careerYears", event.target.value)} placeholder="예: 5" /></label>
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-lg font-semibold text-on-surface">학력</h3>
+            <button type="button" disabled={formDisabled} onClick={() => setEducations((current) => [...current, { institution: "", degree: "", fieldOfStudy: "", endDate: "" }])} className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-on-surface">학력 추가</button>
+          </div>
+          <div className="space-y-4">
+            {educations.map((education, index) => (
+              <div key={`education-${index}`} className="rounded-lg bg-surface-container-low p-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <input className={inputClassName} value={education.institution} disabled={formDisabled} onChange={(event) => updateEducation(index, "institution", event.target.value)} placeholder="학교명" />
+                  <input className={inputClassName} value={education.fieldOfStudy} disabled={formDisabled} onChange={(event) => updateEducation(index, "fieldOfStudy", event.target.value)} placeholder="전공" />
+                  <input className={inputClassName} value={education.degree} disabled={formDisabled} onChange={(event) => updateEducation(index, "degree", event.target.value)} placeholder="학위" />
+                  <input className={inputClassName} type="date" value={education.endDate} disabled={formDisabled} onChange={(event) => updateEducation(index, "endDate", event.target.value)} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-lg font-semibold text-on-surface">경력</h3>
+            <button type="button" disabled={formDisabled} onClick={() => setCareers((current) => [...current, { company: "", position: "", startDate: "", endDate: "", description: "" }])} className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-on-surface">경력 추가</button>
+          </div>
+          <div className="space-y-4">
+            {careers.map((career, index) => (
+              <div key={`career-${index}`} className="rounded-lg bg-surface-container-low p-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <input className={inputClassName} value={career.company} disabled={formDisabled} onChange={(event) => updateCareer(index, "company", event.target.value)} placeholder="회사명" />
+                  <input className={inputClassName} value={career.position} disabled={formDisabled} onChange={(event) => updateCareer(index, "position", event.target.value)} placeholder="직무" />
+                  <input className={inputClassName} type="date" value={career.startDate} disabled={formDisabled} onChange={(event) => updateCareer(index, "startDate", event.target.value)} />
+                  <input className={inputClassName} type="date" value={career.endDate} disabled={formDisabled} onChange={(event) => updateCareer(index, "endDate", event.target.value)} />
+                </div>
+                <textarea className={textareaClassName} value={career.description} disabled={formDisabled} onChange={(event) => updateCareer(index, "description", event.target.value)} placeholder="담당 업무와 성과를 적어 주세요." />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-on-surface">공고별 질문</h3>
+            <p className="mt-1 text-sm text-on-surface-variant">공고별 질문이 있는 경우 저장 후 다시 들어와도 이전 답변이 그대로 복원됩니다.</p>
+          </div>
+          {questions.length === 0 ? (
+            <div className="rounded-lg bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">이 공고에는 추가 질문이 없습니다.</div>
+          ) : (
+            <div className="space-y-4">
+              {questions.map((question, index) => {
+                const answer = answers.find((current) => current.questionId === question.id) ?? { questionId: question.id, answerText: null, answerChoice: null, answerScale: null };
+                const choices = parseQuestionChoices(question.choices);
+                return (
+                  <div key={question.id} className="rounded-lg bg-surface-container-low p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">질문 {index + 1}</p>
+                        <h4 className="mt-2 text-base font-semibold text-on-surface">{question.questionText}</h4>
+                      </div>
+                      {question.required ? <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">필수</span> : null}
+                    </div>
+                    {question.questionType === "TEXT" ? (
+                      <textarea className={textareaClassName} value={answer.answerText ?? ""} disabled={formDisabled} onChange={(event) => updateAnswer(question.id, { answerText: event.target.value, answerChoice: null, answerScale: null })} placeholder="답변을 입력해 주세요." />
+                    ) : null}
+                    {question.questionType === "CHOICE" ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {choices.map((choice) => (
+                          <button key={choice} type="button" disabled={formDisabled} onClick={() => updateAnswer(question.id, { answerText: null, answerChoice: choice, answerScale: null })} className={`rounded-full border px-4 py-2 text-sm transition-colors ${answer.answerChoice === choice ? "border-primary bg-primary text-primary-foreground" : "border-outline-variant bg-card text-on-surface"}`}>
+                            {choice}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                    {question.questionType === "SCALE" ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {[1, 2, 3, 4, 5].map((scaleValue) => (
+                          <button key={scaleValue} type="button" disabled={formDisabled} onClick={() => updateAnswer(question.id, { answerText: null, answerChoice: null, answerScale: scaleValue })} className={`inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition-colors ${answer.answerScale === scaleValue ? "border-primary bg-primary text-primary-foreground" : "border-outline-variant bg-card text-on-surface"}`}>
+                            {scaleValue}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                  <button
-                    type="button"
-                    disabled={formDisabled}
-                    onClick={() => void handleDeleteAttachment(attachment.id)}
-                    className="ml-3 shrink-0 rounded-md px-3 py-1 text-xs font-medium text-destructive transition hover:bg-error-container disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    삭제
-                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-on-surface">첨부파일</h3>
+            <p className="mt-1 text-sm text-on-surface-variant">임시저장 후 PDF, DOC, DOCX, JPG, PNG 파일을 업로드할 수 있습니다.</p>
+          </div>
+          <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_FILE_TYPES} disabled={formDisabled || uploadingFiles || !application?.applicationId} onChange={(event) => { if (event.target.files?.length) void handleFileUpload(event.target.files); }} className="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface" />
+          {attachments.length > 0 ? (
+            <ul className="space-y-2">
+              {attachments.map((attachment) => (
+                <li key={attachment.id} className="flex items-center justify-between gap-3 rounded-lg bg-surface-container-low px-4 py-3">
+                  <div className="min-w-0">
+                    <a href={`/api/attachments/${attachment.id}/download`} className="truncate text-sm font-medium text-primary hover:underline">{attachment.originalName}</a>
+                    <p className="mt-1 text-xs text-on-surface-variant">{formatFileSize(attachment.fileSize)}</p>
+                  </div>
+                  <button type="button" disabled={formDisabled} onClick={() => void handleDeleteAttachment(attachment.id)} className="rounded-sm border border-outline-variant px-3 py-2 text-xs font-medium text-on-surface">삭제</button>
                 </li>
               ))}
             </ul>
           ) : null}
-        </div>
+        </section>
 
-        {/* --- 제출 버튼 --- */}
+        {isSubmitted ? <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">이미 제출된 지원서입니다.</div> : null}
+
         <div className="grid gap-3 sm:grid-cols-2">
-          <button
-            type="submit"
-            value="draft"
-            disabled={formDisabled}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-surface-container-high px-5 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {pendingAction === "draft"
-              ? "저장 중..."
-              : "임시저장"}
-          </button>
-          <button
-            type="submit"
-            value="submit"
-            disabled={formDisabled}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/10 transition hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {pendingAction === "submit"
-              ? "제출 중..."
-              : "최종 제출"}
-          </button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface">{pendingAction === "draft" ? "저장 중.." : "임시저장"}</button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("submit"); }); }} className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">{pendingAction === "submit" ? "제출 중.." : "최종 제출"}</button>
         </div>
       </form>
     </section>

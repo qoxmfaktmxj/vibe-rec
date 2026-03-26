@@ -2,16 +2,21 @@ package com.viberec.api.recruitment.application.service;
 
 import com.viberec.api.candidate.auth.domain.CandidateAccount;
 import com.viberec.api.recruitment.application.domain.Application;
+import com.viberec.api.recruitment.application.domain.ApplicationAnswer;
 import com.viberec.api.recruitment.application.domain.ApplicationResumeRaw;
+import com.viberec.api.recruitment.application.repository.ApplicationAnswerRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationResumeRawRepository;
 import com.viberec.api.recruitment.application.web.ApplicationDraftResponse;
 import com.viberec.api.recruitment.application.web.SaveApplicationDraftRequest;
 import com.viberec.api.recruitment.jobposting.domain.JobPosting;
-import com.viberec.api.recruitment.jobposting.domain.JobPostingStatus;
+import com.viberec.api.recruitment.jobposting.domain.JobPostingQuestion;
+import com.viberec.api.recruitment.jobposting.repository.JobPostingQuestionRepository;
 import com.viberec.api.recruitment.jobposting.repository.JobPostingRepository;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +29,23 @@ public class ApplicationDraftService {
     private final ApplicationRepository applicationRepository;
     private final ApplicationResumeRawRepository applicationResumeRawRepository;
     private final ResumeNormalizationService resumeNormalizationService;
+    private final ApplicationAnswerRepository applicationAnswerRepository;
+    private final JobPostingQuestionRepository jobPostingQuestionRepository;
 
     public ApplicationDraftService(
             JobPostingRepository jobPostingRepository,
             ApplicationRepository applicationRepository,
             ApplicationResumeRawRepository applicationResumeRawRepository,
-            ResumeNormalizationService resumeNormalizationService
+            ResumeNormalizationService resumeNormalizationService,
+            ApplicationAnswerRepository applicationAnswerRepository,
+            JobPostingQuestionRepository jobPostingQuestionRepository
     ) {
         this.jobPostingRepository = jobPostingRepository;
         this.applicationRepository = applicationRepository;
         this.applicationResumeRawRepository = applicationResumeRawRepository;
         this.resumeNormalizationService = resumeNormalizationService;
+        this.applicationAnswerRepository = applicationAnswerRepository;
+        this.jobPostingQuestionRepository = jobPostingQuestionRepository;
     }
 
     @Transactional
@@ -65,6 +76,7 @@ public class ApplicationDraftService {
                 request.certifications(),
                 request.languages()
         );
+        saveAnswers(savedApplication, jobPosting, request.resumePayload());
         return toResponse(savedApplication, jobPostingId);
     }
 
@@ -102,6 +114,7 @@ public class ApplicationDraftService {
                 request.certifications(),
                 request.languages()
         );
+        saveAnswers(savedApplication, jobPosting, request.resumePayload());
         return toResponse(savedApplication, jobPostingId);
     }
 
@@ -115,7 +128,7 @@ public class ApplicationDraftService {
 
     private void validateApplicationWindow(JobPosting jobPosting) {
         OffsetDateTime now = OffsetDateTime.now();
-        if (jobPosting.getStatus() != JobPostingStatus.OPEN || now.isBefore(jobPosting.getOpensAt()) || now.isAfter(jobPosting.getClosesAt())) {
+        if (!jobPosting.isAcceptingApplicationsAt(now)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Applications can only be saved or submitted while the posting is open.");
         }
     }
@@ -145,6 +158,65 @@ public class ApplicationDraftService {
         }
         String text = value.toString().trim();
         return text.isEmpty() ? null : text;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void saveAnswers(Application application, JobPosting jobPosting, Map<String, Object> resumePayload) {
+        Object stepObj = resumePayload.get("currentStep");
+        if (stepObj instanceof Number) {
+            application.updateCurrentStep(((Number) stepObj).shortValue());
+        }
+
+        Object mfObj = resumePayload.get("motivationFit");
+        if (mfObj != null) {
+            application.updateMotivationFit(mfObj.toString());
+        }
+
+        Object answersObj = resumePayload.get("answers");
+        if (answersObj instanceof List<?> answersList) {
+            Map<Long, JobPostingQuestion> questionIndex = jobPostingQuestionRepository
+                    .findByJobPostingIdOrderBySortOrder(jobPosting.getId())
+                    .stream()
+                    .collect(Collectors.toMap(JobPostingQuestion::getId, question -> question));
+            applicationAnswerRepository.deleteByApplicationId(application.getId());
+            List<ApplicationAnswer> answers = answersList.stream()
+                    .filter(item -> item instanceof Map)
+                    .map(item -> (Map<String, Object>) item)
+                    .filter(map -> map.get("questionId") instanceof Number)
+                    .map(map -> {
+                        Long questionId = ((Number) map.get("questionId")).longValue();
+                        JobPostingQuestion question = questionIndex.get(questionId);
+                        if (question == null) {
+                            throw new ResponseStatusException(
+                                    HttpStatus.BAD_REQUEST,
+                                    "Question does not belong to this job posting."
+                            );
+                        }
+                        Object answerTextObj = map.get("answerText");
+                        String answerText = answerTextObj instanceof String s ? s : null;
+                        Object answerChoiceObj = map.get("answerChoice");
+                        String answerChoice = answerChoiceObj instanceof String s ? s : null;
+                        Object answerScaleObj = map.get("answerScale");
+                        Short answerScale = null;
+                        if (answerScaleObj instanceof Number n) {
+                            short scaleValue = n.shortValue();
+                            if (scaleValue < 1 || scaleValue > 5) {
+                                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                        "Answer scale must be between 1 and 5.");
+                            }
+                            answerScale = scaleValue;
+                        }
+                        return new ApplicationAnswer(
+                                application,
+                                question,
+                                answerText,
+                                answerChoice,
+                                answerScale
+                        );
+                    })
+                    .toList();
+            applicationAnswerRepository.saveAll(answers);
+        }
     }
 
     private void saveResumeRaw(Application application, Map<String, Object> resumePayload) {

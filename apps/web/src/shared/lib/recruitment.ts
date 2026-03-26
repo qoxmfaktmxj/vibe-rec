@@ -6,6 +6,8 @@ import type {
   InterviewStatus,
   JobPostingStatus,
   JobPostingStepType,
+  RecruitmentCategory,
+  RecruitmentMode,
 } from "@/entities/recruitment/model";
 
 const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
@@ -21,6 +23,20 @@ const dateTimeFormatter = new Intl.DateTimeFormat("ko-KR", {
   hour: "2-digit",
   minute: "2-digit",
 });
+
+type JobPostingAvailability = {
+  status: JobPostingStatus;
+  opensAt: string;
+  closesAt: string | null;
+  recruitmentMode: RecruitmentMode;
+};
+
+type JobPostingGrouping = {
+  recruitmentCategory: RecruitmentCategory;
+  recruitmentMode: RecruitmentMode;
+};
+
+export type JobPostingDisplayGroup = "NEW_GRAD" | "EXPERIENCED" | "ROLLING";
 
 export function formatDate(value: string | null) {
   if (!value) {
@@ -39,17 +55,61 @@ export function formatDateTime(value: string | null) {
 }
 
 export function formatDateRange(startAt: string | null, endAt: string | null) {
+  if (!startAt && !endAt) {
+    return "일정 조율";
+  }
+
+  if (!startAt) {
+    return `~ ${formatDate(endAt)}`;
+  }
+
+  if (!endAt) {
+    return `${formatDate(startAt)}부터`;
+  }
+
   return `${formatDate(startAt)} - ${formatDate(endAt)}`;
+}
+
+export function formatRecruitmentPeriod(posting: {
+  opensAt: string;
+  closesAt: string | null;
+  recruitmentMode: RecruitmentMode;
+}) {
+  if (posting.recruitmentMode === "ROLLING") {
+    return "상시 모집";
+  }
+
+  return formatDateRange(posting.opensAt, posting.closesAt);
+}
+
+export function isJobPostingOpenForApplications(posting: JobPostingAvailability) {
+  const now = Date.now();
+  const opensAt = new Date(posting.opensAt).getTime();
+
+  if (posting.status !== "OPEN" || now < opensAt) {
+    return false;
+  }
+
+  if (posting.recruitmentMode === "ROLLING") {
+    return true;
+  }
+
+  if (!posting.closesAt) {
+    return false;
+  }
+
+  const closesAt = new Date(posting.closesAt).getTime();
+  return now <= closesAt;
 }
 
 export function getJobPostingStatusLabel(status: JobPostingStatus) {
   switch (status) {
     case "DRAFT":
-      return "Draft";
+      return "임시 저장";
     case "OPEN":
-      return "Open";
+      return "모집 중";
     case "CLOSED":
-      return "Closed";
+      return "마감";
     default:
       return status;
   }
@@ -68,16 +128,71 @@ export function getJobPostingStatusClassName(status: JobPostingStatus) {
   }
 }
 
+export function getRecruitmentCategoryLabel(category: RecruitmentCategory) {
+  switch (category) {
+    case "NEW_GRAD":
+      return "신입 채용";
+    case "EXPERIENCED":
+      return "경력 채용";
+    default:
+      return category;
+  }
+}
+
+export function getRecruitmentModeLabel(mode: RecruitmentMode) {
+  switch (mode) {
+    case "FIXED_TERM":
+      return "기간 채용";
+    case "ROLLING":
+      return "상시 채용";
+    default:
+      return mode;
+  }
+}
+
+export function getJobPostingDisplayGroup(
+  posting: JobPostingGrouping,
+): JobPostingDisplayGroup {
+  if (posting.recruitmentMode === "ROLLING") {
+    return "ROLLING";
+  }
+
+  return posting.recruitmentCategory;
+}
+
+export function groupJobPostings<T extends JobPostingGrouping>(jobPostings: T[]) {
+  return jobPostings.reduce(
+    (groups, jobPosting) => {
+      const group = getJobPostingDisplayGroup(jobPosting);
+
+      if (group === "ROLLING") {
+        groups.rolling.push(jobPosting);
+      } else if (group === "NEW_GRAD") {
+        groups.newGrad.push(jobPosting);
+      } else {
+        groups.experienced.push(jobPosting);
+      }
+
+      return groups;
+    },
+    {
+      newGrad: [] as T[],
+      experienced: [] as T[],
+      rolling: [] as T[],
+    },
+  );
+}
+
 export function getStepTypeLabel(stepType: JobPostingStepType) {
   switch (stepType) {
     case "DOCUMENT":
-      return "Document";
+      return "서류";
     case "ASSIGNMENT":
-      return "Assignment";
+      return "과제";
     case "INTERVIEW":
-      return "Interview";
+      return "면접";
     case "OFFER":
-      return "Offer";
+      return "처우";
     default:
       return stepType;
   }
@@ -86,9 +201,9 @@ export function getStepTypeLabel(stepType: JobPostingStepType) {
 export function getApplicationStatusLabel(status: ApplicationStatus) {
   switch (status) {
     case "DRAFT":
-      return "Draft";
+      return "임시 저장";
     case "SUBMITTED":
-      return "Submitted";
+      return "제출 완료";
     default:
       return status;
   }
@@ -110,13 +225,13 @@ export function getApplicationReviewStatusLabel(
 ) {
   switch (reviewStatus) {
     case "NEW":
-      return "New";
+      return "신규";
     case "IN_REVIEW":
-      return "In review";
+      return "검토 중";
     case "PASSED":
-      return "Passed";
+      return "합격";
     case "REJECTED":
-      return "Rejected";
+      return "불합격";
     default:
       return reviewStatus;
   }
@@ -139,52 +254,62 @@ export function getApplicationReviewStatusClassName(
   }
 }
 
-export function getDraftAvailability(posting: {
-  status: JobPostingStatus;
-  opensAt: string;
-  closesAt: string;
-}) {
+export function getDraftAvailability(posting: JobPostingAvailability) {
   const now = Date.now();
   const opensAt = new Date(posting.opensAt).getTime();
-  const closesAt = new Date(posting.closesAt).getTime();
 
   if (posting.status !== "OPEN") {
     return {
       canSave: false,
-      reason: "This posting is not accepting new applications right now.",
+      reason: "현재 이 공고는 지원서를 받고 있지 않습니다.",
     };
   }
 
   if (now < opensAt) {
     return {
       canSave: false,
-      reason: "Draft saving becomes available when the application window opens.",
+      reason: "지원 기간이 시작되면 지원서를 작성할 수 있습니다.",
     };
   }
 
-  if (now > closesAt) {
+  if (posting.recruitmentMode === "ROLLING") {
+    return {
+      canSave: true,
+      reason:
+        "상시 채용 공고입니다. 지원서를 작성하고 제출하면 순차 검토가 진행됩니다.",
+    };
+  }
+
+  if (!posting.closesAt) {
     return {
       canSave: false,
-      reason: "The application window is closed, so drafts can no longer be saved.",
+      reason: "마감 일정이 설정되지 않아 현재는 지원서를 작성할 수 없습니다.",
+    };
+  }
+
+  if (now > new Date(posting.closesAt).getTime()) {
+    return {
+      canSave: false,
+      reason: "지원 기간이 종료되어 더 이상 지원서를 작성하거나 제출할 수 없습니다.",
     };
   }
 
   return {
     canSave: true,
-    reason: "Applicants can save a draft now and submit it before the posting closes.",
+    reason: "지금부터 마감 시점까지 지원서를 저장하고 제출할 수 있습니다.",
   };
 }
 
 export function getInterviewStatusLabel(status: InterviewStatus) {
   switch (status) {
     case "SCHEDULED":
-      return "Scheduled";
+      return "예정";
     case "COMPLETED":
-      return "Completed";
+      return "완료";
     case "CANCELLED":
-      return "Cancelled";
+      return "취소";
     case "NO_SHOW":
-      return "No show";
+      return "불참";
     default:
       return status;
   }
@@ -208,13 +333,13 @@ export function getInterviewStatusClassName(status: InterviewStatus) {
 export function getEvaluationResultLabel(result: EvaluationResult) {
   switch (result) {
     case "PENDING":
-      return "Pending";
+      return "대기";
     case "PASS":
-      return "Pass";
+      return "합격";
     case "FAIL":
-      return "Fail";
+      return "불합격";
     case "HOLD":
-      return "Hold";
+      return "보류";
     default:
       return result;
   }
@@ -238,13 +363,13 @@ export function getEvaluationResultClassName(result: EvaluationResult) {
 export function getFinalStatusLabel(status: ApplicationFinalStatus) {
   switch (status) {
     case "OFFER_MADE":
-      return "Offer made";
+      return "처우 제안";
     case "ACCEPTED":
-      return "Accepted";
+      return "수락";
     case "DECLINED":
-      return "Declined";
+      return "거절";
     case "WITHDRAWN":
-      return "Withdrawn";
+      return "철회";
     default:
       return status;
   }
@@ -268,15 +393,15 @@ export function getFinalStatusClassName(status: ApplicationFinalStatus) {
 export function getDegreeLabel(degree: string) {
   switch (degree) {
     case "HIGH_SCHOOL":
-      return "High school";
+      return "고등학교";
     case "ASSOCIATE":
-      return "Associate";
+      return "전문학사";
     case "BACHELOR":
-      return "Bachelor";
+      return "학사";
     case "MASTER":
-      return "Master";
+      return "석사";
     case "DOCTORATE":
-      return "Doctorate";
+      return "박사";
     default:
       return degree;
   }
@@ -285,13 +410,13 @@ export function getDegreeLabel(degree: string) {
 export function getNotificationTypeLabel(type: string) {
   switch (type) {
     case "OFFER":
-      return "Offer";
+      return "처우 제안";
     case "REJECTION":
-      return "Rejection";
+      return "불합격 안내";
     case "INTERVIEW_INVITE":
-      return "Interview invite";
+      return "면접 안내";
     case "GENERAL":
-      return "General";
+      return "일반 안내";
     default:
       return type;
   }

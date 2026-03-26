@@ -36,7 +36,7 @@ export default function Error({
           </h1>
           <p className="max-w-xl text-sm leading-7 text-on-surface-variant">
             {error.message ||
-              "예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}
+              "예상하지 못한 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -55,7 +55,7 @@ export default function Error({
           </Link>
         </div>
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-on-surface-variant">
-          Vibe Rec
+          HireFlow
         </p>
       </div>
     </main>

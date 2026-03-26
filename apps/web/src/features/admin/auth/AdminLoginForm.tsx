@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -28,14 +28,14 @@ export function AdminLoginForm() {
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "Admin sign-in failed.");
+        setErrorMessage(responseBody.message ?? "愿由ъ옄 濡쒓렇?몄뿉 ?ㅽ뙣?덉뒿?덈떎.");
         return;
       }
 
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("An unexpected error occurred during admin sign-in.");
+      setErrorMessage("愿由ъ옄 濡쒓렇??以??덉긽?섏? 紐삵븳 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
     } finally {
       setIsPending(false);
     }
@@ -45,7 +45,7 @@ export function AdminLoginForm() {
     event.preventDefault();
 
     if (!username.trim() || !password) {
-      setErrorMessage("Enter both username and password.");
+      setErrorMessage("?꾩씠?붿? 鍮꾨?踰덊샇瑜?紐⑤몢 ?낅젰?섏꽭??");
       return;
     }
 
@@ -70,7 +70,7 @@ export function AdminLoginForm() {
           className="ml-1 block text-sm font-semibold text-on-surface-variant"
           htmlFor="username"
         >
-          Username
+          ?꾩씠??
         </label>
         <input
           id="username"
@@ -90,14 +90,14 @@ export function AdminLoginForm() {
           className="ml-1 block text-sm font-semibold text-on-surface-variant"
           htmlFor="password"
         >
-          Password
+          鍮꾨?踰덊샇
         </label>
         <input
           id="password"
           name="password"
           type="password"
           autoComplete="current-password"
-          placeholder="Enter your password"
+          placeholder="鍮꾨?踰덊샇瑜??낅젰?섏꽭??
           className={inputClassName}
           value={password}
           disabled={isPending}
@@ -110,8 +110,9 @@ export function AdminLoginForm() {
         disabled={isPending}
         className="w-full rounded-sm bg-primary py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isPending ? "Signing in.." : "Sign in"}
+        {isPending ? "濡쒓렇??以?.." : "濡쒓렇??}
       </button>
     </form>
   );
 }
+

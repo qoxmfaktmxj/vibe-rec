@@ -1,4 +1,6 @@
 export type JobPostingStatus = "DRAFT" | "OPEN" | "CLOSED";
+export type RecruitmentCategory = "NEW_GRAD" | "EXPERIENCED";
+export type RecruitmentMode = "FIXED_TERM" | "ROLLING";
 
 export type JobPostingStepType =
   | "DOCUMENT"
@@ -19,10 +21,12 @@ export interface JobPostingSummary {
   title: string;
   headline: string;
   employmentType: string;
+  recruitmentCategory: RecruitmentCategory;
+  recruitmentMode: RecruitmentMode;
   location: string;
   status: JobPostingStatus;
   opensAt: string;
-  closesAt: string;
+  closesAt: string | null;
   stepCount: number;
 }
 
@@ -43,10 +47,12 @@ export interface JobPostingDetail {
   headline: string;
   description: string;
   employmentType: string;
+  recruitmentCategory: RecruitmentCategory;
+  recruitmentMode: RecruitmentMode;
   location: string;
   status: JobPostingStatus;
   opensAt: string;
-  closesAt: string;
+  closesAt: string | null;
   steps: JobPostingStep[];
 }
 
@@ -98,7 +104,7 @@ export interface ResumeLanguage {
 }
 
 export interface SaveApplicationDraftPayload {
-  resumePayload: Record<string, string | number>;
+  resumePayload: Record<string, unknown>;
   educations?: ResumeEducation[];
   experiences?: ResumeExperience[];
   skills?: ResumeSkill[];
@@ -113,6 +119,43 @@ export interface ApplicationDraftResponse {
   status: ApplicationStatus;
   draftSavedAt: string;
   submittedAt: string | null;
+}
+
+export interface CandidateApplicationSummary {
+  applicationId: number;
+  jobPostingId: number;
+  jobPostingPublicKey: string;
+  jobPostingTitle: string;
+  jobPostingHeadline: string;
+  employmentType: string;
+  location: string;
+  status: ApplicationStatus;
+  reviewStatus: ApplicationReviewStatus;
+  finalStatus: ApplicationFinalStatus | null;
+  draftSavedAt: string;
+  submittedAt: string | null;
+  reviewedAt: string | null;
+  finalDecidedAt: string | null;
+}
+
+export interface CandidateApplicationDetail extends ApplicationDraftResponse {
+  jobPostingTitle: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicantPhone: string;
+  reviewStatus: ApplicationReviewStatus;
+  finalStatus: ApplicationFinalStatus | null;
+  reviewedAt: string | null;
+  finalDecidedAt: string | null;
+  resumePayload: Record<string, unknown>;
+  educations: ResumeEducation[];
+  experiences: ResumeExperience[];
+  skills: ResumeSkill[];
+  certifications: ResumeCertification[];
+  languages: ResumeLanguage[];
+  currentStep: number;
+  motivationFit: string | null;
+  answers: ApplicationAnswer[];
 }
 
 // 첨부파일
@@ -205,3 +248,22 @@ export type NotificationResponse = {
   sentByName: string | null;
   createdAt: string;
 };
+
+// 공고별 질문
+export type QuestionType = "TEXT" | "CHOICE" | "SCALE";
+
+export interface JobPostingQuestion {
+  id: number;
+  questionText: string;
+  questionType: QuestionType;
+  choices: string | null;
+  required: boolean;
+  sortOrder: number;
+}
+
+export interface ApplicationAnswer {
+  questionId: number;
+  answerText: string | null;
+  answerChoice: string | null;
+  answerScale: number | null;
+}

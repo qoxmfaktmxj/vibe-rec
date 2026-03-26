@@ -57,14 +57,14 @@ export function CandidateAuthForm({
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "Candidate authentication failed.");
+        setErrorMessage(responseBody.message ?? "지원자 인증에 실패했습니다.");
         return;
       }
 
       router.push(nextPath);
       router.refresh();
     } catch {
-      setErrorMessage("An unexpected error occurred during candidate authentication.");
+      setErrorMessage("지원자 인증 중 예기치 않은 오류가 발생했습니다.");
     } finally {
       setIsPending(false);
     }
@@ -74,28 +74,28 @@ export function CandidateAuthForm({
     event.preventDefault();
 
     if (!email.trim() || !password) {
-      setErrorMessage("Enter both email and password.");
+      setErrorMessage("이메일과 비밀번호를 입력해 주세요.");
       return;
     }
 
     if (mode === "signup") {
       if (!name.trim() || !phone.trim()) {
-        setErrorMessage("Enter name and phone number.");
+        setErrorMessage("이름과 휴대폰 번호를 입력해 주세요.");
         return;
       }
 
       if (password.length < 8) {
-        setErrorMessage("Password must be at least 8 characters.");
+        setErrorMessage("비밀번호는 8자 이상이어야 합니다.");
         return;
       }
 
       if (!/^[0-9+\-() ]{8,40}$/.test(phone.trim())) {
-        setErrorMessage("Enter a valid phone number.");
+        setErrorMessage("유효한 휴대폰 번호를 입력해 주세요.");
         return;
       }
 
       if (password !== confirmPassword) {
-        setErrorMessage("Password confirmation does not match.");
+        setErrorMessage("비밀번호 확인이 일치하지 않습니다.");
         return;
       }
     }
@@ -120,7 +120,7 @@ export function CandidateAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          Log in
+          로그인
         </button>
         <button
           type="button"
@@ -131,7 +131,7 @@ export function CandidateAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          Sign up
+          회원가입
         </button>
       </div>
 
@@ -148,14 +148,14 @@ export function CandidateAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="candidate-name"
             >
-              Name
+              이름
             </label>
             <input
               id="candidate-name"
               name="name"
               type="text"
               autoComplete="name"
-              placeholder="Jane Kim"
+              placeholder="김지원"
               className={inputClassName}
               value={name}
               disabled={isPending}
@@ -169,14 +169,14 @@ export function CandidateAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="candidate-email"
           >
-            Email
+            이메일
           </label>
           <input
             id="candidate-email"
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="applicant@example.com"
+            placeholder="example@company.com"
             className={inputClassName}
             value={email}
             disabled={isPending}
@@ -190,7 +190,7 @@ export function CandidateAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="candidate-phone"
             >
-              Phone
+              휴대전화
             </label>
             <input
               id="candidate-phone"
@@ -211,14 +211,14 @@ export function CandidateAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="candidate-password"
           >
-            Password
+            비밀번호
           </label>
           <input
             id="candidate-password"
             name="password"
             type="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            placeholder="Enter your password"
+            placeholder="비밀번호를 입력해 주세요"
             className={inputClassName}
             value={password}
             disabled={isPending}
@@ -232,14 +232,14 @@ export function CandidateAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="candidate-confirm-password"
             >
-              Confirm password
+              비밀번호 확인
             </label>
             <input
               id="candidate-confirm-password"
               name="confirmPassword"
               type="password"
               autoComplete="new-password"
-              placeholder="Re-enter your password"
+              placeholder="비밀번호를 다시 입력해 주세요"
               className={inputClassName}
               value={confirmPassword}
               disabled={isPending}
@@ -255,11 +255,11 @@ export function CandidateAuthForm({
         >
           {isPending
             ? mode === "signup"
-              ? "Creating account.."
-              : "Logging in.."
+              ? "회원가입 중.."
+              : "로그인 중.."
             : mode === "signup"
-              ? "Create candidate account"
-              : "Log in"}
+              ? "가입하기"
+              : "로그인"}
         </button>
       </form>
     </div>

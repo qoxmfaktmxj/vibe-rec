@@ -1,6 +1,6 @@
 spring:
   application:
-    name: vibe-rec-api
+    name: hireflow-api
   servlet:
     multipart:
       max-file-size: 10MB
@@ -36,7 +36,7 @@ management:
 
 info:
   app:
-    name: vibe-rec-api
+    name: hireflow-api
     phase: mvp-read-write-auth
 
 app:

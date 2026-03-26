@@ -8,10 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JobPostingRepository extends JpaRepository<JobPosting, Long> {
 
+    List<JobPosting> findAllByOrderByOpensAtDesc();
+
     @EntityGraph(attributePaths = "steps")
     List<JobPosting> findByPublishedTrueOrderByOpensAtDesc();
 
     @EntityGraph(attributePaths = "steps")
     Optional<JobPosting> findWithStepsById(Long id);
-}
 
+    boolean existsByPublicKey(String publicKey);
+
+    boolean existsByPublicKeyAndIdNot(String publicKey, Long id);
+}

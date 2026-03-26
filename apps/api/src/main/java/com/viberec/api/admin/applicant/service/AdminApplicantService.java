@@ -123,7 +123,12 @@ public class AdminApplicantService {
 
     private String normalizeFilterValue(String query) {
         String normalized = normalizeQuery(query);
-        return normalized == null ? "" : normalized;
+        return normalized == null ? "" : escapeLikeValue(normalized);
+    }
+
+    private String escapeLikeValue(String value) {
+        if (value == null) return null;
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 
     private String normalizeReviewNote(String reviewNote) {

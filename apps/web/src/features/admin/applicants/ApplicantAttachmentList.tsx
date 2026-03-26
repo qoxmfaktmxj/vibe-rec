@@ -1,4 +1,4 @@
-import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
+﻿import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import { formatDateTime } from "@/shared/lib/recruitment";
 
 interface ApplicantAttachmentListProps {
@@ -17,7 +17,7 @@ export function ApplicantAttachmentList({
   if (attachments.length === 0) {
     return (
       <p className="text-sm text-on-surface-variant">
-        첨부된 파일이 없습니다.
+        ?깅줉??泥⑤? ?뚯씪???놁뒿?덈떎.
       </p>
     );
   }
@@ -57,10 +57,11 @@ export function ApplicantAttachmentList({
             href={`/api/admin/attachments/${attachment.id}/download`}
             className="ml-4 shrink-0 rounded-lg bg-surface-container-high px-4 py-2 text-xs font-semibold text-on-surface transition hover:bg-surface-container-highest"
           >
-            다운로드
+            ?ㅼ슫濡쒕뱶
           </a>
         </li>
       ))}
     </ul>
   );
 }
+

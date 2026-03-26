@@ -11,7 +11,7 @@
 	<groupId>com.viberec</groupId>
 	<artifactId>api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>vibe-rec-api</name>
+	<name>hireflow-api</name>
 	<description>Recruitment modernization backend</description>
 	<url/>
 	<licenses>
