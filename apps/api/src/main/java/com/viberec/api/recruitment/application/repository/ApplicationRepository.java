@@ -31,17 +31,31 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findAllWithJobPosting();
 
     @Query("""
-            select distinct application
+            select application
             from Application application
             join fetch application.jobPosting jobPosting
             where (:jobPostingId is null or jobPosting.id = :jobPostingId)
               and (:applicationStatus is null or application.status = :applicationStatus)
               and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
+              and (:applicantName = '' or lower(application.applicantName) like concat('%', :applicantName, '%'))
+              and (:applicantEmail = '' or lower(application.applicantEmail) like concat('%', :applicantEmail, '%'))
+              and (:applicantPhone = '' or lower(application.applicantPhone) like concat('%', :applicantPhone, '%'))
+              and (
+                    :query = ''
+                    or lower(application.applicantName) like concat('%', :query, '%')
+                    or lower(application.applicantEmail) like concat('%', :query, '%')
+                    or lower(application.applicantPhone) like concat('%', :query, '%')
+                    or lower(jobPosting.title) like concat('%', :query, '%')
+              )
             order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
             """)
     List<Application> findAdminApplicants(
             @Param("jobPostingId") Long jobPostingId,
             @Param("applicationStatus") ApplicationStatus applicationStatus,
-            @Param("reviewStatus") ApplicationReviewStatus reviewStatus
+            @Param("reviewStatus") ApplicationReviewStatus reviewStatus,
+            @Param("applicantName") String applicantName,
+            @Param("applicantEmail") String applicantEmail,
+            @Param("applicantPhone") String applicantPhone,
+            @Param("query") String query
     );
 }

@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.viberec.api.admin.applicant.service.AdminApplicantService;
 import com.viberec.api.admin.applicant.web.UpdateApplicantReviewStatusRequest;
+import com.viberec.api.admin.hiring.service.AdminHiringDecisionService;
+import com.viberec.api.admin.hiring.web.FinalDecisionRequest;
+import com.viberec.api.recruitment.application.domain.ApplicationFinalStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
@@ -26,6 +29,9 @@ class AdminApplicantTests extends IntegrationTestBase {
 
     @Autowired
     private ApplicationDraftService applicationDraftService;
+
+    @Autowired
+    private AdminHiringDecisionService adminHiringDecisionService;
 
     @Autowired
     private ApplicationRepository applicationRepository;
@@ -117,6 +123,41 @@ class AdminApplicantTests extends IntegrationTestBase {
         );
 
         assertThat(passed.reviewStatus()).isEqualTo(ApplicationReviewStatus.PASSED);
+    }
+
+    @Test
+    void returnsApplicantDetailWithFinalDecisionFields() {
+        var candidate = createCandidateAccount("Decision Kim", "decision.kim@example.com", "010-1212-3434");
+        var submittedApplication = applicationDraftService.submit(
+                1001L,
+                candidate,
+                new SaveApplicationDraftRequest(
+                        Map.of(
+                                "introduction", "I have delivered applicant workflow APIs with explicit decision contracts.",
+                                "coreStrength", "I keep admin detail responses aligned with persisted final decision state."
+                        ),
+                        null, null, null, null, null
+                )
+        );
+
+        adminApplicantService.updateReviewStatus(
+                submittedApplication.applicationId(),
+                new UpdateApplicantReviewStatusRequest(ApplicationReviewStatus.IN_REVIEW, "Review started.")
+        );
+        adminApplicantService.updateReviewStatus(
+                submittedApplication.applicationId(),
+                new UpdateApplicantReviewStatusRequest(ApplicationReviewStatus.PASSED, "Candidate passed review.")
+        );
+        adminHiringDecisionService.makeFinalDecision(
+                submittedApplication.applicationId(),
+                new FinalDecisionRequest(ApplicationFinalStatus.OFFER_MADE, "Offer sent.")
+        );
+
+        var applicant = adminApplicantService.getApplicant(submittedApplication.applicationId());
+
+        assertThat(applicant.finalStatus()).isEqualTo(ApplicationFinalStatus.OFFER_MADE);
+        assertThat(applicant.finalNote()).isEqualTo("Offer sent.");
+        assertThat(applicant.finalDecidedAt()).isNotNull();
     }
 
     @Test

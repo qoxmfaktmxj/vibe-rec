@@ -1,9 +1,8 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import type {
-  InterviewResponse,
-} from "@/entities/recruitment/model";
+import type { InterviewResponse } from "@/entities/recruitment/model";
 import { ApplicantAttachmentList } from "@/features/admin/applicants/ApplicantAttachmentList";
 import { ApplicantReviewForm } from "@/features/admin/applicants/ApplicantReviewForm";
 import { HiringDecisionSection } from "@/features/admin/hiring/HiringDecisionSection";
@@ -20,6 +19,8 @@ import {
   getApplicationReviewStatusLabel,
   getApplicationStatusClassName,
   getApplicationStatusLabel,
+  getFinalStatusClassName,
+  getFinalStatusLabel,
 } from "@/shared/lib/recruitment";
 
 interface AdminApplicantDetailPageProps {
@@ -53,13 +54,58 @@ export default async function AdminApplicantDetailPage({
     getAdminJobPostingSteps(applicant.jobPostingId).catch(() => []),
   ]);
 
+  const finalOutcomeLabel = applicant.finalStatus
+    ? getFinalStatusLabel(applicant.finalStatus)
+    : "Pending";
+  const narrativeItems = [
+    applicant.introduction
+      ? { label: "Introduction", value: applicant.introduction }
+      : null,
+    applicant.coreStrength
+      ? { label: "Core strength", value: applicant.coreStrength }
+      : null,
+    applicant.careerYears !== null
+      ? { label: "Career years", value: `${applicant.careerYears} years` }
+      : null,
+  ].filter((item): item is { label: string; value: string } => item !== null);
+
+  const timelineMetrics = [
+    {
+      label: "Attachments",
+      value: attachments.length,
+      helper: "Candidate files",
+    },
+    {
+      label: "Interviews",
+      value: interviews.length,
+      helper: "Scheduled or completed",
+    },
+    {
+      label: "Notifications",
+      value: notifications.length,
+      helper: "Logged communication",
+    },
+    {
+      label: "Final outcome",
+      value: finalOutcomeLabel,
+      helper: applicant.finalDecidedAt
+        ? `Saved ${formatDateTime(applicant.finalDecidedAt)}`
+        : "No decision yet",
+    },
+  ];
+
+  const hasStructuredProfile =
+    applicant.educations.length > 0 ||
+    applicant.experiences.length > 0 ||
+    applicant.skills.length > 0 ||
+    applicant.certifications.length > 0 ||
+    applicant.languages.length > 0;
+
   return (
     <div className="space-y-8">
-      {/* Section 1: Applicant Info + Review Form */}
-      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-8">
-          {/* Applicant Info */}
-          <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
+      <section className="ambient-shadow rounded-[32px] border border-outline-variant/70 bg-card px-7 py-7">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+          <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
               <span
                 className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getApplicationStatusClassName(applicant.applicationStatus)}`}
@@ -71,227 +117,379 @@ export default async function AdminApplicantDetailPage({
               >
                 {getApplicationReviewStatusLabel(applicant.reviewStatus)}
               </span>
-              <span className="text-xs font-medium uppercase tracking-widest text-outline">
+              <span className="rounded-full bg-surface-container-low px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
                 {applicant.jobPostingPublicKey}
               </span>
+              {applicant.finalStatus ? (
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getFinalStatusClassName(applicant.finalStatus)}`}
+                >
+                  {finalOutcomeLabel}
+                </span>
+              ) : null}
             </div>
 
-            <div className="mt-5 space-y-3">
-              <h1 className="font-headline text-3xl font-bold text-on-surface">
+            <div className="space-y-3">
+              <h1 className="font-headline text-4xl font-semibold tracking-[-0.06em] text-on-surface">
                 {applicant.applicantName}
               </h1>
               <p className="text-sm leading-7 text-on-surface-variant">
-                {applicant.applicantEmail} &bull; {applicant.applicantPhone}
+                {[applicant.applicantEmail, applicant.applicantPhone]
+                  .filter(Boolean)
+                  .join(" / ")}
               </p>
-              <p className="text-sm text-outline">
-                지원 공고: {applicant.jobPostingTitle}
+              <p className="text-sm font-medium text-on-surface">
+                {applicant.jobPostingTitle}
               </p>
             </div>
+          </div>
 
-            <div className="mt-8 grid gap-4 rounded-xl bg-surface-container-low px-6 py-5 text-sm md:grid-cols-3">
-              <div>
-                <dt className="font-semibold text-on-surface-variant">
-                  임시저장
-                </dt>
-                <dd className="mt-1 font-medium text-on-surface">
-                  {formatDateTime(applicant.draftSavedAt)}
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-on-surface-variant">
-                  최종 제출
-                </dt>
-                <dd className="mt-1 font-medium text-on-surface">
-                  {formatDateTime(applicant.submittedAt)}
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-on-surface-variant">
-                  마지막 검토
-                </dt>
-                <dd className="mt-1 font-medium text-on-surface">
-                  {formatDateTime(applicant.reviewedAt)}
-                </dd>
-              </div>
-            </div>
-          </section>
-
-          {/* Attachments */}
-          <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-            <h2 className="mb-5 font-headline text-2xl font-bold text-on-surface">
-              첨부파일
-              <span className="ml-2 text-base font-normal text-outline">
-                {attachments.length}개
-              </span>
-            </h2>
-            <ApplicantAttachmentList attachments={attachments} />
-          </section>
-
-          {/* 정규화된 이력서 */}
-          {(applicant.educations.length > 0 ||
-            applicant.experiences.length > 0 ||
-            applicant.skills.length > 0 ||
-            applicant.certifications.length > 0 ||
-            applicant.languages.length > 0) ? (
-            <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8 space-y-6">
-              <h2 className="font-headline text-2xl font-bold text-on-surface">
-                이력서 상세
-              </h2>
-
-              {applicant.educations.length > 0 ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-on-surface-variant mb-3">학력</h3>
-                  <div className="space-y-3">
-                    {applicant.educations.map((edu) => (
-                      <div key={edu.id} className="rounded-lg bg-surface-container-low p-4 text-sm">
-                        <p className="font-semibold text-on-surface">{edu.institution}</p>
-                        <p className="text-on-surface-variant">
-                          {[edu.degree, edu.fieldOfStudy].filter(Boolean).join(" · ")}
-                        </p>
-                        {(edu.startDate ?? edu.endDate) ? (
-                          <p className="text-xs text-outline mt-1">
-                            {edu.startDate ?? "?"} ~ {edu.endDate ?? "재학 중"}
-                          </p>
-                        ) : null}
-                        {edu.description ? (
-                          <p className="mt-2 text-xs text-on-surface-variant whitespace-pre-line">{edu.description}</p>
-                        ) : null}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {applicant.experiences.length > 0 ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-on-surface-variant mb-3">경력</h3>
-                  <div className="space-y-3">
-                    {applicant.experiences.map((exp) => (
-                      <div key={exp.id} className="rounded-lg bg-surface-container-low p-4 text-sm">
-                        <p className="font-semibold text-on-surface">{exp.company}</p>
-                        {exp.position ? <p className="text-on-surface-variant">{exp.position}</p> : null}
-                        {(exp.startDate ?? exp.endDate) ? (
-                          <p className="text-xs text-outline mt-1">
-                            {exp.startDate ?? "?"} ~ {exp.endDate ?? "재직 중"}
-                          </p>
-                        ) : null}
-                        {exp.description ? (
-                          <p className="mt-2 text-xs text-on-surface-variant whitespace-pre-line">{exp.description}</p>
-                        ) : null}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {applicant.skills.length > 0 ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-on-surface-variant mb-3">스킬</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {applicant.skills.map((skill) => (
-                      <span key={skill.id} className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-                        {skill.skillName}
-                        {skill.proficiency ? <span className="text-primary/60">· {skill.proficiency}</span> : null}
-                        {skill.years ? <span className="text-primary/60">· {skill.years}년</span> : null}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {applicant.certifications.length > 0 ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-on-surface-variant mb-3">자격증</h3>
-                  <div className="space-y-2">
-                    {applicant.certifications.map((cert) => (
-                      <div key={cert.id} className="rounded-lg bg-surface-container-low p-4 text-sm">
-                        <p className="font-semibold text-on-surface">{cert.certificationName}</p>
-                        {cert.issuer ? <p className="text-on-surface-variant">{cert.issuer}</p> : null}
-                        {cert.issuedDate ? <p className="text-xs text-outline mt-1">취득일: {cert.issuedDate}</p> : null}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {applicant.languages.length > 0 ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-on-surface-variant mb-3">어학</h3>
-                  <div className="space-y-2">
-                    {applicant.languages.map((lang) => (
-                      <div key={lang.id} className="rounded-lg bg-surface-container-low p-4 text-sm">
-                        <p className="font-semibold text-on-surface">
-                          {lang.languageName}
-                          {lang.proficiency ? <span className="ml-2 font-normal text-on-surface-variant">({lang.proficiency})</span> : null}
-                        </p>
-                        {lang.testName ? (
-                          <p className="text-xs text-outline mt-1">
-                            {lang.testName}{lang.testScore ? `: ${lang.testScore}` : ""}
-                          </p>
-                        ) : null}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </section>
-          ) : null}
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/admin/applicants"
+              className="inline-flex items-center justify-center rounded-xl border border-outline px-4 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              Back to applicants
+            </Link>
+          </div>
         </div>
 
-        <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
-          <ApplicantReviewForm applicant={applicant} />
-
-          <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-7">
-            <h2 className="font-headline text-xl font-bold text-on-surface">
-              검토 메모
-            </h2>
-            <p className="mt-4 whitespace-pre-line text-sm leading-7 text-on-surface-variant">
-              {applicant.reviewNote ?? "아직 저장된 검토 메모가 없습니다."}
-            </p>
-          </section>
-        </aside>
-      </div>
-
-      {/* Section 2: Resume Payload */}
-      <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="font-headline text-2xl font-bold text-on-surface">
-            지원서 원문
-          </h2>
-          <Link
-            href="/admin/applicants"
-            className="rounded-lg bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
-          >
-            목록으로
-          </Link>
+        <div className="mt-7 grid gap-4 lg:grid-cols-4">
+          <SummaryCard
+            label="Draft saved"
+            value={formatDateTime(applicant.draftSavedAt)}
+          />
+          <SummaryCard
+            label="Submitted"
+            value={formatDateTime(applicant.submittedAt)}
+          />
+          <SummaryCard
+            label="Last reviewed"
+            value={formatDateTime(applicant.reviewedAt)}
+          />
+          <SummaryCard label="Current final state" value={finalOutcomeLabel} />
         </div>
-
-        <pre className="mt-6 overflow-x-auto rounded-xl bg-[#1e2022] p-5 text-xs leading-6 text-[#e1e3e4]">
-          {JSON.stringify(applicant.resumePayload, null, 2)}
-        </pre>
       </section>
 
-      {/* Section 3: Interview Timeline */}
-      <InterviewSection
-        applicationId={applicationId}
-        interviews={interviews}
-        steps={steps}
-      />
+      <section className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_360px]">
+        <div className="space-y-8">
+          <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+              <div className="space-y-2">
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+                  Candidate snapshot
+                </p>
+                <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+                  Workflow context before you act
+                </h2>
+              </div>
+            </div>
 
-      {/* Section 4: Hiring Decision (only if review PASSED) */}
-      <HiringDecisionSection
-        applicationId={applicationId}
-        currentFinalStatus={applicant.finalStatus}
-        currentNote={applicant.finalNote}
-        currentDecidedAt={applicant.finalDecidedAt}
-        reviewStatus={applicant.reviewStatus}
-      />
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {timelineMetrics.map((metric) => (
+                <MetricCard
+                  key={metric.label}
+                  label={metric.label}
+                  value={metric.value}
+                  helper={metric.helper}
+                />
+              ))}
+            </div>
+          </section>
 
-      {/* Section 5: Notification History */}
-      <NotificationSection
-        applicationId={applicationId}
-        notifications={notifications}
-      />
+          {narrativeItems.length > 0 ? (
+            <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+                  Candidate narrative
+                </p>
+                <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+                  What stands out before the next decision
+                </h2>
+              </div>
+
+              <div className="mt-6 grid gap-4 xl:grid-cols-3">
+                {narrativeItems.map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-5 py-4"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+                      {item.label}
+                    </p>
+                    <p className="mt-3 whitespace-pre-line text-sm leading-7 text-on-surface">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <InterviewSection
+            applicationId={applicationId}
+            interviews={interviews}
+            steps={steps}
+          />
+
+          <NotificationSection
+            applicationId={applicationId}
+            notifications={notifications}
+          />
+
+          <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+                  Attachments
+                </p>
+                <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+                  Candidate files
+                </h2>
+              </div>
+              <span className="rounded-full bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface-variant">
+                {attachments.length} file{attachments.length === 1 ? "" : "s"}
+              </span>
+            </div>
+            <div className="mt-6">
+              <ApplicantAttachmentList attachments={attachments} />
+            </div>
+          </section>
+
+          {hasStructuredProfile ? (
+            <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+                  Structured profile
+                </p>
+                <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+                  Normalized resume details
+                </h2>
+              </div>
+
+              <div className="mt-6 space-y-8">
+                {applicant.educations.length > 0 ? (
+                  <InfoListSection title="Education">
+                    {applicant.educations.map((education) => (
+                      <InfoCard
+                        key={education.id}
+                        title={education.institution}
+                        subtitle={[education.degree, education.fieldOfStudy]
+                          .filter(Boolean)
+                          .join(" / ")}
+                        meta={
+                          education.startDate || education.endDate
+                            ? `${education.startDate ?? "Unknown"} - ${education.endDate ?? "Present"}`
+                            : undefined
+                        }
+                        description={education.description ?? undefined}
+                      />
+                    ))}
+                  </InfoListSection>
+                ) : null}
+
+                {applicant.experiences.length > 0 ? (
+                  <InfoListSection title="Experience">
+                    {applicant.experiences.map((experience) => (
+                      <InfoCard
+                        key={experience.id}
+                        title={experience.company}
+                        subtitle={experience.position ?? undefined}
+                        meta={
+                          experience.startDate || experience.endDate
+                            ? `${experience.startDate ?? "Unknown"} - ${experience.endDate ?? "Present"}`
+                            : undefined
+                        }
+                        description={experience.description ?? undefined}
+                      />
+                    ))}
+                  </InfoListSection>
+                ) : null}
+
+                {applicant.skills.length > 0 ? (
+                  <InfoListSection title="Skills">
+                    <div className="flex flex-wrap gap-2">
+                      {applicant.skills.map((skill) => (
+                        <span
+                          key={skill.id}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"
+                        >
+                          {skill.skillName}
+                          {skill.proficiency ? (
+                            <span className="text-primary/60">
+                              {" / "}
+                              {skill.proficiency}
+                            </span>
+                          ) : null}
+                          {skill.years ? (
+                            <span className="text-primary/60">
+                              {" / "}
+                              {skill.years} yrs
+                            </span>
+                          ) : null}
+                        </span>
+                      ))}
+                    </div>
+                  </InfoListSection>
+                ) : null}
+
+                {applicant.certifications.length > 0 ? (
+                  <InfoListSection title="Certifications">
+                    {applicant.certifications.map((certification) => (
+                      <InfoCard
+                        key={certification.id}
+                        title={certification.certificationName}
+                        subtitle={certification.issuer ?? undefined}
+                        meta={
+                          certification.issuedDate
+                            ? `Issued ${certification.issuedDate}`
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </InfoListSection>
+                ) : null}
+
+                {applicant.languages.length > 0 ? (
+                  <InfoListSection title="Languages">
+                    {applicant.languages.map((language) => (
+                      <InfoCard
+                        key={language.id}
+                        title={language.languageName}
+                        subtitle={language.proficiency ?? undefined}
+                        meta={
+                          language.testName
+                            ? `${language.testName}${language.testScore ? `: ${language.testScore}` : ""}`
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </InfoListSection>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
+
+          <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+                  Raw payload
+                </p>
+                <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+                  Original application data
+                </h2>
+              </div>
+            </div>
+
+            <details className="mt-6 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-5 py-4">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-on-surface marker:hidden">
+                Show original payload
+              </summary>
+              <p className="mt-2 text-sm leading-7 text-on-surface-variant">
+                Open this only when the normalized profile above is missing
+                context or the source payload needs verification.
+              </p>
+              <pre className="mt-4 max-h-[420px] overflow-auto rounded-2xl bg-[#1e2022] p-5 text-xs leading-6 text-[#e1e3e4]">
+                {JSON.stringify(applicant.resumePayload, null, 2)}
+              </pre>
+            </details>
+          </section>
+        </div>
+
+        <aside className="space-y-8 xl:sticky xl:top-8 xl:self-start">
+          <ApplicantReviewForm applicant={applicant} />
+
+          <HiringDecisionSection
+            applicationId={applicationId}
+            currentFinalStatus={applicant.finalStatus}
+            currentNote={applicant.finalNote}
+            currentDecidedAt={applicant.finalDecidedAt}
+            reviewStatus={applicant.reviewStatus}
+          />
+        </aside>
+      </section>
+    </div>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+        {label}
+      </p>
+      <p className="mt-3 text-sm font-semibold text-on-surface">{value}</p>
+    </div>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  helper,
+}: {
+  label: string;
+  value: number | string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+        {label}
+      </p>
+      <p className="mt-3 font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
+        {value}
+      </p>
+      <p className="mt-2 text-sm text-on-surface-variant">{helper}</p>
+    </div>
+  );
+}
+
+function InfoListSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+        {title}
+      </h3>
+      <div className="mt-3 space-y-3">{children}</div>
+    </div>
+  );
+}
+
+function InfoCard({
+  title,
+  subtitle,
+  meta,
+  description,
+}: {
+  title: string;
+  subtitle?: string;
+  meta?: string;
+  description?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low p-4 text-sm">
+      <p className="font-semibold text-on-surface">{title}</p>
+      {subtitle ? <p className="text-on-surface-variant">{subtitle}</p> : null}
+      {meta ? <p className="mt-1 text-xs text-outline">{meta}</p> : null}
+      {description ? (
+        <p className="mt-2 whitespace-pre-line text-xs leading-6 text-on-surface-variant">
+          {description}
+        </p>
+      ) : null}
     </div>
   );
 }

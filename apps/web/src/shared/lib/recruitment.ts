@@ -45,11 +45,11 @@ export function formatDateRange(startAt: string | null, endAt: string | null) {
 export function getJobPostingStatusLabel(status: JobPostingStatus) {
   switch (status) {
     case "DRAFT":
-      return "준비 중";
+      return "Draft";
     case "OPEN":
-      return "모집 중";
+      return "Open";
     case "CLOSED":
-      return "마감";
+      return "Closed";
     default:
       return status;
   }
@@ -71,13 +71,13 @@ export function getJobPostingStatusClassName(status: JobPostingStatus) {
 export function getStepTypeLabel(stepType: JobPostingStepType) {
   switch (stepType) {
     case "DOCUMENT":
-      return "서류";
+      return "Document";
     case "ASSIGNMENT":
-      return "과제";
+      return "Assignment";
     case "INTERVIEW":
-      return "면접";
+      return "Interview";
     case "OFFER":
-      return "오퍼";
+      return "Offer";
     default:
       return stepType;
   }
@@ -86,9 +86,9 @@ export function getStepTypeLabel(stepType: JobPostingStepType) {
 export function getApplicationStatusLabel(status: ApplicationStatus) {
   switch (status) {
     case "DRAFT":
-      return "임시저장";
+      return "Draft";
     case "SUBMITTED":
-      return "제출 완료";
+      return "Submitted";
     default:
       return status;
   }
@@ -110,13 +110,13 @@ export function getApplicationReviewStatusLabel(
 ) {
   switch (reviewStatus) {
     case "NEW":
-      return "신규";
+      return "New";
     case "IN_REVIEW":
-      return "검토 중";
+      return "In review";
     case "PASSED":
-      return "통과";
+      return "Passed";
     case "REJECTED":
-      return "보류/불합격";
+      return "Rejected";
     default:
       return reviewStatus;
   }
@@ -151,40 +151,40 @@ export function getDraftAvailability(posting: {
   if (posting.status !== "OPEN") {
     return {
       canSave: false,
-      reason: "현재는 지원을 받을 수 없는 공고입니다.",
+      reason: "This posting is not accepting new applications right now.",
     };
   }
 
   if (now < opensAt) {
     return {
       canSave: false,
-      reason: "지원 기간이 시작되면 임시저장할 수 있습니다.",
+      reason: "Draft saving becomes available when the application window opens.",
     };
   }
 
   if (now > closesAt) {
     return {
       canSave: false,
-      reason: "지원 기간이 마감되어 임시저장할 수 없습니다.",
+      reason: "The application window is closed, so drafts can no longer be saved.",
     };
   }
 
   return {
     canSave: true,
-    reason: "지원서를 임시저장한 뒤, 지원 기간 안에 최종 제출할 수 있습니다.",
+    reason: "Applicants can save a draft now and submit it before the posting closes.",
   };
 }
 
 export function getInterviewStatusLabel(status: InterviewStatus) {
   switch (status) {
     case "SCHEDULED":
-      return "예정";
+      return "Scheduled";
     case "COMPLETED":
-      return "완료";
+      return "Completed";
     case "CANCELLED":
-      return "취소";
+      return "Cancelled";
     case "NO_SHOW":
-      return "불참";
+      return "No show";
     default:
       return status;
   }
@@ -208,13 +208,13 @@ export function getInterviewStatusClassName(status: InterviewStatus) {
 export function getEvaluationResultLabel(result: EvaluationResult) {
   switch (result) {
     case "PENDING":
-      return "대기";
+      return "Pending";
     case "PASS":
-      return "통과";
+      return "Pass";
     case "FAIL":
-      return "불합격";
+      return "Fail";
     case "HOLD":
-      return "보류";
+      return "Hold";
     default:
       return result;
   }
@@ -238,13 +238,13 @@ export function getEvaluationResultClassName(result: EvaluationResult) {
 export function getFinalStatusLabel(status: ApplicationFinalStatus) {
   switch (status) {
     case "OFFER_MADE":
-      return "오퍼 발송";
+      return "Offer made";
     case "ACCEPTED":
-      return "수락";
+      return "Accepted";
     case "DECLINED":
-      return "거절";
+      return "Declined";
     case "WITHDRAWN":
-      return "철회";
+      return "Withdrawn";
     default:
       return status;
   }
@@ -268,15 +268,15 @@ export function getFinalStatusClassName(status: ApplicationFinalStatus) {
 export function getDegreeLabel(degree: string) {
   switch (degree) {
     case "HIGH_SCHOOL":
-      return "고졸";
+      return "High school";
     case "ASSOCIATE":
-      return "전문학사";
+      return "Associate";
     case "BACHELOR":
-      return "학사";
+      return "Bachelor";
     case "MASTER":
-      return "석사";
+      return "Master";
     case "DOCTORATE":
-      return "박사";
+      return "Doctorate";
     default:
       return degree;
   }
@@ -285,13 +285,13 @@ export function getDegreeLabel(degree: string) {
 export function getNotificationTypeLabel(type: string) {
   switch (type) {
     case "OFFER":
-      return "오퍼";
+      return "Offer";
     case "REJECTION":
-      return "불합격 안내";
+      return "Rejection";
     case "INTERVIEW_INVITE":
-      return "면접 안내";
+      return "Interview invite";
     case "GENERAL":
-      return "일반";
+      return "General";
     default:
       return type;
   }

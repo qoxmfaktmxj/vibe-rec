@@ -15,12 +15,12 @@ function getApplicationStatusMeta(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
       return {
-        label: "제출 완료",
+        label: "Submitted",
         className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
       };
     case "DRAFT":
       return {
-        label: "임시 저장",
+        label: "Draft",
         className: "bg-amber-50 text-amber-800 ring-amber-200",
       };
     default:
@@ -35,22 +35,22 @@ function getReviewStatusMeta(status: ApplicationReviewStatus) {
   switch (status) {
     case "NEW":
       return {
-        label: "신규",
+        label: "New",
         className: "bg-primary-container text-primary ring-primary/10",
       };
     case "IN_REVIEW":
       return {
-        label: "검토 중",
+        label: "In review",
         className: "bg-sky-50 text-sky-800 ring-sky-200",
       };
     case "PASSED":
       return {
-        label: "통과",
+        label: "Passed",
         className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
       };
     case "REJECTED":
       return {
-        label: "불합격",
+        label: "Rejected",
         className: "bg-rose-50 text-rose-800 ring-rose-200",
       };
     default:
@@ -66,24 +66,39 @@ export function AdminApplicantTable({
 }: AdminApplicantTableProps) {
   if (applicants.length === 0) {
     return (
-      <section className="rounded-sm border border-outline-variant bg-card p-10 text-center text-sm text-on-surface-variant">
-        현재 필터 조건에 맞는 지원자가 없습니다.
+      <section className="ambient-shadow rounded-[28px] border border-dashed border-outline-variant bg-card px-6 py-14 text-center">
+        <p className="font-headline text-2xl font-semibold tracking-[-0.04em] text-on-surface">
+          No applicants match these filters
+        </p>
+        <p className="mt-3 text-sm leading-7 text-on-surface-variant">
+          Widen the search or clear a filter to bring more candidates back into
+          view.
+        </p>
       </section>
     );
   }
 
   return (
-    <section className="overflow-hidden rounded-sm border border-outline-variant bg-card shadow-[0_10px_30px_-24px_rgba(31,41,55,0.28)]">
+    <section className="ambient-shadow overflow-hidden rounded-[28px] border border-outline-variant/70 bg-card">
+      <div className="border-b border-outline-variant/70 px-6 py-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
+          Candidate list
+        </p>
+        <h3 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+          Active applicants
+        </h3>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-sm">
-          <thead className="bg-surface-container">
-            <tr className="border-b border-outline text-[12px] font-semibold tracking-[0.01em] text-on-surface">
-              <th className="px-6 py-3.5">지원자</th>
-              <th className="px-6 py-3.5">공고</th>
-              <th className="px-6 py-3.5">상태</th>
-              <th className="px-6 py-3.5">검토 상태</th>
-              <th className="px-6 py-3.5">갱신 시각</th>
-              <th className="px-6 py-3.5 text-right">열기</th>
+          <thead className="bg-surface-container-low">
+            <tr className="border-b border-outline-variant text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <th className="px-6 py-4">Candidate</th>
+              <th className="px-6 py-4">Posting</th>
+              <th className="px-6 py-4">Application</th>
+              <th className="px-6 py-4">Review</th>
+              <th className="px-6 py-4">Last activity</th>
+              <th className="px-6 py-4 text-right">Open</th>
             </tr>
           </thead>
           <tbody>
@@ -92,51 +107,66 @@ export function AdminApplicantTable({
                 applicant.applicationStatus,
               );
               const reviewStatus = getReviewStatusMeta(applicant.reviewStatus);
+              const activityTimestamp =
+                applicant.reviewedAt ?? applicant.submittedAt ?? applicant.draftSavedAt;
 
               return (
                 <tr
                   key={applicant.applicationId}
-                  className="border-b border-outline-variant transition-colors hover:bg-surface-container-low/70 last:border-b-0"
+                  className="border-b border-outline-variant/70 align-top transition-colors hover:bg-surface-container-low/50 last:border-b-0"
                 >
-                  <td className="px-6 py-5 align-top">
-                    <p className="font-headline text-base font-medium tracking-[-0.03em] text-on-surface">
-                      {applicant.applicantName}
+                  <td className="px-6 py-5">
+                    <div className="space-y-1.5">
+                      <p className="font-headline text-lg font-semibold tracking-[-0.04em] text-on-surface">
+                        {applicant.applicantName}
+                      </p>
+                      <p className="text-sm text-on-surface-variant">
+                        {applicant.applicantEmail}
+                      </p>
+                      <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-on-surface-variant">
+                        {applicant.applicantPhone}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-5">
+                    <p className="font-medium text-on-surface">
+                      {applicant.jobPostingTitle}
                     </p>
-                    <p className="mt-1 text-sm text-on-surface-variant">
-                      {applicant.applicantEmail}
-                    </p>
-                    <p className="mt-1 font-mono text-[11px] tracking-[0.08em] text-on-surface-variant">
-                      {applicant.applicantPhone}
+                    <p className="mt-1 text-xs text-on-surface-variant">
+                      Application #{applicant.applicationId}
                     </p>
                   </td>
-                  <td className="px-6 py-5 align-top text-sm font-medium text-on-surface">
-                    {applicant.jobPostingTitle}
-                  </td>
-                  <td className="px-6 py-5 align-top">
+
+                  <td className="px-6 py-5">
                     <span
-                      className={`inline-flex min-w-[88px] items-center justify-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset ${applicationStatus.className}`}
+                      className={`inline-flex min-w-[96px] items-center justify-center rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${applicationStatus.className}`}
                     >
                       {applicationStatus.label}
                     </span>
                   </td>
-                  <td className="px-6 py-5 align-top">
+
+                  <td className="px-6 py-5">
                     <span
-                      className={`inline-flex min-w-[88px] items-center justify-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset ${reviewStatus.className}`}
+                      className={`inline-flex min-w-[96px] items-center justify-center rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${reviewStatus.className}`}
                     >
                       {reviewStatus.label}
                     </span>
                   </td>
-                  <td className="px-6 py-5 align-top text-sm text-on-surface-variant">
-                    {formatDateTime(
-                      applicant.submittedAt ?? applicant.draftSavedAt,
-                    )}
+
+                  <td className="px-6 py-5 text-sm text-on-surface-variant">
+                    <p>{formatDateTime(activityTimestamp)}</p>
+                    <p className="mt-1 text-xs">
+                      Submitted: {formatDateTime(applicant.submittedAt)}
+                    </p>
                   </td>
-                  <td className="px-6 py-5 text-right align-top">
+
+                  <td className="px-6 py-5 text-right">
                     <Link
                       href={`/admin/applicants/${applicant.applicationId}`}
-                      className="inline-flex rounded-sm border border-on-surface px-3 py-2 text-xs font-medium tracking-[0.06em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                      className="inline-flex items-center justify-center rounded-xl border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                     >
-                      보기
+                      Open
                     </Link>
                   </td>
                 </tr>

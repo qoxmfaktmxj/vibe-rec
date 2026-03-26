@@ -1,5 +1,6 @@
 package com.viberec.api.admin.applicant.web;
 
+import com.viberec.api.recruitment.application.domain.ApplicationFinalStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import com.viberec.api.recruitment.application.web.ResumeCertificationDto;
@@ -25,6 +26,9 @@ public record AdminApplicantDetailResponse(
         OffsetDateTime draftSavedAt,
         OffsetDateTime submittedAt,
         OffsetDateTime reviewedAt,
+        ApplicationFinalStatus finalStatus,
+        OffsetDateTime finalDecidedAt,
+        String finalNote,
         Map<String, Object> resumePayload,
         List<ResumeEducationDto> educations,
         List<ResumeExperienceDto> experiences,

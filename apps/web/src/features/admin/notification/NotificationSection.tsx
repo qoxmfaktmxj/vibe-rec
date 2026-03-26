@@ -16,14 +16,14 @@ interface NotificationSectionProps {
 }
 
 const notificationTypeOptions = [
-  { value: "OFFER", label: "오퍼" },
-  { value: "REJECTION", label: "불합격 통보" },
-  { value: "INTERVIEW_INVITE", label: "면접 안내" },
-  { value: "GENERAL", label: "일반" },
+  { value: "OFFER", label: "Offer" },
+  { value: "REJECTION", label: "Rejection" },
+  { value: "INTERVIEW_INVITE", label: "Interview invite" },
+  { value: "GENERAL", label: "General" },
 ];
 
 const inputClassName =
-  "mt-2 w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
 
 export function NotificationSection({
   applicationId,
@@ -59,11 +59,11 @@ export function NotificationSection({
           const body = (await response.json()) as { message?: string };
           if (!response.ok) {
             setIsError(true);
-            setMessage(body.message ?? "통지를 발송하지 못했습니다.");
+            setMessage(body.message ?? "Could not send the notification.");
             return;
           }
 
-          setMessage("통지를 발송했습니다.");
+          setMessage("Notification logged.");
           setShowForm(false);
           setType("GENERAL");
           setTitle("");
@@ -71,7 +71,7 @@ export function NotificationSection({
           router.refresh();
         } catch {
           setIsError(true);
-          setMessage("통지 발송 중 오류가 발생했습니다.");
+          setMessage("A network error prevented the notification update.");
         } finally {
           setIsPending(false);
         }
@@ -80,23 +80,35 @@ export function NotificationSection({
   }
 
   return (
-    <section className="ambient-shadow rounded-xl bg-surface-container-lowest p-8">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="font-headline text-2xl font-bold text-on-surface">
-          통지 이력
-        </h2>
+    <section className="ambient-shadow rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-3">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+            Candidate communication
+          </p>
+          <div className="space-y-2">
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+              Keep outbound messages visible
+            </h2>
+            <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
+              Log what the candidate was told so anyone picking up the workflow
+              understands the latest communication immediately.
+            </p>
+          </div>
+        </div>
+
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
+          className="rounded-xl bg-surface-container-high px-4 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
         >
-          {showForm ? "취소" : "새 통지"}
+          {showForm ? "Hide composer" : "Add notification"}
         </button>
       </div>
 
       {message ? (
         <div
-          className={`mt-5 rounded-lg px-4 py-3 text-sm ${
+          className={`mt-5 rounded-xl px-4 py-3 text-sm ${
             isError
               ? "bg-error-container text-destructive"
               : "bg-secondary-container text-[#00731e]"
@@ -106,47 +118,48 @@ export function NotificationSection({
         </div>
       ) : null}
 
-      {/* New Notification Form */}
       {showForm ? (
         <form
           onSubmit={handleSubmit}
-          className="mt-6 space-y-4 rounded-xl bg-surface-container-low p-6"
+          className="mt-6 space-y-4 rounded-2xl border border-outline-variant/70 bg-surface-container-low p-6"
         >
-          <h3 className="text-sm font-semibold text-on-surface-variant">
-            새 통지 작성
+          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+            New notification
           </h3>
 
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            유형
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              disabled={isPending}
-              className={inputClassName}
-            >
-              {notificationTypeOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
+            <label className="block text-sm font-semibold text-on-surface-variant">
+              Type
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                disabled={isPending}
+                className={inputClassName}
+              >
+                {notificationTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block text-sm font-semibold text-on-surface-variant">
+              Title
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                disabled={isPending}
+                className={inputClassName}
+                placeholder="Short summary for the activity feed"
+              />
+            </label>
+          </div>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            제목
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              disabled={isPending}
-              className={inputClassName}
-              placeholder="통지 제목을 입력하세요."
-            />
-          </label>
-
-          <label className="block text-sm font-semibold text-on-surface-variant">
-            내용
+            Message
             <textarea
               rows={4}
               value={content}
@@ -154,31 +167,36 @@ export function NotificationSection({
               required
               disabled={isPending}
               className={`${inputClassName} resize-y`}
-              placeholder="통지 내용을 입력하세요."
+              placeholder="Capture the exact message or a concise summary of what was sent."
             />
           </label>
 
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-lg bg-gradient-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? "발송 중..." : "통지 발송"}
+            {isPending ? "Saving..." : "Save notification"}
           </button>
         </form>
       ) : null}
 
-      {/* Notification History */}
       {notifications.length === 0 ? (
-        <p className="mt-6 text-sm text-on-surface-variant">
-          발송된 통지가 없습니다.
-        </p>
+        <div className="mt-6 rounded-2xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
+          <p className="text-sm font-semibold text-on-surface">
+            No notifications yet
+          </p>
+          <p className="mt-2 text-sm leading-7 text-on-surface-variant">
+            Add the first communication entry to create a visible history for
+            this applicant.
+          </p>
+        </div>
       ) : (
         <div className="mt-6 space-y-3">
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className="rounded-xl bg-surface-container-low px-6 py-4"
+              className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-6 py-4"
             >
               <div className="flex flex-wrap items-center gap-3">
                 <span
@@ -198,7 +216,7 @@ export function NotificationSection({
               </p>
               {notification.sentByName ? (
                 <p className="mt-2 text-xs text-outline">
-                  발송: {notification.sentByName}
+                  Logged by {notification.sentByName}
                 </p>
               ) : null}
             </div>

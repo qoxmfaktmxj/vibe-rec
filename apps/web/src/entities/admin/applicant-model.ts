@@ -1,4 +1,5 @@
 import type {
+  ApplicationFinalStatus,
   ApplicationStatus,
   ResumeCertification,
   ResumeEducation,
@@ -39,7 +40,7 @@ export interface AdminApplicantDetail extends AdminApplicantSummary {
   introduction: string | null;
   coreStrength: string | null;
   careerYears: number | null;
-  finalStatus: string | null;
+  finalStatus: ApplicationFinalStatus | null;
   finalDecidedAt: string | null;
   finalNote: string | null;
 }

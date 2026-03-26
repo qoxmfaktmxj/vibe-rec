@@ -72,9 +72,13 @@ class AdminHiringDecisionTests extends IntegrationTestBase {
 
         var offer = adminHiringDecisionService.makeFinalDecision(applicationId, new FinalDecisionRequest(ApplicationFinalStatus.OFFER_MADE, "Offer extended"));
         var accepted = adminHiringDecisionService.makeFinalDecision(applicationId, new FinalDecisionRequest(ApplicationFinalStatus.ACCEPTED, "Offer accepted"));
+        var applicant = adminApplicantService.getApplicant(applicationId);
 
         assertThat(offer.finalStatus()).isEqualTo(ApplicationFinalStatus.OFFER_MADE);
         assertThat(accepted.finalStatus()).isEqualTo(ApplicationFinalStatus.ACCEPTED);
+        assertThat(applicant.finalStatus()).isEqualTo(ApplicationFinalStatus.ACCEPTED);
+        assertThat(applicant.finalNote()).isEqualTo("Offer accepted");
+        assertThat(applicant.finalDecidedAt()).isNotNull();
 
         assertThatThrownBy(() -> adminHiringDecisionService.makeFinalDecision(
                 applicationId,

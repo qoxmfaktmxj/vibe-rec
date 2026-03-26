@@ -14,7 +14,6 @@ import com.viberec.api.recruitment.application.web.ResumeEducationDto;
 import com.viberec.api.recruitment.application.web.ResumeExperienceDto;
 import com.viberec.api.recruitment.application.web.ResumeLanguageDto;
 import com.viberec.api.recruitment.application.web.ResumeSkillDto;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -49,20 +48,15 @@ public class AdminApplicantService {
             String applicantPhone,
             String query
     ) {
-        String normalizedApplicantName = normalizeQuery(applicantName);
-        String normalizedApplicantEmail = normalizeQuery(applicantEmail);
-        String normalizedApplicantPhone = normalizeQuery(applicantPhone);
-        String normalizedQuery = normalizeQuery(query);
-
-        return applicationRepository.findAllWithJobPosting().stream()
-                .filter(application -> jobPostingId == null || application.getJobPosting().getId().equals(jobPostingId))
-                .filter(application -> applicationStatus == null || application.getStatus() == applicationStatus)
-                .filter(application -> reviewStatus == null || application.getReviewStatus() == reviewStatus)
-                .filter(application -> matches(application.getApplicantName(), normalizedApplicantName))
-                .filter(application -> matches(application.getApplicantEmail(), normalizedApplicantEmail))
-                .filter(application -> matches(application.getApplicantPhone(), normalizedApplicantPhone))
-                .filter(application -> matchesAny(application, normalizedQuery))
-                .sorted((left, right) -> compareRecency(left, right))
+        return applicationRepository.findAdminApplicants(
+                        jobPostingId,
+                        applicationStatus,
+                        reviewStatus,
+                        normalizeFilterValue(applicantName),
+                        normalizeFilterValue(applicantEmail),
+                        normalizeFilterValue(applicantPhone),
+                        normalizeFilterValue(query)
+                ).stream()
                 .map(this::toSummaryResponse)
                 .toList();
     }
@@ -127,6 +121,11 @@ public class AdminApplicantService {
         return normalized.isEmpty() ? null : normalized;
     }
 
+    private String normalizeFilterValue(String query) {
+        String normalized = normalizeQuery(query);
+        return normalized == null ? "" : normalized;
+    }
+
     private String normalizeReviewNote(String reviewNote) {
         if (reviewNote == null) {
             return null;
@@ -134,28 +133,6 @@ public class AdminApplicantService {
 
         String normalized = reviewNote.trim();
         return normalized.isEmpty() ? null : normalized;
-    }
-
-    private boolean matches(String value, String query) {
-        return query == null || (value != null && value.toLowerCase().contains(query));
-    }
-
-    private boolean matchesAny(Application application, String query) {
-        if (query == null) {
-            return true;
-        }
-
-        return matches(application.getApplicantName(), query)
-                || matches(application.getApplicantEmail(), query)
-                || matches(application.getApplicantPhone(), query)
-                || matches(application.getJobPosting().getTitle(), query);
-    }
-
-    private int compareRecency(Application left, Application right) {
-        OffsetDateTime leftTimestamp = left.getSubmittedAt() != null ? left.getSubmittedAt() : left.getDraftSavedAt();
-        OffsetDateTime rightTimestamp = right.getSubmittedAt() != null ? right.getSubmittedAt() : right.getDraftSavedAt();
-        int timestampCompare = rightTimestamp.compareTo(leftTimestamp);
-        return timestampCompare != 0 ? timestampCompare : right.getId().compareTo(left.getId());
     }
 
     private AdminApplicantSummaryResponse toSummaryResponse(Application application) {
@@ -196,6 +173,9 @@ public class AdminApplicantService {
                 application.getDraftSavedAt(),
                 application.getSubmittedAt(),
                 application.getReviewedAt(),
+                application.getFinalStatus(),
+                application.getFinalDecidedAt(),
+                application.getFinalNote(),
                 resumePayload,
                 educations,
                 experiences,

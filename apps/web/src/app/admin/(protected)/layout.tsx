@@ -53,44 +53,70 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background text-on-surface md:grid md:grid-cols-[64px_minmax(0,1fr)]">
-      <aside className="hidden bg-sidebar text-sidebar-foreground md:flex md:min-h-screen md:flex-col md:items-center md:justify-between md:py-6">
+    <div className="min-h-screen bg-background text-on-surface md:grid md:grid-cols-[88px_minmax(0,1fr)]">
+      <aside className="hidden min-h-screen flex-col justify-between border-r border-sidebar-border/80 bg-sidebar px-4 py-6 text-sidebar-foreground md:flex">
         <div className="space-y-8">
           <Link
             href="/admin"
-            className="flex h-10 w-10 items-center justify-center rounded-sm border border-sidebar-border bg-sidebar-accent"
+            className="flex h-12 w-12 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent shadow-[0_18px_36px_-26px_rgba(0,0,0,0.45)]"
           >
-            <span className="font-headline text-lg font-medium">V</span>
+            <span className="font-headline text-xl font-semibold">V</span>
           </Link>
+
           <AdminRailNav items={navItems} />
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-xs font-medium uppercase">
-          {session.displayName?.charAt(0) ?? "A"}
+
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-sidebar-border bg-sidebar-accent px-3 py-4 text-center">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/70">
+              Active
+            </p>
+            <p className="mt-2 text-xs font-medium leading-5">
+              Hiring workspace
+            </p>
+          </div>
+
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sm font-semibold uppercase">
+            {session.displayName?.charAt(0) ?? "A"}
+          </div>
         </div>
       </aside>
 
       <div className="min-w-0">
-        <header className="border-b border-outline-variant bg-surface px-6 py-5 md:px-10">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-                Hiring workspace
+        <header className="border-b border-outline-variant bg-surface/95 px-6 py-5 backdrop-blur md:px-10">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="space-y-3">
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+                Admin operations
               </p>
-              <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-                {session.displayName}
-              </h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden text-right md:block">
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
-                  {session.role}
+              <div className="space-y-2">
+                <h1 className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
+                  Recruiting command center
+                </h1>
+                <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
+                  Review applicants, move interviews forward, and capture
+                  hiring decisions without leaving the same workflow surface.
                 </p>
-                <p className="text-sm text-on-surface-variant">Admin session active</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="rounded-2xl border border-outline-variant bg-card px-4 py-3 text-sm shadow-[0_18px_40px_-30px_rgba(31,41,55,0.28)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">
+                  Signed in
+                </p>
+                <p className="mt-1 font-semibold text-on-surface">
+                  {session.displayName}
+                </p>
+                <p className="text-xs text-on-surface-variant">
+                  {session.role} permissions active
+                </p>
               </div>
               <AdminLogoutButton redirectTo="/admin/login" />
             </div>
           </div>
         </header>
+
         <main className="px-6 py-8 md:px-10">{children}</main>
       </div>
     </div>
