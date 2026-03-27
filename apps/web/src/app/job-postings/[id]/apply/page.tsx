@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { ApplicationWizard } from "@/features/recruitment/application/ApplicationWizard";
+import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
 import {
   getCurrentCandidateSession,
   getRequiredCandidateSessionToken,
@@ -48,16 +49,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
   if (questionsLoadError || customQuestions === null) {
     return (
       <div className="min-h-screen bg-background text-on-surface">
-        <nav className="sticky top-0 z-50 border-b border-outline-variant bg-background/95 px-6 py-4 backdrop-blur md:px-16">
-          <div className="mx-auto flex max-w-4xl items-center justify-between gap-6">
-            <Link href="/" className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-              HireFlow
-            </Link>
-            <Link href={`/job-postings/${jobPostingId}`} className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary">
-              공고로 돌아가기
-            </Link>
-          </div>
-        </nav>
+        <PublicSiteHeader activePath={`/job-postings/${jobPostingId}/apply`} />
         <main className="mx-auto max-w-4xl px-6 py-16 md:px-16">
           <div className="rounded-sm border border-destructive/30 bg-error-container px-8 py-10 text-center">
             <p className="font-headline text-xl font-medium text-destructive">지원서 양식을 불러오지 못했습니다</p>
@@ -91,22 +83,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
-      <nav className="sticky top-0 z-50 border-b border-outline-variant bg-background/95 px-6 py-4 backdrop-blur md:px-16">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-6">
-          <Link
-            href="/"
-            className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
-          >
-            HireFlow
-          </Link>
-          <Link
-            href={`/job-postings/${jobPostingId}`}
-            className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
-          >
-            공고로 돌아가기
-          </Link>
-        </div>
-      </nav>
+      <PublicSiteHeader activePath={`/job-postings/${jobPostingId}/apply`} />
 
       <main className="mx-auto max-w-4xl px-6 py-10 md:px-16">
         <ApplicationWizard

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
 import type {
   CandidateApplicationDetail,
   JobPostingQuestion,
@@ -405,22 +406,7 @@ export default async function JobPostingDetailPage({
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
-      <nav className="sticky top-0 z-50 border-b border-outline-variant bg-background/95 px-6 py-4 backdrop-blur md:px-16">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          <Link
-            href="/"
-            className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
-          >
-            HireFlow
-          </Link>
-          <Link
-            href="/job-postings"
-            className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
-          >
-            공고 목록으로
-          </Link>
-        </div>
-      </nav>
+      <PublicSiteHeader activePath={`/job-postings/${jobPosting.id}`} />
 
       <main className="mx-auto max-w-7xl px-6 py-10 md:px-16">
         <JobPostingDetailView

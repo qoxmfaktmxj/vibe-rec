@@ -6,7 +6,8 @@ import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
 
 interface PublicSiteHeaderProps {
-  activePath?: "/" | "/job-postings";
+  /** Active path for nav highlighting. Accepts any path string — no type update needed when adding routes. */
+  activePath?: string;
 }
 
 const navItems = [
@@ -51,7 +52,7 @@ export async function PublicSiteHeader({
                 key={item.href}
                 href={item.href}
                 className={`text-[13px] font-normal transition-colors hover:text-primary ${
-                  activePath === item.href ? "text-primary" : "text-on-surface"
+                  activePath.startsWith(item.href) ? "text-primary" : "text-on-surface"
                 }`}
               >
                 {item.label}
