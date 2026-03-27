@@ -9,6 +9,7 @@ out/
 dist/
 coverage/
 output/
+output-review-job-posting.html
 
 .gradle/
 build/
