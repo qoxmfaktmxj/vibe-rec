@@ -1,11 +1,15 @@
-﻿import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
+import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { LegalLayerLinks } from "@/features/recruitment/legal/LegalLayerLinks";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
 import { getJobPostings } from "@/shared/api/recruitment";
 import { isJobPostingOpenForApplications } from "@/shared/lib/recruitment";
 
 export default async function Home() {
-  const jobPostings = await getJobPostings().catch(() => []);
+  let fetchError = false;
+  const jobPostings = await getJobPostings().catch(() => {
+    fetchError = true;
+    return [];
+  });
   const applicableJobPostings = jobPostings.filter(isJobPostingOpenForApplications);
 
   return (
@@ -26,28 +30,31 @@ export default async function Home() {
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant md:text-base">
               공고 등록, 지원서 관리, 면접 평가, 최종 결정까지 HireFlow에서 일관된 채용 프로세스를 운영할 수 있습니다.
             </p>
+            <a
+              href="#positions"
+              className="mt-2 inline-flex items-center gap-2 rounded-sm border border-primary/30 px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              채용 공고 보기 ↓
+            </a>
           </div>
         </section>
 
         <section id="positions" className="mx-auto max-w-7xl px-6 py-16 md:px-16">
-          {jobPostings.length === 0 ? (
+          {fetchError ? (
             <div className="mb-8 rounded-sm border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
-              현재 채용 공고를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+              채용 공고를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
             </div>
           ) : null}
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
-                주요 공고
-              </p>
-              <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+              <h2 className="font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
                 지원 가능한 채용 공고
               </h2>
             </div>
           </div>
           <JobPostingBrowser
             jobPostings={applicableJobPostings}
-            emptyMessage="현재 바로 지원 가능한 채용 공고가 없습니다."
+            emptyMessage="현재 모집 중인 포지션이 없습니다. 문의를 남겨보세요."
             pageSize={9}
           />
         </section>
