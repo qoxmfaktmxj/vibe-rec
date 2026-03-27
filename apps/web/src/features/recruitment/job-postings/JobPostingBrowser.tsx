@@ -147,6 +147,15 @@ export function JobPostingBrowser({
     () => groupJobPostings(filteredJobPostings),
     [filteredJobPostings],
   );
+  const filterCounts = useMemo(
+    () => ({
+      ALL: filteredJobPostings.length,
+      NEW_GRAD: groupedJobPostings.newGrad.length,
+      EXPERIENCED: groupedJobPostings.experienced.length,
+      ROLLING: groupedJobPostings.rolling.length,
+    }),
+    [filteredJobPostings.length, groupedJobPostings],
+  );
   const activeFilterDescription =
     categoryFilter === "ALL"
       ? "전체 공고를 신입, 경력, 상시 채용 섹션으로 나눠 한 번에 볼 수 있습니다."
@@ -224,27 +233,36 @@ export function JobPostingBrowser({
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
                 채용 검색
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div role="group" aria-label="채용 카테고리 필터" className="flex flex-wrap gap-2">
                 {categoryFilters.map((filter) => {
                   const isActive = categoryFilter === filter.value;
+                  const filterCount = filterCounts[filter.value];
 
                   return (
                     <button
                       key={filter.value}
                       type="button"
                       onClick={() => setCategoryFilter(filter.value)}
+                      aria-pressed={isActive}
+                      aria-describedby="job-posting-filter-description"
                       className={`rounded-sm border px-4 py-2 text-xs font-medium tracking-[0.08em] transition-colors ${
                         isActive
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-outline-variant bg-background text-on-surface"
                       }`}
                     >
-                      {filter.label}
+                      <span>{filter.label}</span>
+                      <span className="ml-2 font-mono text-[10px] tracking-[0.14em] opacity-80">
+                        {filterCount}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-              <p className="text-sm leading-6 text-on-surface-variant">
+              <p
+                id="job-posting-filter-description"
+                className="text-sm leading-6 text-on-surface-variant"
+              >
                 {activeFilterDescription}
               </p>
             </div>

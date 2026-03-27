@@ -32,6 +32,10 @@ export default async function JobPostingListPage() {
             <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
               전체 채용 공고
             </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-on-surface-variant">
+              전체 보기에서는 신입, 경력, 상시 채용을 한 화면에서 나눠 확인할 수 있습니다.
+              원하는 채용 유형만 따로 골라서 볼 수도 있습니다.
+            </p>
           </div>
         </div>
 
