@@ -31,14 +31,57 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
 
   const sessionToken = await getRequiredCandidateSessionToken();
 
+  let questionsLoadError = false;
   const [jobPosting, existingApplication, customQuestions] = await Promise.all([
     getJobPosting(jobPostingId),
     getCandidateApplicationForJobPosting(jobPostingId, sessionToken).catch(() => null),
-    getJobPostingQuestions(jobPostingId).catch(() => []),
+    getJobPostingQuestions(jobPostingId).catch(() => {
+      questionsLoadError = true;
+      return null;
+    }),
   ]);
 
   if (!jobPosting) {
     notFound();
+  }
+
+  if (questionsLoadError || customQuestions === null) {
+    return (
+      <div className="min-h-screen bg-background text-on-surface">
+        <nav className="sticky top-0 z-50 border-b border-outline-variant bg-background/95 px-6 py-4 backdrop-blur md:px-16">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-6">
+            <Link href="/" className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+              HireFlow
+            </Link>
+            <Link href={`/job-postings/${jobPostingId}`} className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary">
+              공고로 돌아가기
+            </Link>
+          </div>
+        </nav>
+        <main className="mx-auto max-w-4xl px-6 py-16 md:px-16">
+          <div className="rounded-sm border border-destructive/30 bg-error-container px-8 py-10 text-center">
+            <p className="font-headline text-xl font-medium text-destructive">지원서 양식을 불러오지 못했습니다</p>
+            <p className="mt-3 text-sm leading-7 text-on-surface-variant">
+              잠시 후 다시 시도하거나, 문제가 계속되면 채용 담당자에게 문의해 주세요.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Link
+                href={`/job-postings/${jobPostingId}/apply`}
+                className="rounded-sm bg-primary px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground"
+              >
+                다시 시도
+              </Link>
+              <Link
+                href={`/job-postings/${jobPostingId}`}
+                className="rounded-sm border border-outline-variant px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-on-surface"
+              >
+                공고로 돌아가기
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   // If already submitted, redirect to detail page
