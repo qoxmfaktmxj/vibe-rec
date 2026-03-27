@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 
 import { AdminLogoutButton } from "@/features/admin/auth/AdminLogoutButton";
+import { AdminMobileGuard } from "@/features/admin/layout/AdminMobileGuard";
 import { AdminRailNav } from "@/features/admin/navigation/AdminRailNav";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 
@@ -53,6 +54,7 @@ export default async function AdminLayout({
   }
 
   return (
+    <AdminMobileGuard>
     <div className="min-h-screen bg-background text-on-surface md:grid md:grid-cols-[88px_minmax(0,1fr)]">
       <aside className="hidden min-h-screen flex-col justify-between border-r border-sidebar-border/80 bg-sidebar px-4 py-6 text-sidebar-foreground md:flex">
         <div className="space-y-8">
@@ -113,5 +115,6 @@ export default async function AdminLayout({
         <main className="px-6 py-8 md:px-10">{children}</main>
       </div>
     </div>
+    </AdminMobileGuard>
   );
 }

@@ -9,7 +9,13 @@ import {
 } from "@/shared/api/candidate-auth";
 import { getCandidateApplications } from "@/shared/api/recruitment";
 
-export default async function MyPage() {
+interface MyPageProps {
+  searchParams: Promise<{ submitted?: string }>;
+}
+
+export default async function MyPage({ searchParams }: MyPageProps) {
+  const params = await searchParams;
+  const justSubmitted = params.submitted === "1";
   const session = await getCurrentCandidateSession();
 
   if (!session) {
@@ -34,6 +40,20 @@ export default async function MyPage() {
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-on-surface md:px-16">
       <div className="mx-auto max-w-5xl space-y-8">
+        {justSubmitted && (
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="rounded-sm border border-emerald-200 bg-emerald-50 px-6 py-4"
+          >
+            <p className="font-semibold text-emerald-900">지원서가 성공적으로 제출되었습니다!</p>
+            <p className="mt-1 text-sm text-emerald-800">
+              채용팀이 검토 후 연락드릴 예정입니다. 아래에서 지원 현황을 확인하세요.
+            </p>
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">

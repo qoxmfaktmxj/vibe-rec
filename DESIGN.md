@@ -105,14 +105,34 @@
 
 HireFlow는 **거의 평면**에 가까운 미학을 사용합니다. `--radius: 0.125rem` (≈2px).
 
-| 용도 | 클래스 | 예시 |
-|------|--------|------|
-| 컨테이너, 카드, 버튼, 입력창 | `rounded-sm` | 페이지 카드, CTA 버튼 |
-| 상태 뱃지, 칩 | `rounded-sm` | "임시저장", "제출완료" |
-| 사용자 아바타 / 아이콘 원형 | `rounded-full` | 아바타만 |
+### 사용 규칙 (계층별)
 
-**금지:** `rounded-xl`, `rounded-2xl`, `rounded-3xl` — 시스템과 맞지 않는 큰 radius.
-**예외:** shadcn 기본 컴포넌트(Dialog, Popover 등)는 `rounded-lg` 허용, 커스텀 작성 시에는 `rounded-sm`.
+| 계층 | 클래스 | 용도 | 예시 |
+|------|--------|------|------|
+| 최상위 컨테이너 | `rounded-sm` | 페이지 카드, 모달, 패널 | `<div className="rounded-sm border bg-card">` |
+| 서브 컨테이너 | `rounded-sm` | 카드 내 중첩 섹션 | info box, 코드 블럭 |
+| 버튼 / 입력창 | `rounded-sm` | CTA, 폼 필드, 뱃지 | `<button>`, `<input>`, 상태 뱃지 |
+| 아바타 | `rounded-full` | 사용자 이니셜 원형만 | `<div className="rounded-full">` |
+
+### 불일치 수정 이력
+- `CandidateApplicationStatusCard` — 하위 스텝 카드가 `rounded-lg`를 사용했으나 `rounded-sm`으로 통일 완료.
+- `ApplicationWizard` — 에러/상태 메시지 박스 `rounded-lg` → `rounded-sm` 적용 필요.
+
+### ⚠️ 금지 및 예외
+
+**절대 금지:** `rounded-xl`, `rounded-2xl`, `rounded-3xl` — 시스템과 어울리지 않는 bubbly 미학.
+
+**허용 예외:**
+- shadcn 기본 컴포넌트(Dialog, DropdownMenu, Popover, Tooltip 등): shadcn 기본값인 `rounded-lg` 유지.
+- 커스텀 작성 컴포넌트: 반드시 `rounded-sm` 사용.
+
+### 빠른 체크리스트
+새 컴포넌트 작성 시:
+- [ ] 카드/패널: `rounded-sm border border-outline-variant`
+- [ ] 버튼: `rounded-sm`
+- [ ] 뱃지: `rounded-sm px-2.5 py-1`
+- [ ] 아바타만: `rounded-full`
+- [ ] `rounded-lg` 이상 사용 시 shadcn 예외인지 확인
 
 ---
 

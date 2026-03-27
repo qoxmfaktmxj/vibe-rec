@@ -171,7 +171,7 @@ export function ApplicationWizard({
           throw new Error((errorBody as Record<string, string>).message ?? "제출에 실패했습니다.");
         }
         setSaveStatus("제출 완료!");
-        router.push(`/job-postings/${jobPostingId}`);
+        router.push("/me?submitted=1");
         router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "제출에 실패했습니다.");
@@ -240,10 +240,10 @@ export function ApplicationWizard({
 
       {/* Error/Status */}
       {error && (
-        <div className="rounded-lg bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-sm bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
       )}
       {saveStatus && !error && (
-        <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
+        <div className="rounded-sm bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
       )}
 
       {/* Navigation Buttons */}
