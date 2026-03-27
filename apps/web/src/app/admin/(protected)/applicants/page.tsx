@@ -11,10 +11,10 @@ import { getJobPostings } from "@/shared/api/recruitment";
 
 const PAGE_SIZE = 30;
 const selectClassName =
-  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:bg-card";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
 
 const inputClassName =
-  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
 
 const fieldLabelClassName =
   "text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant";

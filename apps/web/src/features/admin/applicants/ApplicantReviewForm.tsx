@@ -43,7 +43,7 @@ const reviewOptions: Array<{
 ];
 
 const inputClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
 
 export function ApplicantReviewForm({ applicant }: ApplicantReviewFormProps) {
   const router = useRouter();

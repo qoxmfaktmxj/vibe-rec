@@ -58,7 +58,7 @@ type StepState = 1 | 2 | 3 | 4;
 
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
 const inputClassName =
-  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary";
+  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20";
 const textareaClassName = `${inputClassName} min-h-[128px] resize-y`;
 const initialFormValues: DraftFormValues = {
   applicantName: "",

@@ -4,7 +4,7 @@ import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const inputClassName =
-  "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary";
+  "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20";
 
 type CandidateAuthMode = "login" | "signup";
 
