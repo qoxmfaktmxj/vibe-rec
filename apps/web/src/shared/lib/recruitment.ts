@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ApplicationFinalStatus,
   ApplicationReviewStatus,
   ApplicationStatus,
@@ -56,7 +56,7 @@ export function formatDateTime(value: string | null) {
 
 export function formatDateRange(startAt: string | null, endAt: string | null) {
   if (!startAt && !endAt) {
-    return "일정 조율";
+    return "일정 조율 중";
   }
 
   if (!startAt) {
@@ -150,6 +150,23 @@ export function getRecruitmentModeLabel(mode: RecruitmentMode) {
   }
 }
 
+export function getEmploymentTypeLabel(employmentType: string) {
+  switch (employmentType) {
+    case "FULL_TIME":
+      return "정규직";
+    case "CONTRACT":
+      return "계약직";
+    case "PART_TIME":
+      return "파트타임";
+    case "INTERN":
+      return "인턴";
+    case "TEMPORARY":
+      return "단기 계약";
+    default:
+      return employmentType;
+  }
+}
+
 export function getJobPostingDisplayGroup(
   posting: JobPostingGrouping,
 ): JobPostingDisplayGroup {
@@ -225,7 +242,7 @@ export function getApplicationReviewStatusLabel(
 ) {
   switch (reviewStatus) {
     case "NEW":
-      return "신규";
+      return "접수 대기";
     case "IN_REVIEW":
       return "검토 중";
     case "PASSED":
@@ -268,7 +285,7 @@ export function getDraftAvailability(posting: JobPostingAvailability) {
   if (now < opensAt) {
     return {
       canSave: false,
-      reason: "지원 기간이 시작된 이후에 지원서를 작성할 수 있습니다.",
+      reason: "지원 기간이 시작된 뒤에 지원서를 작성할 수 있습니다.",
     };
   }
 
@@ -296,7 +313,7 @@ export function getDraftAvailability(posting: JobPostingAvailability) {
 
   return {
     canSave: true,
-    reason: "지금부터 마감 시점까지 지원서를 저장하고 제출할 수 있습니다.",
+    reason: "지금부터 마감 전까지 지원서를 저장하고 제출할 수 있습니다.",
   };
 }
 

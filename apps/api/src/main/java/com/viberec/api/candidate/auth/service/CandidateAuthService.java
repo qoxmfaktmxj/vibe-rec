@@ -45,7 +45,7 @@ public class CandidateAuthService {
     public CandidateLoginResponse signup(CandidateSignupRequest request) {
         String normalizedEmail = normalizeEmail(request.email());
         if (candidateAccountRepository.findByNormalizedEmail(normalizedEmail).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Candidate email is already registered.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 이메일입니다.");
         }
 
         candidateAccountRepository.createAccount(
@@ -63,7 +63,7 @@ public class CandidateAuthService {
     public CandidateLoginResponse login(CandidateLoginRequest request) {
         String normalizedEmail = normalizeEmail(request.email());
         CandidateAccount account = candidateAccountRepository.authenticate(normalizedEmail, request.password())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Candidate email or password is invalid."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."));
 
         candidateAccountRepository.markAuthenticated(account.getId());
         OffsetDateTime authenticatedAt = OffsetDateTime.now();
@@ -107,7 +107,7 @@ public class CandidateAuthService {
     public CandidateAccount requireActiveAccount(String sessionToken) {
         CandidateAccount account = findActiveSession(sessionToken).getCandidateAccount();
         if (!account.isActive()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Candidate session is not active.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "지원자 세션이 비활성화되었습니다.");
         }
         return account;
     }
@@ -115,13 +115,13 @@ public class CandidateAuthService {
     private CandidateSession findActiveSession(String sessionToken) {
         String normalizedToken = normalizeSessionToken(sessionToken);
         return candidateSessionRepository.findActiveSessionByTokenHash(hashSessionToken(normalizedToken), OffsetDateTime.now())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Candidate session is invalid or expired."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "지원자 세션이 없거나 만료되었습니다."));
     }
 
     private String normalizeEmail(String email) {
         String normalized = email == null ? "" : email.trim().toLowerCase();
         if (normalized.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이메일을 입력해 주세요.");
         }
         return normalized;
     }
@@ -129,7 +129,7 @@ public class CandidateAuthService {
     private String normalizeName(String name) {
         String normalized = name == null ? "" : name.trim();
         if (normalized.length() < 2) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name must be at least 2 characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이름은 2자 이상이어야 합니다.");
         }
         return normalized;
     }
@@ -137,14 +137,14 @@ public class CandidateAuthService {
     private String normalizePhone(String phone) {
         String normalized = phone == null ? "" : phone.trim();
         if (!normalized.matches("^[0-9+\\-() ]{8,40}$")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone number format is invalid.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "휴대전화 번호 형식이 올바르지 않습니다.");
         }
         return normalized;
     }
 
     private String normalizeSessionToken(String sessionToken) {
         if (sessionToken == null || sessionToken.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Candidate session is invalid or expired.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "지원자 세션이 없거나 만료되었습니다.");
         }
         return sessionToken.trim();
     }

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminAuthForm } from "@/features/admin/auth/AdminAuthForm";
@@ -34,7 +34,7 @@ export default async function AdminLoginPage({
               관리자 로그인
             </h1>
             <p className="text-sm leading-7 text-on-surface-variant">
-              채용 운영 워크스페이스에 로그인하거나 관리자 계정을 생성하세요.
+              채용 운영 워크스페이스에 로그인하거나 관리자 계정을 새로 만들어 주세요.
             </p>
           </div>
         </div>

@@ -54,7 +54,7 @@ public class AdminAuthService {
     public AdminLoginResponse signup(AdminSignupRequest request) {
         String normalizedUsername = normalizeUsername(request.username());
         if (adminAccountRepository.findByUsernameIgnoreCase(normalizedUsername).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Admin username is already registered.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 관리자 아이디입니다.");
         }
 
         adminAccountRepository.createAccount(
@@ -70,7 +70,7 @@ public class AdminAuthService {
     public AdminLoginResponse login(AdminLoginRequest request) {
         String normalizedUsername = normalizeUsername(request.username());
         AdminAccount account = adminAccountRepository.authenticate(normalizedUsername, request.password())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin username or password is invalid."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."));
 
         adminAccountRepository.markAuthenticated(account.getId());
         OffsetDateTime authenticatedAt = OffsetDateTime.now();
@@ -119,7 +119,7 @@ public class AdminAuthService {
     private String normalizeUsername(String username) {
         String normalized = username == null ? "" : username.trim().toLowerCase();
         if (normalized.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디를 입력해 주세요.");
         }
         return normalized;
     }
@@ -127,7 +127,7 @@ public class AdminAuthService {
     private String normalizeDisplayName(String displayName) {
         String normalized = displayName == null ? "" : displayName.trim();
         if (normalized.length() < 2) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Display name must be at least 2 characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "표시 이름은 2자 이상이어야 합니다.");
         }
         return normalized;
     }
@@ -135,12 +135,12 @@ public class AdminAuthService {
     private AdminSession findActiveSession(String sessionToken) {
         String normalizedToken = normalizeSessionToken(sessionToken);
         return adminSessionRepository.findActiveSessionByTokenHash(hashSessionToken(normalizedToken), OffsetDateTime.now())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is invalid or expired."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "관리자 세션이 없거나 만료되었습니다."));
     }
 
     private String normalizeSessionToken(String sessionToken) {
         if (sessionToken == null || sessionToken.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin session is invalid or expired.");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "관리자 세션이 없거나 만료되었습니다.");
         }
         return sessionToken.trim();
     }

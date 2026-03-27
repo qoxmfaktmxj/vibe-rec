@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import type { JobPostingDetail } from "@/entities/recruitment/model";
 import {
+  getEmploymentTypeLabel,
   formatDateRange,
   formatRecruitmentPeriod,
   getRecruitmentCategoryLabel,
@@ -47,7 +48,7 @@ export function JobPostingDetailView({
             </div>
 
             <div className="space-y-1 text-right font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
-              <p>{jobPosting.employmentType}</p>
+              <p>{getEmploymentTypeLabel(jobPosting.employmentType)}</p>
               <p>{jobPosting.location}</p>
               <p>{formatRecruitmentPeriod(jobPosting)}</p>
             </div>

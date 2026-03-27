@@ -42,7 +42,7 @@ public class AdminApplicantController {
             @RequestParam(required = false) String applicantPhone,
             @RequestParam(required = false) String query,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "50") Integer size
+            @RequestParam(defaultValue = "30") Integer size
     ) {
         authorize(sessionToken);
         return adminApplicantService.getApplicantsPage(

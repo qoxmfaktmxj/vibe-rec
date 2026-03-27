@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import type { CandidateLoginPayload } from "@/entities/candidate/model";
 import { CandidateApiError, loginCandidate } from "@/shared/api/candidate-auth";
 import { CANDIDATE_SESSION_COOKIE } from "@/shared/lib/candidate-auth";
+import { buildSessionCookieOptions } from "@/shared/lib/session-cookie";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as CandidateLoginPayload;
@@ -18,13 +19,11 @@ export async function POST(request: Request) {
       expiresAt: response.expiresAt,
     });
 
-    nextResponse.cookies.set(CANDIDATE_SESSION_COOKIE, response.sessionToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      expires: new Date(response.expiresAt),
-    });
+    nextResponse.cookies.set(
+      CANDIDATE_SESSION_COOKIE,
+      response.sessionToken,
+      buildSessionCookieOptions(request, response.expiresAt),
+    );
 
     return nextResponse;
   } catch (error) {
@@ -32,6 +31,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
 
-    return NextResponse.json({ message: "로그인 처리 중 오류가 발생했습니다." }, { status: 500 });
+    return NextResponse.json(
+      { message: "로그인 처리 중 오류가 발생했습니다." },
+      { status: 500 },
+    );
   }
 }

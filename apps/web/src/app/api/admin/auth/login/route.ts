@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import type { AdminLoginPayload } from "@/entities/admin/model";
 import { AdminApiError, loginAdmin } from "@/shared/api/admin-auth";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
+import { buildSessionCookieOptions } from "@/shared/lib/session-cookie";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as AdminLoginPayload;
@@ -18,26 +19,21 @@ export async function POST(request: Request) {
       expiresAt: response.expiresAt,
     });
 
-    nextResponse.cookies.set(ADMIN_SESSION_COOKIE, response.sessionToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      expires: new Date(response.expiresAt),
-    });
+    nextResponse.cookies.set(
+      ADMIN_SESSION_COOKIE,
+      response.sessionToken,
+      buildSessionCookieOptions(request, response.expiresAt),
+    );
 
     return nextResponse;
   } catch (error) {
     if (error instanceof AdminApiError) {
       const message =
         error.status === 401 || error.status === 403
-          ? "아이디 또는 비밀번호를 다시 확인해주세요."
+          ? "아이디와 비밀번호를 다시 확인해 주세요."
           : error.message;
 
-      return NextResponse.json(
-        { message },
-        { status: error.status },
-      );
+      return NextResponse.json({ message }, { status: error.status });
     }
 
     return NextResponse.json(

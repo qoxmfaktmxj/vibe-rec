@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 
@@ -6,6 +6,7 @@ import type {
   JobPostingSummary,
   RecruitmentCategory,
 } from "@/entities/recruitment/model";
+import { PaginationBar } from "@/features/shared/PaginationBar";
 import {
   getRecruitmentCategoryLabel,
   getRecruitmentModeLabel,
@@ -19,6 +20,7 @@ interface JobPostingBrowserProps {
   emptyMessage?: string;
   searchable?: boolean;
   searchPlaceholder?: string;
+  pageSize?: number;
 }
 
 type RegularCategoryFilter = "ALL" | RecruitmentCategory;
@@ -32,19 +34,41 @@ const categoryFilters: Array<{
   { value: "EXPERIENCED", label: "경력 채용" },
 ];
 
+function paginateItems<T>(items: T[], currentPage: number, pageSize: number) {
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIndex = (safePage - 1) * pageSize;
+
+  return {
+    items: items.slice(startIndex, startIndex + pageSize),
+    currentPage: safePage,
+    totalPages,
+    startIndex,
+  };
+}
+
 function JobPostingSection({
   title,
   description,
   jobPostings,
   emptyMessage,
   hideRecruitmentModeBadge = false,
+  pageSize,
 }: {
   title: string;
   description: string;
   jobPostings: JobPostingSummary[];
   emptyMessage: string;
   hideRecruitmentModeBadge?: boolean;
+  pageSize: number;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const paged = paginateItems(jobPostings, currentPage, pageSize);
+  const summary =
+    jobPostings.length === 0
+      ? ""
+      : `${paged.startIndex + 1}-${paged.startIndex + paged.items.length} / ${jobPostings.length}건`;
+
   return (
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-4 border-b border-outline-variant pb-4">
@@ -57,14 +81,21 @@ function JobPostingSection({
           </p>
         </div>
         <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
-          {jobPostings.length}건
+          총 {jobPostings.length}건
         </span>
       </div>
 
       <JobPostingList
-        jobPostings={jobPostings}
+        jobPostings={paged.items}
         emptyMessage={emptyMessage}
         hideRecruitmentModeBadge={hideRecruitmentModeBadge}
+      />
+
+      <PaginationBar
+        currentPage={paged.currentPage}
+        totalPages={paged.totalPages}
+        onPageChange={setCurrentPage}
+        summary={summary}
       />
     </section>
   );
@@ -74,7 +105,8 @@ export function JobPostingBrowser({
   jobPostings,
   emptyMessage = "현재 등록된 채용 공고가 없습니다.",
   searchable = false,
-  searchPlaceholder = "직무명, 한 줄 소개, 근무지, 고용 형태로 검색",
+  searchPlaceholder = "공고명, 소개, 근무지, 채용 형태로 검색",
+  pageSize = 9,
 }: JobPostingBrowserProps) {
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] =
@@ -115,8 +147,8 @@ export function JobPostingBrowser({
             title: getRecruitmentCategoryLabel(categoryFilter),
             description:
               categoryFilter === "NEW_GRAD"
-                ? "졸업 예정자와 초기 경력 지원자를 위한 공고입니다."
-                : "실무 경험을 바탕으로 바로 합류할 수 있는 포지션입니다.",
+                ? "신입 지원자와 초기 경력 지원자를 위한 공고를 모아 보여줍니다."
+                : "경력 보유 지원자를 위한 공고를 모아 보여줍니다.",
             jobPostings:
               categoryFilter === "NEW_GRAD"
                 ? groupedJobPostings.newGrad
@@ -129,20 +161,19 @@ export function JobPostingBrowser({
         ]
       : [
           {
-            key: "NEW_GRAD",
+            key: "NEW_GRAD" as const,
             title: "신입 채용",
             description:
-              "졸업 예정자와 초기 경력 지원자를 위한 공고를 모아서 볼 수 있습니다.",
+              "신입 지원자와 초기 경력 지원자를 위한 공고를 모아 보여줍니다.",
             jobPostings: groupedJobPostings.newGrad,
             emptyMessage: searchable
               ? "조건에 맞는 신입 채용 공고가 없습니다."
               : emptyMessage,
           },
           {
-            key: "EXPERIENCED",
+            key: "EXPERIENCED" as const,
             title: "경력 채용",
-            description:
-              "즉시 투입 가능한 경력 포지션을 이 섹션에서 확인할 수 있습니다.",
+            description: "경력 보유 지원자를 위한 공고를 모아 보여줍니다.",
             jobPostings: groupedJobPostings.experienced,
             emptyMessage: searchable
               ? "조건에 맞는 경력 채용 공고가 없습니다."
@@ -154,6 +185,8 @@ export function JobPostingBrowser({
     searchable && trimmedQuery
       ? "조건에 맞는 상시 채용 공고가 없습니다."
       : "현재 상시 채용 공고가 없습니다.";
+
+  const sectionResetKey = `${categoryFilter}:${trimmedQuery}`;
 
   return (
     <div className="space-y-10">
@@ -188,7 +221,7 @@ export function JobPostingBrowser({
 
             <label className="block min-w-0 lg:w-[360px]">
               <span className="mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-on-surface-variant">
-                공고 검색
+                키워드 검색
               </span>
               <input
                 value={query}
@@ -205,20 +238,23 @@ export function JobPostingBrowser({
       <div className="space-y-10">
         {regularSections.map((section) => (
           <JobPostingSection
-            key={section.key}
+            key={`${section.key}:${sectionResetKey}`}
             title={section.title}
             description={section.description}
             jobPostings={section.jobPostings}
             emptyMessage={section.emptyMessage}
+            pageSize={pageSize}
           />
         ))}
 
         <JobPostingSection
+          key={`ROLLING:${sectionResetKey}`}
           title="상시 채용"
-          description="마감일 없이 지원을 받는 공고를 별도 섹션으로 분리했습니다."
+          description="일정 제한 없이 지원 가능한 공고를 따로 모아 보여줍니다."
           jobPostings={groupedJobPostings.rolling}
           emptyMessage={rollingEmptyMessage}
           hideRecruitmentModeBadge
+          pageSize={pageSize}
         />
       </div>
     </div>

@@ -53,14 +53,14 @@ export function AdminAuthForm({
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? "Admin authentication failed.");
+        setErrorMessage(responseBody.message ?? "관리자 인증에 실패했습니다.");
         return;
       }
 
       router.push("/admin");
       router.refresh();
     } catch {
-      setErrorMessage("A network error occurred while processing the request.");
+      setErrorMessage("요청 처리 중 네트워크 오류가 발생했습니다.");
     } finally {
       setIsPending(false);
     }
@@ -70,23 +70,23 @@ export function AdminAuthForm({
     event.preventDefault();
 
     if (!username.trim() || !password) {
-      setErrorMessage("Enter both username and password.");
+      setErrorMessage("아이디와 비밀번호를 모두 입력해 주세요.");
       return;
     }
 
     if (mode === "signup") {
       if (!displayName.trim()) {
-        setErrorMessage("Enter a display name.");
+        setErrorMessage("표시 이름을 입력해 주세요.");
         return;
       }
 
       if (password.length < 8) {
-        setErrorMessage("Password must be at least 8 characters.");
+        setErrorMessage("비밀번호는 8자 이상이어야 합니다.");
         return;
       }
 
       if (password !== confirmPassword) {
-        setErrorMessage("Password confirmation does not match.");
+        setErrorMessage("비밀번호 확인이 일치하지 않습니다.");
         return;
       }
     }
@@ -99,8 +99,35 @@ export function AdminAuthForm({
     });
   }
 
+  const modeCopy =
+    mode === "signup"
+      ? {
+          eyebrow: "새 관리자 계정",
+          title: "관리자 회원가입",
+          description: "채용 운영 워크스페이스를 새로 열고 바로 대시보드로 이동합니다.",
+        }
+      : {
+          eyebrow: "기존 관리자 계정",
+          title: "관리자 로그인",
+          description: "기존 계정으로 로그인해 공고와 지원자 현황을 이어서 관리합니다.",
+        };
+
   return (
     <div className="space-y-6">
+      <div aria-live="polite" aria-atomic="true" className="space-y-2">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+          {modeCopy.eyebrow}
+        </p>
+        <div className="space-y-1">
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+            {modeCopy.title}
+          </h2>
+          <p className="text-sm leading-6 text-on-surface-variant">
+            {modeCopy.description}
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-2 rounded-sm bg-surface-container-low p-1">
         <button
           type="button"
@@ -111,7 +138,7 @@ export function AdminAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          Login
+          로그인
         </button>
         <button
           type="button"
@@ -122,7 +149,7 @@ export function AdminAuthForm({
               : "text-on-surface-variant hover:text-on-surface"
           }`}
         >
-          Sign up
+          회원가입
         </button>
       </div>
 
@@ -139,14 +166,14 @@ export function AdminAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="displayName"
             >
-              Display name
+              표시 이름
             </label>
             <input
               id="displayName"
               name="displayName"
               type="text"
               autoComplete="name"
-              placeholder="Recruiting Admin"
+              placeholder="채용 관리자"
               className={inputClassName}
               value={displayName}
               disabled={isPending}
@@ -160,7 +187,7 @@ export function AdminAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="username"
           >
-            Username
+            아이디
           </label>
           <input
             id="username"
@@ -180,14 +207,14 @@ export function AdminAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="password"
           >
-            Password
+            비밀번호
           </label>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            placeholder="Enter your password"
+            placeholder="비밀번호를 입력해 주세요"
             className={inputClassName}
             value={password}
             disabled={isPending}
@@ -201,14 +228,14 @@ export function AdminAuthForm({
               className="ml-1 block text-sm font-semibold text-on-surface-variant"
               htmlFor="confirmPassword"
             >
-              Confirm password
+              비밀번호 확인
             </label>
             <input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               autoComplete="new-password"
-              placeholder="Re-enter your password"
+              placeholder="비밀번호를 다시 입력해 주세요"
               className={inputClassName}
               value={confirmPassword}
               disabled={isPending}
@@ -224,11 +251,11 @@ export function AdminAuthForm({
         >
           {isPending
             ? mode === "signup"
-              ? "Creating account..."
-              : "Logging in..."
+              ? "가입 처리 중..."
+              : "로그인 중..."
             : mode === "signup"
-              ? "Create admin account"
-              : "Log in"}
+              ? "관리자 계정 만들기"
+              : "로그인"}
         </button>
       </form>
     </div>

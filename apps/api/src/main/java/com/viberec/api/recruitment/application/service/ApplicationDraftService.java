@@ -121,7 +121,7 @@ public class ApplicationDraftService {
     private JobPosting loadActiveJobPosting(Long jobPostingId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobPostingId)
                 .filter(JobPosting::isPublished)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting not found."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공고를 찾을 수 없습니다."));
         validateApplicationWindow(jobPosting);
         return jobPosting;
     }
@@ -129,25 +129,25 @@ public class ApplicationDraftService {
     private void validateApplicationWindow(JobPosting jobPosting) {
         OffsetDateTime now = OffsetDateTime.now();
         if (!jobPosting.isAcceptingApplicationsAt(now)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Applications can only be saved or submitted while the posting is open.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "공고가 열려 있는 동안에만 지원서를 저장하거나 제출할 수 있습니다.");
         }
     }
 
     private void ensureEditable(Application application) {
         if (application.isSubmitted()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "This application has already been submitted.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 제출된 지원서입니다.");
         }
     }
 
     private void validateSubmitPayload(Map<String, Object> resumePayload) {
         String introduction = readPayloadText(resumePayload, "introduction");
         if (introduction == null || introduction.length() < 20) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Introduction must be at least 20 characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자기소개는 20자 이상 입력해 주세요.");
         }
 
         String coreStrength = readPayloadText(resumePayload, "coreStrength");
         if (coreStrength == null || coreStrength.length() < 10) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Core strength must be at least 10 characters.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "핵심 역량은 10자 이상 입력해 주세요.");
         }
     }
 
@@ -189,7 +189,7 @@ public class ApplicationDraftService {
                         if (question == null) {
                             throw new ResponseStatusException(
                                     HttpStatus.BAD_REQUEST,
-                                    "Question does not belong to this job posting."
+                                    "이 공고에 속하지 않은 질문입니다."
                             );
                         }
                         Object answerTextObj = map.get("answerText");
@@ -202,7 +202,7 @@ public class ApplicationDraftService {
                             short scaleValue = n.shortValue();
                             if (scaleValue < 1 || scaleValue > 5) {
                                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                        "Answer scale must be between 1 and 5.");
+                                        "평점 답변은 1점부터 5점 사이여야 합니다.");
                             }
                             answerScale = scaleValue;
                         }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -80,7 +80,7 @@ export function CandidateAuthForm({
 
     if (mode === "signup") {
       if (!name.trim() || !phone.trim()) {
-        setErrorMessage("이름과 휴대폰 번호를 입력해 주세요.");
+        setErrorMessage("이름과 휴대전화를 입력해 주세요.");
         return;
       }
 
@@ -90,7 +90,7 @@ export function CandidateAuthForm({
       }
 
       if (!/^[0-9+\-() ]{8,40}$/.test(phone.trim())) {
-        setErrorMessage("유효한 휴대폰 번호를 입력해 주세요.");
+        setErrorMessage("유효한 휴대전화 번호를 입력해 주세요.");
         return;
       }
 
@@ -108,8 +108,35 @@ export function CandidateAuthForm({
     });
   }
 
+  const modeCopy =
+    mode === "signup"
+      ? {
+          eyebrow: "새 지원자 계정",
+          title: "지원자 회원가입",
+          description: "계정을 만들면 저장한 지원서와 지원 이력을 한 곳에서 관리할 수 있습니다.",
+        }
+      : {
+          eyebrow: "기존 지원자 계정",
+          title: "지원자 로그인",
+          description: "이전에 저장한 지원서와 제출 내역을 이어서 확인할 수 있습니다.",
+        };
+
   return (
     <div className="space-y-6">
+      <div aria-live="polite" aria-atomic="true" className="space-y-2">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+          {modeCopy.eyebrow}
+        </p>
+        <div className="space-y-1">
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+            {modeCopy.title}
+          </h2>
+          <p className="text-sm leading-6 text-on-surface-variant">
+            {modeCopy.description}
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-2 rounded-sm bg-surface-container-low p-1">
         <button
           type="button"
@@ -155,7 +182,7 @@ export function CandidateAuthForm({
               name="name"
               type="text"
               autoComplete="name"
-              placeholder="김지원"
+              placeholder="홍길동"
               className={inputClassName}
               value={name}
               disabled={isPending}
@@ -176,7 +203,7 @@ export function CandidateAuthForm({
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="example@company.com"
+            placeholder="applicant@example.com"
             className={inputClassName}
             value={email}
             disabled={isPending}
@@ -255,8 +282,8 @@ export function CandidateAuthForm({
         >
           {isPending
             ? mode === "signup"
-              ? "회원가입 중.."
-              : "로그인 중.."
+              ? "가입 처리 중..."
+              : "로그인 중..."
             : mode === "signup"
               ? "가입하기"
               : "로그인"}

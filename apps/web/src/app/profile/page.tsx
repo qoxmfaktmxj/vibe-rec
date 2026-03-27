@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProfileDashboard } from "@/features/candidate/profile/ProfileDashboard";
@@ -41,13 +41,13 @@ export default async function ProfilePage() {
       <main className="mx-auto max-w-5xl px-6 py-10 md:px-16">
         <div className="mb-8">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            My profile
+            프로필
           </p>
           <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
             내 프로필
           </h1>
           <p className="mt-2 text-sm text-on-surface-variant">
-            프로필을 미리 작성해두면 공고 지원 시 빠르게 불러올 수 있습니다.
+            프로필을 미리 작성해 두면 공고 지원 시 필요한 정보를 더 빠르게 불러올 수 있습니다.
           </p>
         </div>
 

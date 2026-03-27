@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import type { JobPostingSummary } from "@/entities/recruitment/model";
 import {
+  getEmploymentTypeLabel,
   formatRecruitmentPeriod,
   getRecruitmentCategoryLabel,
   getRecruitmentModeLabel,
@@ -64,7 +65,7 @@ export function JobPostingList({
             </div>
 
             <div className="mt-6 space-y-2 text-sm text-on-surface-variant">
-              <p>{jobPosting.employmentType}</p>
+              <p>{getEmploymentTypeLabel(jobPosting.employmentType)}</p>
               <p>{jobPosting.location}</p>
               <p>{formatRecruitmentPeriod(jobPosting)}</p>
               <p>총 {jobPosting.stepCount}단계</p>

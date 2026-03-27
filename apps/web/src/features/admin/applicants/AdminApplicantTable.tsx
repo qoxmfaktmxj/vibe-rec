@@ -15,12 +15,12 @@ function getApplicationStatusMeta(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
       return {
-        label: "Submitted",
+        label: "제출 완료",
         className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
       };
     case "DRAFT":
       return {
-        label: "Draft",
+        label: "임시 저장",
         className: "bg-amber-50 text-amber-800 ring-amber-200",
       };
     default:
@@ -35,22 +35,22 @@ function getReviewStatusMeta(status: ApplicationReviewStatus) {
   switch (status) {
     case "NEW":
       return {
-        label: "New",
+        label: "접수 대기",
         className: "bg-primary-container text-primary ring-primary/10",
       };
     case "IN_REVIEW":
       return {
-        label: "In review",
+        label: "검토 중",
         className: "bg-sky-50 text-sky-800 ring-sky-200",
       };
     case "PASSED":
       return {
-        label: "Passed",
+        label: "합격",
         className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
       };
     case "REJECTED":
       return {
-        label: "Rejected",
+        label: "불합격",
         className: "bg-rose-50 text-rose-800 ring-rose-200",
       };
     default:
@@ -68,10 +68,10 @@ export function AdminApplicantTable({
     return (
       <div className="border-t border-outline-variant px-6 py-14 text-center">
         <p className="font-headline text-2xl font-semibold tracking-[-0.04em] text-on-surface">
-          No applicants match the current filters.
+          현재 조건에 맞는 지원자가 없습니다.
         </p>
         <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-          Broaden the search criteria or clear some filters and try again.
+          검색 조건을 조정하거나 일부 필터를 해제한 뒤 다시 확인해 주세요.
         </p>
       </div>
     );
@@ -82,12 +82,12 @@ export function AdminApplicantTable({
       <table className="min-w-full text-left text-sm">
         <thead className="bg-surface-container-low">
           <tr className="border-b border-outline-variant text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-            <th className="px-6 py-4">Applicant</th>
-            <th className="px-6 py-4">Posting</th>
-            <th className="px-6 py-4">Application</th>
-            <th className="px-6 py-4">Review</th>
-            <th className="px-6 py-4">Latest activity</th>
-            <th className="px-6 py-4 text-right">Open</th>
+            <th className="px-6 py-4">지원자</th>
+            <th className="px-6 py-4">공고</th>
+            <th className="px-6 py-4">지원 상태</th>
+            <th className="px-6 py-4">검토 상태</th>
+            <th className="px-6 py-4">최근 활동</th>
+            <th className="px-6 py-4 text-right">열기</th>
           </tr>
         </thead>
         <tbody>
@@ -123,7 +123,7 @@ export function AdminApplicantTable({
                     {applicant.jobPostingTitle}
                   </p>
                   <p className="mt-1 text-xs text-on-surface-variant">
-                    Application #{applicant.applicationId}
+                    지원서 #{applicant.applicationId}
                   </p>
                 </td>
 
@@ -146,7 +146,7 @@ export function AdminApplicantTable({
                 <td className="px-6 py-5 text-sm text-on-surface-variant">
                   <p>{formatDateTime(activityTimestamp)}</p>
                   <p className="mt-1 text-xs">
-                    Submitted: {formatDateTime(applicant.submittedAt)}
+                    제출 시각: {formatDateTime(applicant.submittedAt)}
                   </p>
                 </td>
 
@@ -155,7 +155,7 @@ export function AdminApplicantTable({
                     href={`/admin/applicants/${applicant.applicationId}`}
                     className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    View
+                    보기
                   </Link>
                 </td>
               </tr>

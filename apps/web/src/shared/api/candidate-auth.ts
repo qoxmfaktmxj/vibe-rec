@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 
 import { cookies } from "next/headers";
 
@@ -33,7 +33,7 @@ export class CandidateApiError extends Error {
 
 async function parseCandidateResponse<T>(response: Response) {
   if (!response.ok) {
-    let message = `API request failed. (status: ${response.status})`;
+    let message = `API 요청에 실패했습니다. (상태 코드: ${response.status})`;
 
     try {
       const errorBody = (await response.json()) as {
@@ -134,7 +134,7 @@ export async function logoutCandidate(sessionToken: string) {
   });
 
   if (!response.ok && response.status !== 204) {
-    throw new CandidateApiError("Candidate logout failed.", response.status);
+    throw new CandidateApiError("로그아웃에 실패했습니다.", response.status);
   }
 }
 
@@ -162,7 +162,7 @@ export async function getRequiredCandidateSessionToken() {
   const sessionToken = cookieStore.get(CANDIDATE_SESSION_COOKIE)?.value;
 
   if (!sessionToken) {
-    throw new CandidateApiError("Candidate session is missing or expired.", 401);
+    throw new CandidateApiError("지원자 세션이 만료되었거나 없습니다.", 401);
   }
 
   return sessionToken;

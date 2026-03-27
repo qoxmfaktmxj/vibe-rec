@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 
 import type {
   CandidateApplicationDetail,
@@ -156,4 +156,3 @@ export async function getCandidateApplications(sessionToken: string) {
     headers: withCandidateSession(sessionToken),
   });
 }
-
