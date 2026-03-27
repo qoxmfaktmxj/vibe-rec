@@ -1,64 +1,18 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import type {
   AdminApplicantSummary,
-  ApplicationReviewStatus,
 } from "@/entities/admin/applicant-model";
-import type { ApplicationStatus } from "@/entities/recruitment/model";
-import { formatDateTime } from "@/shared/lib/recruitment";
+import {
+  formatDateTime,
+  getApplicationReviewStatusClassName,
+  getApplicationReviewStatusLabel,
+  getApplicationStatusClassName,
+  getApplicationStatusLabel,
+} from "@/shared/lib/recruitment";
 
 interface AdminApplicantTableProps {
   applicants: AdminApplicantSummary[];
-}
-
-function getApplicationStatusMeta(status: ApplicationStatus) {
-  switch (status) {
-    case "SUBMITTED":
-      return {
-        label: "제출 완료",
-        className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
-      };
-    case "DRAFT":
-      return {
-        label: "임시 저장",
-        className: "bg-amber-50 text-amber-800 ring-amber-200",
-      };
-    default:
-      return {
-        label: status,
-        className: "bg-stone-100 text-stone-700 ring-stone-200",
-      };
-  }
-}
-
-function getReviewStatusMeta(status: ApplicationReviewStatus) {
-  switch (status) {
-    case "NEW":
-      return {
-        label: "접수 대기",
-        className: "bg-primary-container text-primary ring-primary/10",
-      };
-    case "IN_REVIEW":
-      return {
-        label: "검토 중",
-        className: "bg-sky-50 text-sky-800 ring-sky-200",
-      };
-    case "PASSED":
-      return {
-        label: "합격",
-        className: "bg-emerald-50 text-emerald-800 ring-emerald-200",
-      };
-    case "REJECTED":
-      return {
-        label: "불합격",
-        className: "bg-rose-50 text-rose-800 ring-rose-200",
-      };
-    default:
-      return {
-        label: status,
-        className: "bg-stone-100 text-stone-700 ring-stone-200",
-      };
-  }
 }
 
 export function AdminApplicantTable({
@@ -92,10 +46,6 @@ export function AdminApplicantTable({
         </thead>
         <tbody>
           {applicants.map((applicant) => {
-            const applicationStatus = getApplicationStatusMeta(
-              applicant.applicationStatus,
-            );
-            const reviewStatus = getReviewStatusMeta(applicant.reviewStatus);
             const activityTimestamp =
               applicant.reviewedAt ?? applicant.submittedAt ?? applicant.draftSavedAt;
 
@@ -129,17 +79,17 @@ export function AdminApplicantTable({
 
                 <td className="px-6 py-5">
                   <span
-                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${applicationStatus.className}`}
+                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(applicant.applicationStatus)}`}
                   >
-                    {applicationStatus.label}
+                    {getApplicationStatusLabel(applicant.applicationStatus)}
                   </span>
                 </td>
 
                 <td className="px-6 py-5">
                   <span
-                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${reviewStatus.className}`}
+                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(applicant.reviewStatus)}`}
                   >
-                    {reviewStatus.label}
+                    {getApplicationReviewStatusLabel(applicant.reviewStatus)}
                   </span>
                 </td>
 

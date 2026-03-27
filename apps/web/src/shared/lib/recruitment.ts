@@ -226,14 +226,25 @@ export function getApplicationStatusLabel(status: ApplicationStatus) {
   }
 }
 
+export function getApplicationStatusLabel(status: ApplicationStatus) {
+  switch (status) {
+    case "SUBMITTED":
+      return "제출 완료";
+    case "DRAFT":
+      return "임시 저장";
+    default:
+      return status;
+  }
+}
+
 export function getApplicationStatusClassName(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-50 text-emerald-800 ring-emerald-200";
     case "DRAFT":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-50 text-amber-800 ring-amber-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-stone-100 text-stone-700 ring-stone-200";
   }
 }
 
@@ -259,15 +270,15 @@ export function getApplicationReviewStatusClassName(
 ) {
   switch (reviewStatus) {
     case "NEW":
-      return "bg-stone-200 text-stone-700";
+      return "bg-primary-container text-primary ring-primary/10";
     case "IN_REVIEW":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-50 text-sky-800 ring-sky-200";
     case "PASSED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-50 text-emerald-800 ring-emerald-200";
     case "REJECTED":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-50 text-rose-800 ring-rose-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-stone-100 text-stone-700 ring-stone-200";
   }
 }
 
