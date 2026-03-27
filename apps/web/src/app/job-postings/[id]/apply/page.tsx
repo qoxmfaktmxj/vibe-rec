@@ -32,15 +32,20 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
 
   const sessionToken = await getRequiredCandidateSessionToken();
 
-  let questionsLoadError = false;
-  const [jobPosting, existingApplication, customQuestions] = await Promise.all([
+  const [jobPosting, existingApplication, questionsResult] = await Promise.all([
     getJobPosting(jobPostingId),
     getCandidateApplicationForJobPosting(jobPostingId, sessionToken).catch(() => null),
-    getJobPostingQuestions(jobPostingId).catch(() => {
-      questionsLoadError = true;
-      return null;
-    }),
+    getJobPostingQuestions(jobPostingId)
+      .then((questions) => ({
+        customQuestions: questions,
+        questionsLoadError: false,
+      }))
+      .catch(() => ({
+        customQuestions: null,
+        questionsLoadError: true,
+      })),
   ]);
+  const { customQuestions, questionsLoadError } = questionsResult;
 
   if (!jobPosting) {
     notFound();

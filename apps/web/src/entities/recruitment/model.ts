@@ -27,7 +27,7 @@ export interface JobPostingSummary {
   status: JobPostingStatus;
   opensAt: string;
   closesAt: string | null;
-  stepCount: number;
+  steps: JobPostingStep[];
 }
 
 export interface JobPostingStep {

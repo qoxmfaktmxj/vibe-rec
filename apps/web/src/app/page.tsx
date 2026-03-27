@@ -5,11 +5,15 @@ import { getJobPostings } from "@/shared/api/recruitment";
 import { isJobPostingOpenForApplications } from "@/shared/lib/recruitment";
 
 export default async function Home() {
-  let fetchError = false;
-  const jobPostings = await getJobPostings().catch(() => {
-    fetchError = true;
-    return [];
-  });
+  const { jobPostings, fetchError } = await getJobPostings()
+    .then((result) => ({
+      jobPostings: result,
+      fetchError: false,
+    }))
+    .catch(() => ({
+      jobPostings: [],
+      fetchError: true,
+    }));
   const applicableJobPostings = jobPostings.filter(isJobPostingOpenForApplications);
 
   return (

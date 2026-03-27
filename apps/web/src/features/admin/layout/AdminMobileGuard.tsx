@@ -1,35 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useSyncExternalStore } from "react";
+
+function subscribe(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  window.addEventListener("resize", onStoreChange);
+  return () => window.removeEventListener("resize", onStoreChange);
+}
+
+function getSnapshot() {
+  return typeof window !== "undefined" && window.innerWidth < 1024;
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 /**
  * Renders a full-screen overlay on viewports narrower than 1024px,
  * guarding the admin workspace (desktop-only by design).
  */
 export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-
-    function check() {
-      setIsMobile(window.innerWidth < 1024);
-    }
-
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  // During SSR / before hydration, render children normally to avoid flash
-  if (!mounted) return <>{children}</>;
+  const isMobile = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 
   if (isMobile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-8 text-center text-on-surface">
-        <div className="rounded-sm border border-outline-variant bg-card px-8 py-10 max-w-sm">
-          {/* Monitor icon */}
+        <div className="max-w-sm rounded-sm border border-outline-variant bg-card px-8 py-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -47,23 +52,23 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
           </svg>
 
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            어드민 워크스페이스
+            관리자 워크스페이스
           </p>
           <h1 className="mt-3 font-headline text-xl font-medium tracking-[-0.04em] text-on-surface">
-            데스크탑에서 이용해 주세요
+            데스크톱에서 이용해 주세요
           </h1>
           <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-            HireFlow 어드민은 데스크탑 환경에 최적화되어 있습니다.
+            HireFlow 관리자 화면은 데스크톱 환경에 맞춰 설계되었습니다.
             <br />
-            1024px 이상의 화면에서 접속해 주세요.
+            1024px 이상 화면에서 다시 접속해 주세요.
           </p>
 
-          <a
+          <Link
             href="/"
             className="mt-6 inline-flex rounded-sm border border-outline-variant px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:text-primary"
           >
             공개 사이트로 이동
-          </a>
+          </Link>
         </div>
       </div>
     );

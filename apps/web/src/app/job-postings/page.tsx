@@ -3,11 +3,15 @@ import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader
 import { getJobPostings } from "@/shared/api/recruitment";
 
 export default async function JobPostingListPage() {
-  let fetchError = false;
-  const jobPostings = await getJobPostings().catch(() => {
-    fetchError = true;
-    return [];
-  });
+  const { jobPostings, fetchError } = await getJobPostings()
+    .then((result) => ({
+      jobPostings: result,
+      fetchError: false,
+    }))
+    .catch(() => ({
+      jobPostings: [],
+      fetchError: true,
+    }));
 
   return (
     <div className="min-h-screen bg-background text-on-surface">

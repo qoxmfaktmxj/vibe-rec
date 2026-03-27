@@ -4,6 +4,7 @@ import com.viberec.api.recruitment.jobposting.domain.JobPostingStatus;
 import com.viberec.api.recruitment.jobposting.domain.RecruitmentCategory;
 import com.viberec.api.recruitment.jobposting.domain.RecruitmentMode;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public record JobPostingSummaryResponse(
         Long id,
@@ -17,6 +18,6 @@ public record JobPostingSummaryResponse(
         JobPostingStatus status,
         OffsetDateTime opensAt,
         OffsetDateTime closesAt,
-        int stepCount
+        List<JobPostingStepResponse> steps
 ) {
 }

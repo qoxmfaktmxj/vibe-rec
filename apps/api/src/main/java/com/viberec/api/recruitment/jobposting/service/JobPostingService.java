@@ -125,7 +125,7 @@ public class JobPostingService {
                 jobPosting.getStatus(),
                 jobPosting.getOpensAt(),
                 jobPosting.getClosesAt(),
-                jobPosting.getSteps().size()
+                jobPosting.getSteps().stream().map(this::toStepResponse).toList()
         );
     }
 

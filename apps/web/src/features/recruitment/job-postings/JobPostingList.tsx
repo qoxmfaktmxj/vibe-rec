@@ -6,6 +6,7 @@ import {
   formatRecruitmentPeriod,
   getRecruitmentCategoryLabel,
   getRecruitmentModeLabel,
+  getStepTypeLabel,
 } from "@/shared/lib/recruitment";
 
 interface JobPostingListProps {
@@ -68,7 +69,19 @@ export function JobPostingList({
               <p>{getEmploymentTypeLabel(jobPosting.employmentType)}</p>
               <p>{jobPosting.location}</p>
               <p>{formatRecruitmentPeriod(jobPosting)}</p>
-              <p>총 {jobPosting.stepCount}단계</p>
+              {(jobPosting.steps?.length ?? 0) > 0 && (
+                <div className="flex flex-wrap items-center gap-1 font-mono text-[11px] uppercase tracking-[0.14em] text-on-surface-variant">
+                  {(jobPosting.steps ?? []).slice(0, 3).map((step, index) => (
+                    <span key={step.id ?? index} className="flex items-center gap-1">
+                      {index > 0 && <span aria-hidden="true">→</span>}
+                      {getStepTypeLabel(step.stepType)}
+                    </span>
+                  ))}
+                  {(jobPosting.steps?.length ?? 0) > 3 && (
+                    <span>→ ···</span>
+                  )}
+                </div>
+              )}
             </div>
 
             <Link

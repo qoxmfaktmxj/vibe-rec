@@ -23,15 +23,25 @@ interface JobPostingBrowserProps {
   pageSize?: number;
 }
 
-type RegularCategoryFilter = "ALL" | RecruitmentCategory;
+type CategoryFilter = "ALL" | RecruitmentCategory | "ROLLING";
+
+type JobPostingSectionConfig = {
+  key: CategoryFilter;
+  title: string;
+  description: string;
+  jobPostings: JobPostingSummary[];
+  emptyMessage: string;
+  hideRecruitmentModeBadge?: boolean;
+};
 
 const categoryFilters: Array<{
-  value: RegularCategoryFilter;
+  value: CategoryFilter;
   label: string;
 }> = [
   { value: "ALL", label: "전체" },
   { value: "NEW_GRAD", label: "신입 채용" },
   { value: "EXPERIENCED", label: "경력 채용" },
+  { value: "ROLLING", label: "상시 채용" },
 ];
 
 function paginateItems<T>(items: T[], currentPage: number, pageSize: number) {
@@ -109,8 +119,7 @@ export function JobPostingBrowser({
   pageSize = 9,
 }: JobPostingBrowserProps) {
   const [query, setQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] =
-    useState<RegularCategoryFilter>("ALL");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("ALL");
 
   const trimmedQuery = query.trim().toLowerCase();
   const filteredJobPostings = useMemo(() => {
@@ -138,25 +147,43 @@ export function JobPostingBrowser({
     () => groupJobPostings(filteredJobPostings),
     [filteredJobPostings],
   );
+  const activeFilterDescription =
+    categoryFilter === "ALL"
+      ? "전체 공고를 신입, 경력, 상시 채용 섹션으로 나눠 한 번에 볼 수 있습니다."
+      : categoryFilter === "NEW_GRAD"
+        ? "신입 지원자와 초기 경력 지원자를 위한 공고만 모아 보여줍니다."
+        : categoryFilter === "EXPERIENCED"
+          ? "실무 경험을 가진 지원자를 위한 공고만 따로 확인할 수 있습니다."
+          : "마감 없이 상시로 열려 있는 공고만 따로 모아 보여줍니다.";
 
-  const regularSections =
+  const regularSections: JobPostingSectionConfig[] =
     searchable && categoryFilter !== "ALL"
       ? [
           {
             key: categoryFilter,
-            title: getRecruitmentCategoryLabel(categoryFilter),
+            title:
+              categoryFilter === "ROLLING"
+                ? "상시 채용"
+                : getRecruitmentCategoryLabel(categoryFilter),
             description:
               categoryFilter === "NEW_GRAD"
                 ? "신입 지원자와 초기 경력 지원자를 위한 공고를 모아 보여줍니다."
-                : "경력 보유 지원자를 위한 공고를 모아 보여줍니다.",
+                : categoryFilter === "EXPERIENCED"
+                  ? "경력 보유 지원자를 위한 공고를 모아 보여줍니다."
+                  : "일정 제한 없이 지원 가능한 공고를 따로 모아 보여줍니다.",
             jobPostings:
               categoryFilter === "NEW_GRAD"
                 ? groupedJobPostings.newGrad
-                : groupedJobPostings.experienced,
+                : categoryFilter === "EXPERIENCED"
+                  ? groupedJobPostings.experienced
+                  : groupedJobPostings.rolling,
             emptyMessage:
               categoryFilter === "NEW_GRAD"
                 ? "조건에 맞는 신입 채용 공고가 없습니다."
-                : "조건에 맞는 경력 채용 공고가 없습니다.",
+                : categoryFilter === "EXPERIENCED"
+                  ? "조건에 맞는 경력 채용 공고가 없습니다."
+                  : "조건에 맞는 상시 채용 공고가 없습니다.",
+            hideRecruitmentModeBadge: categoryFilter === "ROLLING",
           },
         ]
       : [
@@ -217,6 +244,9 @@ export function JobPostingBrowser({
                   );
                 })}
               </div>
+              <p className="text-sm leading-6 text-on-surface-variant">
+                {activeFilterDescription}
+              </p>
             </div>
 
             <label className="block min-w-0 lg:w-[360px]">
@@ -243,19 +273,22 @@ export function JobPostingBrowser({
             description={section.description}
             jobPostings={section.jobPostings}
             emptyMessage={section.emptyMessage}
+            hideRecruitmentModeBadge={section.hideRecruitmentModeBadge}
             pageSize={pageSize}
           />
         ))}
 
-        <JobPostingSection
-          key={`ROLLING:${sectionResetKey}`}
-          title="상시 채용"
-          description="일정 제한 없이 지원 가능한 공고를 따로 모아 보여줍니다."
-          jobPostings={groupedJobPostings.rolling}
-          emptyMessage={rollingEmptyMessage}
-          hideRecruitmentModeBadge
-          pageSize={pageSize}
-        />
+        {categoryFilter === "ALL" ? (
+          <JobPostingSection
+            key={`ROLLING:${sectionResetKey}`}
+            title="상시 채용"
+            description="일정 제한 없이 지원 가능한 공고를 따로 모아 보여줍니다."
+            jobPostings={groupedJobPostings.rolling}
+            emptyMessage={rollingEmptyMessage}
+            hideRecruitmentModeBadge
+            pageSize={pageSize}
+          />
+        ) : null}
       </div>
     </div>
   );
