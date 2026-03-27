@@ -62,7 +62,7 @@ export default async function CandidateLoginPage({
 
         <div className="mt-8 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
           <Link href="/" className="transition-colors hover:text-primary">
-            홈으로
+            홈으로 이동
           </Link>
           <Link href="/admin/login" className="transition-colors hover:text-primary">
             관리자 로그인

@@ -31,7 +31,7 @@ export default async function AdminNewJobPostingPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            New job posting
+            새 공고
           </p>
           <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
             공고 등록

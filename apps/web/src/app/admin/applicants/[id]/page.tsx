@@ -77,57 +77,57 @@ export default async function AdminApplicantDetailPage({
             href="/admin/applicants"
             className="inline-flex items-center justify-center rounded-xl border border-outline px-4 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
-            Back to applicants
+            지원자 목록으로
           </Link>
         </div>
 
         <div className="mt-7 grid gap-4 lg:grid-cols-4">
-          <SummaryCard label="Draft saved" value={formatDateTime(applicant.draftSavedAt)} />
-          <SummaryCard label="Submitted at" value={formatDateTime(applicant.submittedAt)} />
-          <SummaryCard label="Reviewed at" value={formatDateTime(applicant.reviewedAt)} />
+          <SummaryCard label="임시 저장일" value={formatDateTime(applicant.draftSavedAt)} />
+          <SummaryCard label="제출일" value={formatDateTime(applicant.submittedAt)} />
+          <SummaryCard label="검토일" value={formatDateTime(applicant.reviewedAt)} />
           <SummaryCard
-            label="Final outcome"
-            value={applicant.finalStatus ? getFinalStatusLabel(applicant.finalStatus) : "Pending"}
+            label="최종 결과"
+            value={applicant.finalStatus ? getFinalStatusLabel(applicant.finalStatus) : "대기"}
           />
         </div>
       </section>
 
       <section className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_360px]">
         <div className="space-y-8">
-          <Panel title="Application notes" eyebrow="Summary">
+          <Panel title="지원 메모" eyebrow="요약">
             <dl className="grid gap-4 md:grid-cols-2">
-              <InfoRow label="Application ID" value={String(applicant.applicationId)} />
-              <InfoRow label="Posting key" value={applicant.jobPostingPublicKey} />
-              <InfoRow label="Review note" value={applicant.reviewNote ?? "-"} />
-              <InfoRow label="Final note" value={applicant.finalNote ?? "-"} />
+              <InfoRow label="지원 ID" value={String(applicant.applicationId)} />
+              <InfoRow label="공고 키" value={applicant.jobPostingPublicKey} />
+              <InfoRow label="검토 메모" value={applicant.reviewNote ?? "-"} />
+              <InfoRow label="최종 메모" value={applicant.finalNote ?? "-"} />
             </dl>
           </Panel>
 
-          <Panel title="Structured resume" eyebrow="Resume">
+          <Panel title="이력서 상세" eyebrow="이력서">
             <div className="space-y-6">
-              <ResumeList title="Education" items={applicant.educations.map((education) => ({
+              <ResumeList title="학력" items={applicant.educations.map((education) => ({
                 id: education.id ?? `${education.institution}-${education.sortOrder}`,
                 title: education.institution,
                 subtitle: [education.degree, education.fieldOfStudy].filter(Boolean).join(" / "),
                 meta: [education.startDate, education.endDate].filter(Boolean).join(" - "),
                 description: education.description,
               }))} />
-              <ResumeList title="Experience" items={applicant.experiences.map((experience) => ({
+              <ResumeList title="경력" items={applicant.experiences.map((experience) => ({
                 id: experience.id ?? `${experience.company}-${experience.sortOrder}`,
                 title: experience.company,
                 subtitle: experience.position,
                 meta: [experience.startDate, experience.endDate].filter(Boolean).join(" - "),
                 description: experience.description,
               }))} />
-              <ResumeTagList title="Skills" items={applicant.skills.map((skill) => `${skill.skillName}${skill.proficiency ? ` / ${skill.proficiency}` : ""}${skill.years ? ` / ${skill.years}y` : ""}`)} />
-              <ResumeList title="Certifications" items={applicant.certifications.map((certification) => ({
+              <ResumeTagList title="기술 스택" items={applicant.skills.map((skill) => `${skill.skillName}${skill.proficiency ? ` / ${skill.proficiency}` : ""}${skill.years ? ` / ${skill.years}y` : ""}`)} />
+              <ResumeList title="자격증" items={applicant.certifications.map((certification) => ({
                 id: certification.id ?? `${certification.certificationName}-${certification.sortOrder}`,
                 title: certification.certificationName,
                 subtitle: certification.issuer,
                 meta: certification.issuedDate ?? "",
-                description: certification.expiryDate ? `Expires: ${certification.expiryDate}` : "",
+                description: certification.expiryDate ? `만료: ${certification.expiryDate}` : "",
               }))} />
-              <ResumeList title="Languages" items={applicant.languages.map((language) => ({
+              <ResumeList title="언어" items={applicant.languages.map((language) => ({
                 id: language.id ?? `${language.languageName}-${language.sortOrder}`,
                 title: language.languageName,
                 subtitle: language.proficiency,
@@ -137,7 +137,7 @@ export default async function AdminApplicantDetailPage({
             </div>
           </Panel>
 
-          <Panel title="Raw payload" eyebrow="Debug">
+          <Panel title="원본 데이터" eyebrow="디버그">
             <pre className="max-h-[420px] overflow-auto rounded-2xl bg-[#1e2022] p-5 text-xs leading-6 text-[#e1e3e4]">
               {JSON.stringify(applicant.resumePayload, null, 2)}
             </pre>
@@ -145,9 +145,9 @@ export default async function AdminApplicantDetailPage({
         </div>
 
         <aside className="space-y-8 xl:sticky xl:top-8 xl:self-start">
-          <Panel title="Attachments" eyebrow="Files">
+          <Panel title="첨부파일" eyebrow="파일">
             {attachments.length === 0 ? (
-              <p className="text-sm text-on-surface-variant">No uploaded attachments.</p>
+              <p className="text-sm text-on-surface-variant">업로드된 첨부파일이 없습니다.</p>
             ) : (
               <ul className="space-y-3">
                 {attachments.map((attachment) => (
@@ -160,7 +160,7 @@ export default async function AdminApplicantDetailPage({
                       href={`/api/admin/attachments/${attachment.id}/download`}
                       className="mt-3 inline-flex rounded-sm border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface"
                     >
-                      Download
+                      다운로드
                     </a>
                   </li>
                 ))}

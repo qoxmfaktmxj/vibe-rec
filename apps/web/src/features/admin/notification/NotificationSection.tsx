@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,10 +16,10 @@ interface NotificationSectionProps {
 }
 
 const notificationTypeOptions = [
-  { value: "OFFER", label: "Offer" },
-  { value: "REJECTION", label: "Rejection" },
-  { value: "INTERVIEW_INVITE", label: "Interview invite" },
-  { value: "GENERAL", label: "General" },
+  { value: "OFFER", label: getNotificationTypeLabel("OFFER") },
+  { value: "REJECTION", label: getNotificationTypeLabel("REJECTION") },
+  { value: "INTERVIEW_INVITE", label: getNotificationTypeLabel("INTERVIEW_INVITE") },
+  { value: "GENERAL", label: getNotificationTypeLabel("GENERAL") },
 ];
 
 const inputClassName =
@@ -84,14 +84,14 @@ export function NotificationSection({
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="space-y-3">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
-            Notifications
+            알림 관리
           </p>
           <div className="space-y-2">
             <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
-              Record applicant communication
+              지원자 커뮤니케이션을 기록합니다
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
-              Keep a history of the messages sent to the applicant.
+              지원자에게 발송된 메시지 내역을 보관합니다.
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ export function NotificationSection({
           onClick={() => setShowForm((current) => !current)}
           className="rounded-xl bg-surface-container-high px-4 py-2.5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest"
         >
-          {showForm ? "Close" : "Add notification"}
+          {showForm ? "닫기" : "알림 추가"}
         </button>
       </div>
 
@@ -124,7 +124,7 @@ export function NotificationSection({
         >
           <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
             <label className="block text-sm font-semibold text-on-surface-variant">
-              Type
+              유형
               <select value={type} onChange={(event) => setType(event.target.value)} disabled={isPending} className={inputClassName}>
                 {notificationTypeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -135,14 +135,14 @@ export function NotificationSection({
             </label>
 
             <label className="block text-sm font-semibold text-on-surface-variant">
-              Title
-              <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} required disabled={isPending} className={inputClassName} placeholder="Short subject line" />
+              제목
+              <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} required disabled={isPending} className={inputClassName} placeholder="간략한 제목을 입력하세요" />
             </label>
           </div>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
-            Content
-            <textarea rows={4} value={content} onChange={(event) => setContent(event.target.value)} required disabled={isPending} className={`${inputClassName} resize-y`} placeholder="Summarize the message that was sent." />
+            내용
+            <textarea rows={4} value={content} onChange={(event) => setContent(event.target.value)} required disabled={isPending} className={`${inputClassName} resize-y`} placeholder="메시지 내용을 요약해 주세요..." />
           </label>
 
           <button
@@ -150,16 +150,16 @@ export function NotificationSection({
             disabled={isPending}
             className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? "Saving..." : "Save notification"}
+            {isPending ? "저장 중..." : "알림 저장"}
           </button>
         </form>
       ) : null}
 
       {notifications.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
-          <p className="text-sm font-semibold text-on-surface">No notifications yet.</p>
+          <p className="text-sm font-semibold text-on-surface">등록된 알림이 없습니다.</p>
           <p className="mt-2 text-sm leading-7 text-on-surface-variant">
-            Record the first communication to build the applicant timeline.
+            첫 번째 커뮤니케이션을 기록하세요.
           </p>
         </div>
       ) : (
@@ -182,7 +182,7 @@ export function NotificationSection({
                 {notification.content}
               </p>
               {notification.sentByName ? (
-                <p className="mt-2 text-xs text-outline">Recorded by {notification.sentByName}</p>
+                <p className="mt-2 text-xs text-outline">{notification.sentByName} 등록</p>
               ) : null}
             </div>
           ))}

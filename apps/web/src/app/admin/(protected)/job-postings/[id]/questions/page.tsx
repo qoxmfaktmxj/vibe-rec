@@ -76,17 +76,17 @@ export default async function AdminQuestionPage({ params }: QuestionPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            Job posting #{jobPostingId}
+            공고 #{jobPostingId}
           </p>
           <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-            Manage application questions
+            지원 문항 관리
           </h1>
         </div>
         <Link
           href="/admin"
           className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
         >
-          Back to dashboard
+          대시보드로
         </Link>
       </div>
 

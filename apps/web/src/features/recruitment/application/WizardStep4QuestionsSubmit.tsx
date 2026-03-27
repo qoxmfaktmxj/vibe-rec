@@ -9,7 +9,7 @@ const inputClassName =
 export const TREND_QUESTIONS = [
   {
     key: "motivation",
-    label: "모티베이션핏",
+    label: "지원 동기",
     question: "이 포지션에 지원하게 된 동기와 이 회사에서 이루고 싶은 목표를 알려주세요.",
   },
   {

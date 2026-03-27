@@ -1,9 +1,14 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import type { AdminJobPostingPayload } from "@/entities/admin/model";
+import {
+  getJobPostingStatusLabel,
+  getRecruitmentCategoryLabel,
+  getRecruitmentModeLabel,
+} from "@/shared/lib/recruitment";
 
 const fieldClassName =
   "w-full rounded-sm border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/20";
@@ -59,7 +64,7 @@ export function JobPostingEditorForm({
   });
 
   const isRolling = form.recruitmentMode === "ROLLING";
-  const submitLabel = mode === "create" ? "Create posting" : "Save changes";
+  const submitLabel = mode === "create" ? "공고 등록" : "변경사항 저장";
   const questionEditorHref =
     mode === "edit" && jobPostingId
       ? `/admin/job-postings/${jobPostingId}/questions`
@@ -107,7 +112,7 @@ export function JobPostingEditorForm({
 
   function handleSubmit() {
     if (!payload) {
-      setError("Complete all required fields before saving.");
+      setError("저장 전 모든 필수 항목을 입력해 주세요.");
       return;
     }
 
@@ -134,7 +139,7 @@ export function JobPostingEditorForm({
           | null;
 
         if (!response.ok) {
-          throw new Error(data?.message ?? data?.error ?? "Failed to save the posting.");
+          throw new Error(data?.message ?? data?.error ?? "공고 저장에 실패했습니다.");
         }
 
         const targetId = data?.id ?? jobPostingId;
@@ -151,7 +156,7 @@ export function JobPostingEditorForm({
         setError(
           submitError instanceof Error
             ? submitError.message
-            : "Failed to save the posting.",
+            : "공고 저장에 실패했습니다.",
         );
       }
     });
@@ -162,7 +167,7 @@ export function JobPostingEditorForm({
       <section className="rounded-sm border border-outline-variant bg-card p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Public key</span>
+            <span className="text-sm font-medium text-on-surface">공개 키</span>
             <input
               value={form.publicKey}
               onChange={(event) => updateField("publicKey", event.target.value)}
@@ -183,7 +188,7 @@ export function JobPostingEditorForm({
             />
           </label>
           <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-medium text-on-surface">Title</span>
+            <span className="text-sm font-medium text-on-surface">제목</span>
             <input
               value={form.title}
               onChange={(event) => updateField("title", event.target.value)}
@@ -192,7 +197,7 @@ export function JobPostingEditorForm({
             />
           </label>
           <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-medium text-on-surface">Headline</span>
+            <span className="text-sm font-medium text-on-surface">한줄 소개</span>
             <input
               value={form.headline}
               onChange={(event) => updateField("headline", event.target.value)}
@@ -201,7 +206,7 @@ export function JobPostingEditorForm({
             />
           </label>
           <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-medium text-on-surface">Description</span>
+            <span className="text-sm font-medium text-on-surface">상세 설명</span>
             <textarea
               value={form.description}
               onChange={(event) => updateField("description", event.target.value)}
@@ -210,7 +215,7 @@ export function JobPostingEditorForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Employment type</span>
+            <span className="text-sm font-medium text-on-surface">고용 형태</span>
             <input
               value={form.employmentType}
               onChange={(event) => updateField("employmentType", event.target.value)}
@@ -220,7 +225,7 @@ export function JobPostingEditorForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Location</span>
+            <span className="text-sm font-medium text-on-surface">근무지</span>
             <input
               value={form.location}
               onChange={(event) => updateField("location", event.target.value)}
@@ -235,7 +240,7 @@ export function JobPostingEditorForm({
       <section className="rounded-sm border border-outline-variant bg-card p-6">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Recruitment category</span>
+            <span className="text-sm font-medium text-on-surface">채용 분류</span>
             <select
               value={form.recruitmentCategory}
               onChange={(event) =>
@@ -247,12 +252,12 @@ export function JobPostingEditorForm({
               className={fieldClassName}
               disabled={isPending}
             >
-              <option value="NEW_GRAD">New grad</option>
-              <option value="EXPERIENCED">Experienced</option>
+              <option value="NEW_GRAD">{getRecruitmentCategoryLabel("NEW_GRAD")}</option>
+              <option value="EXPERIENCED">{getRecruitmentCategoryLabel("EXPERIENCED")}</option>
             </select>
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Recruitment mode</span>
+            <span className="text-sm font-medium text-on-surface">모집 방식</span>
             <select
               value={form.recruitmentMode}
               onChange={(event) =>
@@ -264,12 +269,12 @@ export function JobPostingEditorForm({
               className={fieldClassName}
               disabled={isPending}
             >
-              <option value="FIXED_TERM">Fixed term</option>
-              <option value="ROLLING">Rolling</option>
+              <option value="FIXED_TERM">{getRecruitmentModeLabel("FIXED_TERM")}</option>
+              <option value="ROLLING">{getRecruitmentModeLabel("ROLLING")}</option>
             </select>
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Status</span>
+            <span className="text-sm font-medium text-on-surface">상태</span>
             <select
               value={form.status}
               onChange={(event) =>
@@ -278,13 +283,13 @@ export function JobPostingEditorForm({
               className={fieldClassName}
               disabled={isPending}
             >
-              <option value="DRAFT">Draft</option>
-              <option value="OPEN">Open</option>
-              <option value="CLOSED">Closed</option>
+              <option value="DRAFT">{getJobPostingStatusLabel("DRAFT")}</option>
+              <option value="OPEN">{getJobPostingStatusLabel("OPEN")}</option>
+              <option value="CLOSED">{getJobPostingStatusLabel("CLOSED")}</option>
             </select>
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Published</span>
+            <span className="text-sm font-medium text-on-surface">공개 여부</span>
             <select
               value={form.published ? "true" : "false"}
               onChange={(event) =>
@@ -293,15 +298,15 @@ export function JobPostingEditorForm({
               className={fieldClassName}
               disabled={isPending}
             >
-              <option value="true">Yes</option>
-              <option value="false">No</option>
+              <option value="true">예</option>
+              <option value="false">아니오</option>
             </select>
           </label>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Opens at</span>
+            <span className="text-sm font-medium text-on-surface">시작일</span>
             <input
               type="datetime-local"
               value={form.opensAt}
@@ -311,7 +316,7 @@ export function JobPostingEditorForm({
             />
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-on-surface">Closes at</span>
+            <span className="text-sm font-medium text-on-surface">마감일</span>
             <input
               type="datetime-local"
               value={form.closesAt}
@@ -321,8 +326,8 @@ export function JobPostingEditorForm({
             />
             <p className="text-xs text-on-surface-variant">
               {isRolling
-                ? "Rolling postings do not require a closing time."
-                : "Set a closing time for fixed-term recruitment."}
+                ? "상시 채용 공고는 마감일이 필요하지 않습니다."
+                : "기간 채용의 마감일을 설정하세요."}
             </p>
           </label>
         </div>
@@ -354,7 +359,7 @@ export function JobPostingEditorForm({
               href={questionEditorHref}
               className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
             >
-              Edit questions
+              질문 관리
             </a>
           ) : null}
         </div>
@@ -363,7 +368,7 @@ export function JobPostingEditorForm({
           onClick={() => router.push("/admin")}
           className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
         >
-          Back to dashboard
+          대시보드로
         </button>
       </div>
     </div>

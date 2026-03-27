@@ -34,13 +34,13 @@ export default async function AdminEditJobPostingPage({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            Job posting #{jobPostingId}
+            새 공고 #{jobPostingId}
           </p>
           <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
-            Edit job posting
+            공고 수정
           </h1>
           <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-            Update the category, recruitment mode, and publication schedule in one place.
+            채용 분류, 모집 방식, 공개 일정을 한 곳에서 수정합니다.
           </p>
         </div>
         <div className="flex gap-3">
@@ -48,13 +48,13 @@ export default async function AdminEditJobPostingPage({
             href={`/admin/job-postings/${jobPostingId}/questions`}
             className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
           >
-            Edit questions
+            질문 관리
           </Link>
           <Link
             href="/admin"
             className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
           >
-            Back to dashboard
+            대시보드로
           </Link>
         </div>
       </div>

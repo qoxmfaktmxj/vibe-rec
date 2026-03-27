@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 
@@ -74,7 +74,7 @@ export function JobPostingQuestionEditor({
   function handleSave() {
     startTransition(async () => {
       setError(null);
-      setSaveStatus("Saving...");
+      setSaveStatus("저장 중...");
       try {
         const payload = questions.map((q) => ({
           questionText: q.questionText.trim(),
@@ -108,37 +108,37 @@ export function JobPostingQuestionEditor({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-headline text-lg font-medium text-on-surface">Posting questions</h2>
+        <h2 className="font-headline text-lg font-medium text-on-surface">지원 문항</h2>
         <button
           type="button"
           onClick={addQuestion}
           className="rounded-lg bg-surface-container-high px-4 py-2 text-xs font-semibold text-on-surface transition hover:bg-surface-container-highest"
         >
-          Add question
+          문항 추가
         </button>
       </div>
 
       {questions.length === 0 && (
         <p className="py-8 text-center text-sm text-on-surface-variant">
-          No custom questions yet. Add one to start building the application form.
+          등록된 문항이 없습니다. 지원서 양식에 포함할 문항을 추가하세요.
         </p>
       )}
 
       {questions.map((q, qIdx) => (
         <div key={qIdx} className="space-y-4 rounded-sm border border-outline-variant bg-card p-5">
           <div className="flex items-start justify-between gap-2">
-            <span className="text-xs font-medium text-outline">Question {qIdx + 1}</span>
+            <span className="text-xs font-medium text-outline">문항 {qIdx + 1}</span>
             <button
               type="button"
               onClick={() => removeQuestion(qIdx)}
               className="text-xs text-outline transition hover:text-destructive"
             >
-              Remove
+              삭제
             </button>
           </div>
 
           <input
-            placeholder="Enter the question text"
+            placeholder="질문 내용을 입력하세요"
             disabled={isPending}
             className={inputClassName}
             value={q.questionText}
@@ -147,7 +147,7 @@ export function JobPostingQuestionEditor({
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-xs text-on-surface-variant">Type:</label>
+              <label className="text-xs text-on-surface-variant">유형:</label>
               <select
                 disabled={isPending}
                 className={`w-32 ${inputClassName}`}
@@ -159,9 +159,9 @@ export function JobPostingQuestionEditor({
                   })
                 }
               >
-                <option value="TEXT">Text</option>
-                <option value="CHOICE">Choice</option>
-                <option value="SCALE">Scale (1-5)</option>
+                <option value="TEXT">텍스트</option>
+                <option value="CHOICE">선택형</option>
+                <option value="SCALE">척도 (1-5)</option>
               </select>
             </div>
 
@@ -172,17 +172,17 @@ export function JobPostingQuestionEditor({
                 onChange={(e) => updateQuestion(qIdx, { required: e.target.checked })}
                 className="h-4 w-4"
               />
-              Required
+              필수
             </label>
           </div>
 
           {q.questionType === "CHOICE" && (
             <div className="space-y-2 pl-4">
-              <span className="text-xs text-on-surface-variant">Choices:</span>
+              <span className="text-xs text-on-surface-variant">선택지:</span>
               {q.choices.map((choice, cIdx) => (
                 <div key={cIdx} className="flex items-center gap-2">
                   <input
-                    placeholder={`Choice ${cIdx + 1}`}
+                    placeholder={`선택지 ${cIdx + 1}`}
                     disabled={isPending}
                     className={`flex-1 ${inputClassName}`}
                     value={choice}
@@ -193,7 +193,7 @@ export function JobPostingQuestionEditor({
                     onClick={() => removeChoice(qIdx, cIdx)}
                     className="text-xs text-outline hover:text-destructive"
                   >
-                    Remove
+                    삭제
                   </button>
                 </div>
               ))}
@@ -202,7 +202,7 @@ export function JobPostingQuestionEditor({
                 onClick={() => addChoice(qIdx)}
                 className="text-xs text-primary hover:underline"
               >
-                Add choice
+                선택지 추가
               </button>
             </div>
           )}
@@ -223,7 +223,7 @@ export function JobPostingQuestionEditor({
           onClick={handleSave}
           className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
         >
-          Save questions
+          문항 저장
         </button>
       </div>
     </div>

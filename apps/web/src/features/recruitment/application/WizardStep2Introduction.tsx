@@ -41,9 +41,9 @@ export function WizardStep2Introduction({ data, onChange, disabled }: WizardStep
         <label className="mb-1.5 block text-xs font-semibold text-on-surface-variant">
           핵심 역량 <span className="text-destructive">*</span>
         </label>
-        <p className="mb-2 text-[11px] text-outline">이 직무에서 발휘할 수 있는 가장 강점을 설명해주세요.</p>
+        <p className="mb-2 text-[11px] text-outline">이 직무에서 발휘할 수 있는 핵심 강점을 설명해주세요.</p>
         <textarea
-          placeholder="이 직무에서 발휘할 수 있는 가장 강점을 설명해주세요. (최소 10자)"
+          placeholder="이 직무에서 발휘할 수 있는 핵심 강점을 설명해주세요. (최소 10자)"
           rows={4}
           disabled={disabled}
           className={`resize-y ${inputClassName}`}
@@ -57,7 +57,7 @@ export function WizardStep2Introduction({ data, onChange, disabled }: WizardStep
 
       <div>
         <label className="mb-1.5 block text-xs font-semibold text-on-surface-variant">
-          모티베이션핏
+          지원 동기
         </label>
         <p className="mb-2 text-[11px] text-outline">이 포지션에 지원하게 된 동기와 이 회사에서 이루고 싶은 목표를 알려주세요.</p>
         <textarea

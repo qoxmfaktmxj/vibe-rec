@@ -17,6 +17,7 @@ import {
   formatDateTime,
   formatFileSize,
   getApplicationStatusClassName,
+  getApplicationStatusLabel,
 } from "@/shared/lib/recruitment";
 
 interface ApplicationDraftFormProps {
@@ -134,9 +135,6 @@ function buildInitialAnswers(questions: JobPostingQuestion[], initialApplication
   });
 }
 
-function getStatusLabel(status: "DRAFT" | "SUBMITTED") {
-  return status === "SUBMITTED" ? "제출 완료" : "임시저장";
-}
 
 function normalizeAttachment(attachment: ApplicationAttachment | AttachmentSummary): ApplicationAttachment {
   if ("originalName" in attachment) return attachment;
@@ -190,7 +188,7 @@ export function ApplicationDraftForm({
 
   const isSubmitted = application?.status === "SUBMITTED";
   const formDisabled = !canSave || isSubmitted || pendingAction !== null;
-  const statusLabel = useMemo(() => (application ? getStatusLabel(application.status) : null), [application]);
+  const statusLabel = useMemo(() => (application ? getApplicationStatusLabel(application.status) : null), [application]);
 
   useEffect(() => {
     async function loadAttachments(applicationId: number) {
@@ -287,14 +285,14 @@ export function ApplicationDraftForm({
 
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? (mode === "draft" ? "지원서를 임시저장하지 못했습니다." : "지원서를 제출하지 못했습니다."));
+        setErrorMessage(responseBody.message ?? (mode === "draft" ? "지원서를 임시 저장하지 못했습니다." : "지원서를 제출하지 못했습니다."));
         return;
       }
 
       await refreshApplication();
-      setMessage(mode === "draft" ? "임시저장되었습니다." : "지원서 제출이 완료되었습니다.");
+      setMessage(mode === "draft" ? "임시 저장되었습니다." : "지원서 제출이 완료되었습니다.");
     } catch {
-      setErrorMessage(mode === "draft" ? "임시저장 중 오류가 발생했습니다." : "제출 중 오류가 발생했습니다.");
+      setErrorMessage(mode === "draft" ? "임시 저장 중 오류가 발생했습니다." : "제출 중 오류가 발생했습니다.");
     } finally {
       setPendingAction(null);
     }
@@ -302,7 +300,7 @@ export function ApplicationDraftForm({
 
   async function handleFileUpload(files: FileList) {
     if (!application?.applicationId) {
-      setErrorMessage("임시저장 후 첨부파일을 업로드할 수 있습니다.");
+      setErrorMessage("임시 저장 후 첨부파일을 업로드할 수 있습니다.");
       return;
     }
 
@@ -492,7 +490,7 @@ export function ApplicationDraftForm({
         <section className="space-y-4">
           <div>
             <h3 className="text-lg font-semibold text-on-surface">첨부파일</h3>
-            <p className="mt-1 text-sm text-on-surface-variant">임시저장 후 PDF, DOC, DOCX, JPG, PNG 파일을 업로드할 수 있습니다.</p>
+            <p className="mt-1 text-sm text-on-surface-variant">임시 저장 후 PDF, DOC, DOCX, JPG, PNG 파일을 업로드할 수 있습니다.</p>
           </div>
           <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_FILE_TYPES} disabled={formDisabled || uploadingFiles || !application?.applicationId} onChange={(event) => { if (event.target.files?.length) void handleFileUpload(event.target.files); }} className="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface" />
           {attachments.length > 0 ? (
@@ -513,7 +511,7 @@ export function ApplicationDraftForm({
         {isSubmitted ? <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">이미 제출된 지원서입니다.</div> : null}
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface">{pendingAction === "draft" ? "저장 중.." : "임시저장"}</button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface">{pendingAction === "draft" ? "저장 중.." : "임시 저장"}</button>
           <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("submit"); }); }} className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">{pendingAction === "submit" ? "제출 중.." : "최종 제출"}</button>
         </div>
       </form>
