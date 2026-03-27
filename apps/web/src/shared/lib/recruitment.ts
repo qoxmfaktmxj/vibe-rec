@@ -226,17 +226,6 @@ export function getApplicationStatusLabel(status: ApplicationStatus) {
   }
 }
 
-export function getApplicationStatusLabel(status: ApplicationStatus) {
-  switch (status) {
-    case "SUBMITTED":
-      return "제출 완료";
-    case "DRAFT":
-      return "임시 저장";
-    default:
-      return status;
-  }
-}
-
 export function getApplicationStatusClassName(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
