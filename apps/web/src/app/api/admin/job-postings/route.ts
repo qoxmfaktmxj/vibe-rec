@@ -2,14 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
-
-function getApiBaseUrl() {
-  return (
-    process.env.API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "http://127.0.0.1:8081/api"
-  ).replace(/\/$/, "");
-}
+import { getApiBaseUrl } from "@/shared/lib/api-config";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();

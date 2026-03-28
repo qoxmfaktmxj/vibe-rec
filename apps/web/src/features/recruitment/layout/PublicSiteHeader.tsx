@@ -24,7 +24,7 @@ export async function PublicSiteHeader({
   ]);
 
   return (
-    <nav className="glass-nav sticky top-0 z-50 border-b border-outline-variant px-6 py-4 md:px-16">
+    <nav className="flat-nav sticky top-0 z-50 px-6 py-4 md:px-16">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center justify-between gap-6">
           <Link
@@ -43,7 +43,7 @@ export async function PublicSiteHeader({
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[13px] font-normal text-on-surface transition-colors hover:text-primary"
+                className="text-sm font-medium text-on-surface transition-colors hover:text-primary"
               >
                 {item.label}
               </a>
@@ -51,7 +51,7 @@ export async function PublicSiteHeader({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-[13px] font-normal transition-colors hover:text-primary ${
+                className={`text-sm font-medium transition-colors hover:text-primary ${
                   activePath.startsWith(item.href) ? "text-primary" : "text-on-surface"
                 }`}
               >
@@ -66,7 +66,7 @@ export async function PublicSiteHeader({
                 href="/me"
                 className="text-right transition-colors hover:text-primary"
               >
-                <p className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <p className="text-xs font-medium text-on-surface-variant">
                   지원자
                 </p>
                 <p className="text-sm text-on-surface">{candidateSession.name}</p>
@@ -76,14 +76,14 @@ export async function PublicSiteHeader({
           ) : adminSession ? (
             <div className="flex flex-wrap items-center gap-3">
               <div className="text-right">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <p className="text-xs font-medium text-on-surface-variant">
                   관리자
                 </p>
                 <p className="text-sm text-on-surface">{adminSession.displayName}</p>
               </div>
               <Link
                 href="/admin"
-                className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+                className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 대시보드
               </Link>
@@ -93,13 +93,13 @@ export async function PublicSiteHeader({
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/auth/login"
-                className="rounded-sm bg-primary px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+                className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 로그인
               </Link>
               <Link
                 href="/auth/login?mode=signup"
-                className="rounded-sm border border-outline-variant px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+                className="rounded-lg border border-outline-variant px-5 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
               >
                 회원가입
               </Link>

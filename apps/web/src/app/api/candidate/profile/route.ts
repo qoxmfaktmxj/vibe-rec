@@ -1,11 +1,9 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-const CANDIDATE_SESSION_COOKIE = "vibe_rec_candidate_session";
+import { getApiBaseUrl } from "@/shared/lib/api-config";
 
-function getApiBaseUrl() {
-  return (process.env.API_BASE_URL ?? process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8081/api").replace(/\/$/, "");
-}
+const CANDIDATE_SESSION_COOKIE = "vibe_rec_candidate_session";
 
 export async function GET() {
   const cookieStore = await cookies();

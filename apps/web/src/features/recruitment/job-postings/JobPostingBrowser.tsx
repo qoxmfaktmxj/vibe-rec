@@ -90,7 +90,7 @@ function JobPostingSection({
             {description}
           </p>
         </div>
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+        <span className="text-xs font-medium text-on-surface-variant">
           총 {jobPostings.length}건
         </span>
       </div>
@@ -227,10 +227,10 @@ export function JobPostingBrowser({
   return (
     <div className="space-y-10">
       {searchable ? (
-        <section className="rounded-sm border border-outline-variant bg-card p-5">
+        <section className="rounded-xl border border-outline-variant bg-card p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
-              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+              <p className="text-xs font-semibold text-primary">
                 채용 검색
               </p>
               <div role="group" aria-label="채용 카테고리 필터" className="flex flex-wrap gap-2">
@@ -245,14 +245,14 @@ export function JobPostingBrowser({
                       onClick={() => setCategoryFilter(filter.value)}
                       aria-pressed={isActive}
                       aria-describedby="job-posting-filter-description"
-                      className={`rounded-sm border px-4 py-2 text-xs font-medium tracking-[0.08em] transition-colors ${
+                      className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
                         isActive
                           ? "border-primary bg-primary text-primary-foreground"
-                          : "border-outline-variant bg-background text-on-surface"
+                          : "border-outline-variant bg-background text-on-surface hover:border-primary/40"
                       }`}
                     >
                       <span>{filter.label}</span>
-                      <span className="ml-2 font-mono text-[10px] tracking-[0.14em] opacity-80">
+                      <span className="ml-2 text-xs opacity-70">
                         {filterCount}
                       </span>
                     </button>
@@ -268,7 +268,7 @@ export function JobPostingBrowser({
             </div>
 
             <label className="block min-w-0 lg:w-[360px]">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.18em] text-on-surface-variant">
+              <span className="mb-2 block text-xs font-medium text-on-surface-variant">
                 키워드 검색
               </span>
               <input
@@ -276,7 +276,7 @@ export function JobPostingBrowser({
                 onChange={(event) => setQuery(event.target.value)}
                 type="search"
                 placeholder={searchPlaceholder}
-                className="w-full rounded-sm border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </label>
           </div>

@@ -28,13 +28,13 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-sm border border-outline-variant bg-card p-8">
+      <section className="rounded-xl border border-outline-variant bg-card p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+            <p className="text-xs font-semibold text-primary">
               대시보드
             </p>
-            <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+            <h1 className="mt-2 font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface">
               채용 공고 관리
             </h1>
             <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -45,19 +45,19 @@ export default async function AdminPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/job-postings/new"
-              className="rounded-sm bg-primary px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground"
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
               공고 등록
             </Link>
             <Link
               href="/admin/applicants"
-              className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+              className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
             >
               지원자 보기
             </Link>
             <Link
               href="/"
-              className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+              className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
             >
               공개 사이트
             </Link>
@@ -65,7 +65,7 @@ export default async function AdminPage() {
         </div>
 
         {loadError ? (
-          <div className="mt-6 rounded-sm border border-error/40 bg-error-container px-4 py-4 text-sm text-destructive">
+          <div className="mt-6 rounded-lg border border-destructive/30 bg-error-container px-4 py-4 text-sm text-destructive">
             <p className="font-medium">관리자 공고 목록을 불러오지 못했습니다.</p>
             <p className="mt-2 leading-6">{loadError}</p>
           </div>
@@ -80,7 +80,7 @@ export default async function AdminPage() {
       </section>
 
       {loadError ? null : (
-        <section className="rounded-sm border border-outline-variant bg-card p-8">
+        <section className="rounded-xl border border-outline-variant bg-card p-8">
           <div className="space-y-10">
             <PaginatedAdminJobPostingSection
               title="신입 채용"
@@ -117,11 +117,11 @@ function StatCard({
   accent?: string;
 }) {
   return (
-    <div className="rounded-sm border border-outline-variant bg-surface-container-low px-5 py-5">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+    <div className="stat-card card-shadow rounded-xl border border-outline-variant bg-card px-5 py-5 transition-colors hover:bg-surface-container-low">
+      <p className="text-xs font-medium text-on-surface-variant">
         {label}
       </p>
-      <p className={`mt-3 font-headline text-4xl font-light tracking-[-0.06em] ${accent}`}>
+      <p className={`mt-2 font-headline text-4xl font-bold tracking-[-0.04em] ${accent}`}>
         {value}
       </p>
     </div>

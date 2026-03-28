@@ -9,8 +9,7 @@ import type {
   JobPostingSummary,
   SaveApplicationDraftPayload,
 } from "@/entities/recruitment/model";
-
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8081/api";
+import { getApiBaseUrl } from "@/shared/lib/api-config";
 
 export class ApiError extends Error {
   constructor(
@@ -21,15 +20,6 @@ export class ApiError extends Error {
     this.name = "ApiError";
     Object.setPrototypeOf(this, new.target.prototype);
   }
-}
-
-function getApiBaseUrl() {
-  const baseUrl =
-    process.env.API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    DEFAULT_API_BASE_URL;
-
-  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 }
 
 async function parseResponse<T>(response: Response) {

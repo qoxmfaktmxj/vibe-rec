@@ -18,6 +18,7 @@ target/
 .env
 .env.local
 .env.*.local
+.env.deploy
 
 *.log
 apps/web/.git.create-next-app.backup/

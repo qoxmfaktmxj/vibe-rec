@@ -49,13 +49,13 @@ export function PaginatedAdminJobPostingSection({
             {description}
           </p>
         </div>
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+        <span className="text-xs font-medium text-on-surface-variant">
           총 {jobPostings.length}건
         </span>
       </div>
 
       {visibleJobPostings.length === 0 ? (
-        <div className="rounded-sm border border-outline-variant bg-surface-container-low px-5 py-6 text-sm text-on-surface-variant">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-low px-5 py-6 text-sm text-on-surface-variant">
           {emptyMessage}
         </div>
       ) : (
@@ -63,15 +63,15 @@ export function PaginatedAdminJobPostingSection({
           {visibleJobPostings.map((jobPosting) => (
             <div
               key={jobPosting.id}
-              className="flex flex-wrap items-start justify-between gap-4 rounded-sm border border-outline-variant bg-surface-container-low px-5 py-4"
+              className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-outline-variant bg-surface-container-low px-5 py-4"
             >
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-sm bg-background px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-on-surface">
+                  <span className="rounded-md bg-background px-2.5 py-1 text-xs font-medium text-on-surface">
                     {getRecruitmentCategoryLabel(jobPosting.recruitmentCategory)}
                   </span>
                   <span
-                    className={`rounded-sm px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] ${
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium ${
                       jobPosting.recruitmentMode === "ROLLING"
                         ? "bg-primary/10 text-primary"
                         : "bg-stone-100 text-stone-700"
@@ -80,13 +80,13 @@ export function PaginatedAdminJobPostingSection({
                     {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
                   </span>
                   <span
-                    className={`rounded-sm px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] ${getJobPostingStatusClassName(
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium ${getJobPostingStatusClassName(
                       jobPosting.status,
                     )}`}
                   >
                     {getJobPostingStatusLabel(jobPosting.status)}
                   </span>
-                  <span className="rounded-sm bg-background px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-on-surface-variant">
+                  <span className="rounded-md bg-background px-2.5 py-1 text-xs font-medium text-on-surface-variant">
                     {jobPosting.published ? "공개" : "비공개"}
                   </span>
                 </div>
@@ -97,7 +97,7 @@ export function PaginatedAdminJobPostingSection({
                 <p className="text-sm text-on-surface-variant">
                   {jobPosting.headline}
                 </p>
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <p className="text-xs font-medium text-on-surface-variant">
                   {jobPosting.location} · {jobPosting.employmentType} · {formatRecruitmentPeriod(jobPosting)}
                 </p>
               </div>
@@ -105,13 +105,13 @@ export function PaginatedAdminJobPostingSection({
               <div className="flex flex-wrap gap-2">
                 <Link
                   href={`/admin/job-postings/${jobPosting.id}`}
-                  className="rounded-sm bg-primary px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground"
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:shadow-md"
                 >
                   공고 수정
                 </Link>
                 <Link
                   href={`/admin/job-postings/${jobPosting.id}/questions`}
-                  className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+                  className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
                 >
                   질문 관리
                 </Link>

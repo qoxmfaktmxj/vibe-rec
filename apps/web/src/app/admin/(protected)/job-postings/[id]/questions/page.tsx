@@ -5,17 +5,14 @@ import { cookies } from "next/headers";
 import { JobPostingQuestionEditor } from "@/features/admin/questions/JobPostingQuestionEditor";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
+import { getApiBaseUrl } from "@/shared/lib/api-config";
 
 interface QuestionPageProps {
   params: Promise<{ id: string }>;
 }
 
 async function getAdminJobPostingQuestions(jobPostingId: number) {
-  const baseUrl = (
-    process.env.API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "http://127.0.0.1:8081/api"
-  ).replace(/\/$/, "");
+  const baseUrl = getApiBaseUrl();
 
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;

@@ -9,8 +9,9 @@ import type {
   AdminSignupPayload,
 } from "@/entities/admin/model";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
+import { getApiBaseUrl } from "@/shared/lib/api-config";
 
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8081/api";
+export { getApiBaseUrl };
 
 export class AdminApiError extends Error {
   constructor(
@@ -21,15 +22,6 @@ export class AdminApiError extends Error {
     this.name = "AdminApiError";
     Object.setPrototypeOf(this, new.target.prototype);
   }
-}
-
-export function getApiBaseUrl() {
-  const baseUrl =
-    process.env.API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    DEFAULT_API_BASE_URL;
-
-  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 }
 
 async function parseAdminResponse<T>(response: Response) {
