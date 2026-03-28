@@ -85,7 +85,7 @@ class RecruitmentMvpTests extends IntegrationTestBase {
 
         assertThat(jobPostings)
                 .extracting("title")
-                .contains("Platform Backend Engineer", "HR Talent Acquisition Partner", "Finance Operations Associate");
+                .contains("백엔드 플랫폼 엔지니어", "프로덕트 디자이너", "데이터 분석가 (채용 운영)");
 
         assertThat(jobPostings)
                 .extracting("employmentType")
