@@ -85,31 +85,31 @@
    Success/CTA: Green #16A34A
    ══════════════════════════════════════════════════ */
 :root {
-  --surface: #F0F9FF;
+  --surface: #E8F4FC;
   --surface-container-lowest: #ffffff;
-  --surface-container-low: #F0F4F8;
-  --surface-container: #E8EEF4;
-  --surface-container-high: #DDE5ED;
-  --surface-container-highest: #D0DAE4;
+  --surface-container-low: #E4EEF6;
+  --surface-container: #D8E6F0;
+  --surface-container-high: #CBDCE8;
+  --surface-container-highest: #BDD0DF;
 
   --on-surface: #0C4A6E;
   --on-surface-variant: rgba(12, 74, 110, 0.65);
 
   --outline: rgba(12, 74, 110, 0.4);
-  --outline-variant: #BAE6FD;
+  --outline-variant: rgba(3, 105, 161, 0.18);
 
   --primary: #0369A1;
   --primary-foreground: #ffffff;
-  --primary-container: #E0F2FE;
+  --primary-container: #DBEEFE;
   --primary-fixed: #BAE6FD;
 
   --secondary: #0EA5E9;
   --secondary-foreground: #ffffff;
-  --secondary-container: #E0F2FE;
+  --secondary-container: #DBEEFE;
   --secondary-fixed: #BAE6FD;
 
   --tertiary: #0C4A6E;
-  --tertiary-container: #F0F9FF;
+  --tertiary-container: #E8F4FC;
 
   --success: #16A34A;
   --success-container: #DCFCE7;
@@ -117,25 +117,25 @@
   --destructive: #DC2626;
   --error-container: #FEE2E2;
 
-  --background: #F0F9FF;
+  --background: #EDF5FB;
   --foreground: #0C4A6E;
   --card: #ffffff;
   --card-foreground: #0C4A6E;
   --popover: #ffffff;
   --popover-foreground: #0C4A6E;
-  --muted: #F0F4F8;
+  --muted: #E4EEF6;
   --muted-foreground: rgba(12, 74, 110, 0.65);
-  --accent: #E0F2FE;
+  --accent: #DBEEFE;
   --accent-foreground: #0C4A6E;
-  --border: #BAE6FD;
-  --input: #F0F4F8;
+  --border: rgba(3, 105, 161, 0.18);
+  --input: #E4EEF6;
   --ring: #0369A1;
 
   --chart-1: #0369A1;
   --chart-2: #0EA5E9;
   --chart-3: #16A34A;
   --chart-4: #0C4A6E;
-  --chart-5: #E0F2FE;
+  --chart-5: #DBEEFE;
 
   --radius: 0.5rem;
 
@@ -250,8 +250,10 @@
 }
 
 .flat-nav {
-  background: rgba(240, 249, 255, 0.96);
+  background: rgba(237, 245, 251, 0.97);
   border-bottom: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 
 .flat-panel {
@@ -293,7 +295,7 @@
    Hero Section — Cool Blue Tint
    ══════════════════════════════════════════════════ */
 .hero-gradient {
-  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 35%, #BAE6FD 65%, #F0F9FF 100%);
+  background: linear-gradient(135deg, #EDF5FB 0%, #DBEEFE 35%, #BAE6FD 65%, #EDF5FB 100%);
   position: relative;
   overflow: hidden;
 }

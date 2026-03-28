@@ -46,7 +46,7 @@ export default async function Home() {
               </a>
               <a
                 href="/auth/login"
-                className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-white px-7 py-3.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/5"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-card px-7 py-3.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/5"
               >
                 지원자 로그인
               </a>
