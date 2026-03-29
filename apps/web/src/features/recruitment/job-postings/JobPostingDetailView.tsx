@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 
 import type { JobPostingDetail } from "@/entities/recruitment/model";
 import {
-  getEmploymentTypeLabel,
   formatDateRange,
   formatRecruitmentPeriod,
+  getEmploymentTypeLabel,
   getRecruitmentCategoryLabel,
   getRecruitmentModeLabel,
   getStepTypeLabel,

@@ -1,5 +1,6 @@
-﻿import "server-only";
+import "server-only";
 
+import type { AttachmentSummary } from "@/entities/recruitment/attachment-model";
 import type {
   CandidateApplicationDetail,
   CandidateApplicationSummary,
@@ -143,6 +144,15 @@ export async function getCandidateApplicationForJobPosting(
 
 export async function getCandidateApplications(sessionToken: string) {
   return apiFetch<CandidateApplicationSummary[]>("/candidate/applications", {
+    headers: withCandidateSession(sessionToken),
+  });
+}
+
+export async function getCandidateApplicationAttachments(
+  applicationId: number,
+  sessionToken: string,
+) {
+  return apiFetch<AttachmentSummary[]>(`/applications/${applicationId}/attachments`, {
     headers: withCandidateSession(sessionToken),
   });
 }

@@ -85,18 +85,18 @@
    Success/CTA: Green #16A34A
    ══════════════════════════════════════════════════ */
 :root {
-  --surface: #E8F4FC;
+  --surface: #ffffff;
   --surface-container-lowest: #ffffff;
-  --surface-container-low: #E4EEF6;
-  --surface-container: #D8E6F0;
-  --surface-container-high: #CBDCE8;
-  --surface-container-highest: #BDD0DF;
+  --surface-container-low: #f8fafc;
+  --surface-container: #f1f5f9;
+  --surface-container-high: #e2e8f0;
+  --surface-container-highest: #cbd5e1;
 
-  --on-surface: #0C4A6E;
-  --on-surface-variant: rgba(12, 74, 110, 0.65);
+  --on-surface: #0f172a;
+  --on-surface-variant: rgba(15, 23, 42, 0.6);
 
-  --outline: rgba(12, 74, 110, 0.4);
-  --outline-variant: rgba(3, 105, 161, 0.18);
+  --outline: rgba(15, 23, 42, 0.3);
+  --outline-variant: rgba(15, 23, 42, 0.12);
 
   --primary: #0369A1;
   --primary-foreground: #ffffff;
@@ -109,7 +109,7 @@
   --secondary-fixed: #BAE6FD;
 
   --tertiary: #0C4A6E;
-  --tertiary-container: #E8F4FC;
+  --tertiary-container: #eff6ff;
 
   --success: #16A34A;
   --success-container: #DCFCE7;
@@ -117,18 +117,18 @@
   --destructive: #DC2626;
   --error-container: #FEE2E2;
 
-  --background: #EDF5FB;
-  --foreground: #0C4A6E;
+  --background: #ffffff;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #0C4A6E;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #0C4A6E;
-  --muted: #E4EEF6;
-  --muted-foreground: rgba(12, 74, 110, 0.65);
-  --accent: #DBEEFE;
-  --accent-foreground: #0C4A6E;
-  --border: rgba(3, 105, 161, 0.18);
-  --input: #E4EEF6;
+  --popover-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: rgba(15, 23, 42, 0.6);
+  --accent: #eff6ff;
+  --accent-foreground: #0f172a;
+  --border: rgba(15, 23, 42, 0.12);
+  --input: #f1f5f9;
   --ring: #0369A1;
 
   --chart-1: #0369A1;
@@ -250,7 +250,7 @@
 }
 
 .flat-nav {
-  background: rgba(237, 245, 251, 0.97);
+  background: rgba(255, 255, 255, 0.97);
   border-bottom: 1px solid var(--border);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
@@ -295,7 +295,7 @@
    Hero Section — Cool Blue Tint
    ══════════════════════════════════════════════════ */
 .hero-gradient {
-  background: linear-gradient(135deg, #EDF5FB 0%, #DBEEFE 35%, #BAE6FD 65%, #EDF5FB 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 40%, #dbeafe 70%, #f8fafc 100%);
   position: relative;
   overflow: hidden;
 }
@@ -308,7 +308,7 @@
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(3, 105, 161, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(3, 105, 161, 0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -320,7 +320,7 @@
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -333,8 +333,8 @@
 
 .card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -8px rgba(3, 105, 161, 0.12);
-  border-color: rgba(3, 105, 161, 0.25);
+  box-shadow: 0 8px 24px -8px rgba(3, 105, 161, 0.10);
+  border-color: rgba(3, 105, 161, 0.20);
 }
 
 /* ══════════════════════════════════════════════════
@@ -407,12 +407,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(12, 74, 110, 0.12);
+  background: rgba(15, 23, 42, 0.10);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(12, 74, 110, 0.22);
+  background: rgba(15, 23, 42, 0.20);
 }
 
 /* ══════════════════════════════════════════════════

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -122,12 +122,22 @@ export function CandidateApplicationsPanel({
 
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
-                  href={`/job-postings/${application.jobPostingId}`}
+                  href={
+                    application.status === "DRAFT"
+                      ? `/job-postings/${application.jobPostingId}/apply`
+                      : `/me/applications/${application.applicationId}`
+                  }
                   className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
                 >
                   {application.status === "DRAFT"
                     ? "이어서 작성"
-                    : "공고에서 진행 상태 보기"}
+                    : "지원서 보기"}
+                </Link>
+                <Link
+                  href={`/job-postings/${application.jobPostingId}`}
+                  className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+                >
+                  원문 공고 보기
                 </Link>
               </div>
             </article>
@@ -168,11 +178,11 @@ export function CandidateApplicationsPanel({
                   href={
                     application.status === "DRAFT"
                       ? `/job-postings/${application.jobPostingId}/apply`
-                      : `/job-postings/${application.jobPostingId}`
+                      : `/me/applications/${application.applicationId}`
                   }
                   className="text-xs font-medium text-primary hover:underline"
                 >
-                  {application.status === "DRAFT" ? "이어서 작성" : "상세 보기"}
+                  {application.status === "DRAFT" ? "이어서 작성" : "지원서 보기"}
                 </Link>
               </div>
             </div>

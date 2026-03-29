@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import type {
   AdminApplicantFilters,
@@ -121,7 +121,8 @@ export default async function AdminApplicantsPage({
     ? Number(filters.jobPostingId)
     : undefined;
   const requestedPage = filters.page ? Number(filters.page) : 1;
-  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const page =
+    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
   const normalizedFilters: AdminApplicantFilters = {
     jobPostingId:
@@ -144,8 +145,10 @@ export default async function AdminApplicantsPage({
   const applicants = applicantPage.items;
   const currentPage = applicantPage.page;
   const totalPages = Math.max(applicantPage.totalPages, 1);
-  const startItem = applicantPage.totalItems === 0 ? 0 : (currentPage - 1) * applicantPage.size + 1;
-  const endItem = applicantPage.totalItems === 0 ? 0 : startItem + applicants.length - 1;
+  const startItem =
+    applicantPage.totalItems === 0 ? 0 : (currentPage - 1) * applicantPage.size + 1;
+  const endItem =
+    applicantPage.totalItems === 0 ? 0 : startItem + applicants.length - 1;
   const submittedCount = applicants.filter(
     (applicant) => applicant.applicationStatus === "SUBMITTED",
   ).length;

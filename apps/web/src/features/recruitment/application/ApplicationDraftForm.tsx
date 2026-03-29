@@ -58,8 +58,10 @@ type FormActionMode = "draft" | "submit";
 type StepState = 1 | 2 | 3 | 4;
 
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
+const MIN_INTRODUCTION_LENGTH = 20;
+const MIN_CORE_STRENGTH_LENGTH = 10;
 const inputClassName =
-  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/30";
 const textareaClassName = `${inputClassName} min-h-[128px] resize-y`;
 const initialFormValues: DraftFormValues = {
   applicantName: "",
@@ -267,9 +269,33 @@ export function ApplicationDraftForm({
   }
 
   async function handleSubmit(mode: FormActionMode) {
-    setPendingAction(mode);
     setMessage(null);
     setErrorMessage(null);
+
+    if (mode === "submit") {
+      const intro = formValues.introduction.trim();
+      const strength = formValues.coreStrength.trim();
+      if (intro.length < MIN_INTRODUCTION_LENGTH) {
+        setErrorMessage(`자기소개는 ${MIN_INTRODUCTION_LENGTH}자 이상 입력해 주세요.`);
+        return;
+      }
+      if (strength.length < MIN_CORE_STRENGTH_LENGTH) {
+        setErrorMessage(`핵심 강점은 ${MIN_CORE_STRENGTH_LENGTH}자 이상 입력해 주세요.`);
+        return;
+      }
+      const missingRequired = questions
+        .filter((q) => q.required)
+        .find((q) => {
+          const a = answers.find((ans) => ans.questionId === q.id);
+          return !a?.answerText && !a?.answerChoice && a?.answerScale == null;
+        });
+      if (missingRequired) {
+        setErrorMessage(`필수 질문에 답변해 주세요: ${missingRequired.questionText}`);
+        return;
+      }
+    }
+
+    setPendingAction(mode);
 
     try {
       const response = await fetch(
@@ -283,16 +309,23 @@ export function ApplicationDraftForm({
         },
       );
 
-      const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setErrorMessage(responseBody.message ?? (mode === "draft" ? "지원서를 임시 저장하지 못했습니다." : "지원서를 제출하지 못했습니다."));
+        let errorMsg: string | null = null;
+        try {
+          const errorBody = (await response.json()) as { message?: string; error?: string };
+          errorMsg = errorBody.message ?? errorBody.error ?? null;
+        } catch {
+          errorMsg = await response.text().catch(() => null);
+        }
+        setErrorMessage(errorMsg || (mode === "draft" ? "지원서를 임시 저장하지 못했습니다." : "지원서를 제출하지 못했습니다. 입력 내용을 확인해 주세요."));
         return;
       }
 
+      await response.json();
       await refreshApplication();
       setMessage(mode === "draft" ? "임시 저장되었습니다." : "지원서 제출이 완료되었습니다.");
     } catch {
-      setErrorMessage(mode === "draft" ? "임시 저장 중 오류가 발생했습니다." : "제출 중 오류가 발생했습니다.");
+      setErrorMessage(mode === "draft" ? "임시 저장 중 오류가 발생했습니다." : "제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setPendingAction(null);
     }
@@ -349,24 +382,26 @@ export function ApplicationDraftForm({
         ) : null}
       </div>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-2 md:grid-cols-4">
         {formSteps.map((step) => (
           <button
             key={step.value}
             type="button"
             disabled={isSubmitted}
             onClick={() => setCurrentStep(step.value)}
-            className={`rounded-lg border px-4 py-4 text-left transition-colors ${getStepClassName(step.value, currentStep)}`}
+            className={`rounded-lg border px-3 py-3 text-center transition-colors ${getStepClassName(step.value, currentStep)}`}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.16em]">Step {step.value}</p>
-            <p className="mt-2 text-sm font-semibold">{step.label}</p>
-            <p className="mt-2 text-xs leading-6 opacity-90">{step.description}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em]">Step {step.value}</p>
+            <p className="mt-1 text-sm font-semibold">{step.label}</p>
           </button>
         ))}
       </div>
+      <p className="mt-3 text-sm text-on-surface-variant">
+        {formSteps.find((step) => step.value === currentStep)?.description}
+      </p>
 
-      {message ? <div className="mt-5 rounded-lg bg-secondary-container px-4 py-3 text-sm text-[#00731e]">{message}</div> : null}
-      {errorMessage ? <div className="mt-5 rounded-lg bg-error-container px-4 py-3 text-sm text-destructive">{errorMessage}</div> : null}
+      {message ? <div role="status" aria-live="polite" className="mt-5 rounded-lg bg-secondary-container px-4 py-3 text-sm text-[#00731e]">{message}</div> : null}
+      {errorMessage ? <div role="alert" aria-live="assertive" className="mt-5 rounded-lg bg-error-container px-4 py-3 text-sm text-destructive">{errorMessage}</div> : null}
 
       {application ? (
         <div className="mt-5 rounded-lg bg-surface-container-low px-4 py-4 text-sm text-on-surface-variant">
@@ -492,7 +527,7 @@ export function ApplicationDraftForm({
             <h3 className="text-lg font-semibold text-on-surface">첨부파일</h3>
             <p className="mt-1 text-sm text-on-surface-variant">임시 저장 후 PDF, DOC, DOCX, JPG, PNG 파일을 업로드할 수 있습니다.</p>
           </div>
-          <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_FILE_TYPES} disabled={formDisabled || uploadingFiles || !application?.applicationId} onChange={(event) => { if (event.target.files?.length) void handleFileUpload(event.target.files); }} className="block w-full text-sm text-on-surface-variant file:mr-3 file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface" />
+          <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_FILE_TYPES} disabled={formDisabled || uploadingFiles || !application?.applicationId} onChange={(event) => { if (event.target.files?.length) void handleFileUpload(event.target.files); }} className="block w-full text-sm text-on-surface-variant file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-surface-container-high file:px-4 file:py-2 file:text-sm file:font-semibold file:text-on-surface file:transition-colors hover:file:bg-surface-container-highest active:file:bg-primary active:file:text-primary-foreground" />
           {attachments.length > 0 ? (
             <ul className="space-y-2">
               {attachments.map((attachment) => (

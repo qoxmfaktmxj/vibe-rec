@@ -94,6 +94,25 @@ export default async function MyPage({ searchParams }: MyPageProps) {
           </dl>
         </section>
 
+        <section className="rounded-sm border border-outline-variant bg-card p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-headline text-lg font-medium tracking-[-0.04em]">
+                프로필 관리
+              </h2>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                이력서 정보를 미리 작성해 두면 공고 지원 시 빠르게 불러올 수 있습니다.
+              </p>
+            </div>
+            <Link
+              href="/profile"
+              className="shrink-0 rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+            >
+              프로필 편집
+            </Link>
+          </div>
+        </section>
+
         <section className="space-y-5">
           <div className="flex items-end justify-between gap-4">
             <div>

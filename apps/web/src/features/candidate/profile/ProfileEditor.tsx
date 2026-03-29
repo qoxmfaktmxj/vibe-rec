@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type {
   ResumeCertification,
   ResumeEducation,
@@ -25,21 +25,22 @@ export function ProfileEditor() {
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  // Profile data
   const [introductionTemplate, setIntroductionTemplate] = useState("");
   const [coreStrengthTemplate, setCoreStrengthTemplate] = useState("");
   const [careerYears, setCareerYears] = useState<number | null>(null);
   const [educations, setEducations] = useState<ResumeEducation[]>([]);
   const [experiences, setExperiences] = useState<ResumeExperience[]>([]);
   const [skills, setSkills] = useState<ResumeSkill[]>([]);
-  const [certifications, setCertifications] = useState<ResumeCertification[]>([]);
+  const [certifications, setCertifications] = useState<ResumeCertification[]>(
+    [],
+  );
   const [languages, setLanguages] = useState<ResumeLanguage[]>([]);
 
   useEffect(() => {
     fetch("/api/candidate/profile")
       .then(async (res) => {
         if (res.ok) {
-          const data = await res.json() as {
+          const data = (await res.json()) as {
             introductionTemplate?: string | null;
             coreStrengthTemplate?: string | null;
             careerYears?: number | null;
@@ -99,29 +100,28 @@ export function ProfileEditor() {
   return (
     <div className="space-y-8">
       <p className="text-xs text-on-surface-variant">
-        아래 내용을 미리 작성해두면 공고 지원 시 &quot;프로필에서 가져오기&quot; 버튼으로 빠르게 불러올 수 있습니다.
+        아래 내용을 미리 작성해 두면 공고 지원 시 “프로필에서 가져오기” 버튼으로 빠르게 불러올 수 있습니다.
       </p>
 
-      {/* Text templates */}
       <section className="space-y-4">
         <h3 className="text-sm font-semibold text-on-surface-variant">자기소개 템플릿</h3>
         <textarea
           rows={5}
           disabled={isPending}
           className={`resize-y ${inputClassName}`}
-          placeholder="자주 사용하는 자기소개를 미리 작성해두세요."
+          placeholder="자주 사용하는 자기소개를 미리 작성해 두세요."
           value={introductionTemplate}
           onChange={(e) => setIntroductionTemplate(e.target.value)}
         />
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-on-surface-variant">핵심역량 템플릿</h3>
+        <h3 className="text-sm font-semibold text-on-surface-variant">핵심 강점 템플릿</h3>
         <textarea
           rows={4}
           disabled={isPending}
           className={`resize-y ${inputClassName}`}
-          placeholder="자주 사용하는 핵심역량 설명을 미리 작성해두세요."
+          placeholder="자주 사용하는 핵심 강점 설명을 미리 작성해 두세요."
           value={coreStrengthTemplate}
           onChange={(e) => setCoreStrengthTemplate(e.target.value)}
         />
@@ -141,14 +141,12 @@ export function ProfileEditor() {
         />
       </section>
 
-      {/* Resume sections - reusing existing components */}
       <EducationSection items={educations} onChange={setEducations} disabled={isPending} />
       <ExperienceSection items={experiences} onChange={setExperiences} disabled={isPending} />
       <SkillSection items={skills} onChange={setSkills} disabled={isPending} />
       <CertificationSection items={certifications} onChange={setCertifications} disabled={isPending} />
       <LanguageSection items={languages} onChange={setLanguages} disabled={isPending} />
 
-      {/* Error / Status */}
       {error && (
         <div className="rounded-lg bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
       )}
@@ -156,7 +154,6 @@ export function ProfileEditor() {
         <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
       )}
 
-      {/* Save button */}
       <div className="flex justify-end">
         <button
           type="button"

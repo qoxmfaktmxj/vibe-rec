@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -13,9 +13,16 @@ interface ProfileDashboardProps {
   applications: CandidateApplicationSummary[];
 }
 
-export function ProfileDashboard({ candidateSession, applications }: ProfileDashboardProps) {
-  const [activeTab, setActiveTab] = useState<"profile" | "applications">("profile");
-  const submittedCount = applications.filter((application) => application.status === "SUBMITTED").length;
+export function ProfileDashboard({
+  candidateSession,
+  applications,
+}: ProfileDashboardProps) {
+  const [activeTab, setActiveTab] = useState<"profile" | "applications">(
+    "profile",
+  );
+  const submittedCount = applications.filter(
+    (application) => application.status === "SUBMITTED",
+  ).length;
 
   const tabClassName = (tab: string) =>
     `px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
@@ -30,11 +37,15 @@ export function ProfileDashboard({ candidateSession, applications }: ProfileDash
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <span className="text-[11px] font-medium text-outline">이름</span>
-            <p className="mt-0.5 text-sm font-medium text-on-surface">{candidateSession.name}</p>
+            <p className="mt-0.5 text-sm font-medium text-on-surface">
+              {candidateSession.name}
+            </p>
           </div>
           <div>
             <span className="text-[11px] font-medium text-outline">이메일</span>
-            <p className="mt-0.5 text-sm font-medium text-on-surface">{candidateSession.email}</p>
+            <p className="mt-0.5 text-sm font-medium text-on-surface">
+              {candidateSession.email}
+            </p>
           </div>
           <div>
             <span className="text-[11px] font-medium text-outline">지원 현황</span>
@@ -47,7 +58,11 @@ export function ProfileDashboard({ candidateSession, applications }: ProfileDash
       </section>
 
       <div className="flex border-b border-outline-variant">
-        <button type="button" className={tabClassName("profile")} onClick={() => setActiveTab("profile")}>
+        <button
+          type="button"
+          className={tabClassName("profile")}
+          onClick={() => setActiveTab("profile")}
+        >
           프로필 관리
         </button>
         <button
@@ -59,8 +74,10 @@ export function ProfileDashboard({ candidateSession, applications }: ProfileDash
         </button>
       </div>
 
-      {activeTab === "profile" && <ProfileEditor />}
-      {activeTab === "applications" && <ProfileApplicationHistory applications={applications} />}
+      {activeTab === "profile" ? <ProfileEditor /> : null}
+      {activeTab === "applications" ? (
+        <ProfileApplicationHistory applications={applications} />
+      ) : null}
     </div>
   );
 }

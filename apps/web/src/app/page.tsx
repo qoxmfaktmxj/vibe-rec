@@ -37,20 +37,6 @@ export default async function Home() {
               <br className="hidden md:block" />
               HireFlow에서 일관된 채용 프로세스를 운영할 수 있습니다.
             </p>
-            <div className="animate-fade-in-up-delay-3 mt-2 flex flex-wrap items-center justify-center gap-4">
-              <a
-                href="#positions"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/15 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20"
-              >
-                채용 공고 보기
-              </a>
-              <a
-                href="/auth/login"
-                className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-card px-7 py-3.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/5"
-              >
-                지원자 로그인
-              </a>
-            </div>
           </div>
         </section>
 

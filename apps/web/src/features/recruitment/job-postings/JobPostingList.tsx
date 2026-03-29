@@ -2,8 +2,8 @@ import Link from "next/link";
 
 import type { JobPostingSummary } from "@/entities/recruitment/model";
 import {
-  getEmploymentTypeLabel,
   formatRecruitmentPeriod,
+  getEmploymentTypeLabel,
   getRecruitmentCategoryLabel,
   getRecruitmentModeLabel,
   getStepTypeLabel,
@@ -69,19 +69,17 @@ export function JobPostingList({
               <p>{getEmploymentTypeLabel(jobPosting.employmentType)}</p>
               <p>{jobPosting.location}</p>
               <p>{formatRecruitmentPeriod(jobPosting)}</p>
-              {(jobPosting.steps?.length ?? 0) > 0 && (
+              {(jobPosting.steps?.length ?? 0) > 0 ? (
                 <div className="flex flex-wrap items-center gap-1 font-mono text-xs text-on-surface-variant">
                   {(jobPosting.steps ?? []).slice(0, 3).map((step, index) => (
                     <span key={step.id ?? index} className="flex items-center gap-1">
-                      {index > 0 && <span aria-hidden="true">→</span>}
+                      {index > 0 ? <span aria-hidden="true">·</span> : null}
                       {getStepTypeLabel(step.stepType)}
                     </span>
                   ))}
-                  {(jobPosting.steps?.length ?? 0) > 3 && (
-                    <span>→ ···</span>
-                  )}
+                  {(jobPosting.steps?.length ?? 0) > 3 ? <span>외 더 있음</span> : null}
                 </div>
-              )}
+              ) : null}
             </div>
 
             <Link

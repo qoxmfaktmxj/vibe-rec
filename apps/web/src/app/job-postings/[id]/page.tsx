@@ -1,12 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import type { CandidateApplicationDetail } from "@/entities/recruitment/model";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
-import type {
-  CandidateApplicationDetail,
-  JobPostingQuestion,
-} from "@/entities/recruitment/model";
-import { ApplicationDraftForm } from "@/features/recruitment/application/ApplicationDraftForm";
 import { JobPostingDetailView } from "@/features/recruitment/job-postings/JobPostingDetailView";
 import {
   CandidateApiError,
@@ -17,7 +13,6 @@ import {
   ApiError,
   getCandidateApplicationForJobPosting,
   getJobPosting,
-  getJobPostingQuestions,
 } from "@/shared/api/recruitment";
 import {
   formatDateTime,
@@ -33,35 +28,15 @@ interface JobPostingDetailPageProps {
 
 type FlowStep = {
   label: string;
-  description: string;
   state: "done" | "current" | "upcoming";
 };
 
 function getApplicationStatusText(application: CandidateApplicationDetail | null) {
   if (!application) {
-    return "지원 전";
+    return "미지원";
   }
 
   return application.status === "SUBMITTED" ? "제출 완료" : "임시 저장";
-}
-
-function getApplicationHelperText(
-  application: CandidateApplicationDetail | null,
-  availability: ReturnType<typeof getDraftAvailability>,
-) {
-  if (!application) {
-    return availability.reason;
-  }
-
-  if (application.status === "SUBMITTED") {
-    return "이미 제출이 완료된 지원서입니다. 진행 상황은 아래에서 계속 확인할 수 있습니다.";
-  }
-
-  if (!availability.canSave) {
-    return availability.reason;
-  }
-
-  return "저장된 초안이 있습니다. 마지막으로 작성하던 위치부터 이어서 수정할 수 있습니다.";
 }
 
 function getFlowDescription(application: CandidateApplicationDetail | null) {
@@ -69,26 +44,26 @@ function getFlowDescription(application: CandidateApplicationDetail | null) {
     return "아직 이 공고에 대한 지원을 시작하지 않았습니다.";
   }
 
+  if (application.reviewStatus === "REJECTED") {
+    return "제출된 지원서는 검토가 끝났고 결과가 반영되었습니다.";
+  }
+
   if (
     application.finalStatus === "ACCEPTED" ||
     application.reviewStatus === "PASSED"
   ) {
-    return "다음 단계로 진행 중입니다. 최신 상태를 아래에서 확인해 주세요.";
-  }
-
-  if (application.reviewStatus === "REJECTED") {
-    return "이번 공고에 대한 전형은 종료되었습니다.";
+    return "지원서 검토가 끝나 다음 채용 단계가 진행 중입니다.";
   }
 
   if (application.reviewStatus === "IN_REVIEW") {
-    return "지원서가 접수되어 현재 검토가 진행 중입니다.";
+    return "지원서가 접수되어 현재 채용팀이 검토 중입니다.";
   }
 
   if (application.status === "SUBMITTED") {
-    return "지원서 제출이 완료되었습니다.";
+    return "지원서 제출이 완료되었습니다. 내 지원 내역에서 다시 확인할 수 있습니다.";
   }
 
-  return "저장된 초안이 있습니다. 이어서 작성할 수 있습니다.";
+  return "저장한 초안이 있습니다. 이어서 작성하거나 읽기 전용으로 확인할 수 있습니다.";
 }
 
 function getProgressLabel(application: CandidateApplicationDetail | null) {
@@ -100,11 +75,11 @@ function getProgressLabel(application: CandidateApplicationDetail | null) {
     application.finalStatus === "ACCEPTED" ||
     application.reviewStatus === "PASSED"
   ) {
-    return "합격";
+    return "다음 단계 진행";
   }
 
   if (application.reviewStatus === "REJECTED") {
-    return "불합격";
+    return "검토 완료";
   }
 
   if (application.reviewStatus === "IN_REVIEW") {
@@ -122,7 +97,7 @@ function getFlowSteps(application: CandidateApplicationDetail | null): FlowStep[
   const hasDraft = Boolean(application);
   const isSubmitted = application?.status === "SUBMITTED";
   const isInReview = application?.reviewStatus === "IN_REVIEW";
-  const isFinalized =
+  const isResolved =
     application?.reviewStatus === "PASSED" ||
     application?.reviewStatus === "REJECTED" ||
     application?.finalStatus === "ACCEPTED" ||
@@ -131,40 +106,25 @@ function getFlowSteps(application: CandidateApplicationDetail | null): FlowStep[
   return [
     {
       label: "작성",
-      description: hasDraft
-        ? "저장된 지원서를 계속 수정합니다."
-        : "계정 정보 기반으로 지원서를 작성합니다.",
       state: hasDraft && !isSubmitted ? "current" : hasDraft ? "done" : "current",
     },
     {
       label: "제출",
-      description: isSubmitted
-        ? "최종 제출이 완료되었습니다."
-        : "작성한 내용을 검토하고 제출합니다.",
       state: isSubmitted ? "done" : "upcoming",
     },
     {
       label: "검토",
-      description: isInReview
-        ? "채용팀에서 지원서를 검토하고 있습니다."
-        : "검토가 시작되면 상태가 업데이트됩니다.",
-      state: isInReview ? "current" : isFinalized ? "done" : "upcoming",
+      state: isInReview ? "current" : isResolved ? "done" : "upcoming",
     },
     {
       label: "결과",
-      description:
-        application?.reviewStatus === "PASSED"
-          ? "다음 단계 안내를 확인해 주세요."
-          : application?.reviewStatus === "REJECTED"
-            ? "최종 결과가 반영되었습니다."
-            : "검토가 끝나면 결과를 여기서 확인할 수 있습니다.",
-      state: isFinalized ? "current" : "upcoming",
+      state: isResolved ? "current" : "upcoming",
     },
   ];
 }
 
-function getFlowStepClassName(state: FlowStep["state"]) {
-  switch (state) {
+function getFlowStepClassName(step: FlowStep["state"]) {
+  switch (step) {
     case "done":
       return "border-transparent bg-primary text-primary-foreground";
     case "current":
@@ -176,20 +136,54 @@ function getFlowStepClassName(state: FlowStep["state"]) {
 
 function CandidateApplicationStatusCard({
   application,
+  jobPostingId,
+  canSave = true,
+  unavailableReason,
 }: {
   application: CandidateApplicationDetail | null;
+  jobPostingId: number;
+  canSave?: boolean;
+  unavailableReason?: string;
 }) {
   const flowSteps = getFlowSteps(application);
+
+  const primaryAction = (() => {
+    if (!application) {
+      return canSave
+        ? {
+            href: `/job-postings/${jobPostingId}/apply`,
+            label: "지원하기",
+          }
+        : null;
+    }
+
+    if (application.status === "DRAFT") {
+      return canSave
+        ? {
+            href: `/job-postings/${jobPostingId}/apply`,
+            label: "이어서 작성",
+          }
+        : {
+            href: `/me/applications/${application.applicationId}`,
+            label: "초안 보기",
+          };
+    }
+
+    return {
+      href: `/me/applications/${application.applicationId}`,
+      label: "지원서 보기",
+    };
+  })();
 
   return (
     <section className="rounded-sm border border-outline-variant bg-card p-7">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-            지원 흐름
+            지원 현황
           </p>
           <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-            내 지원 상태
+            내 현재 상태
           </h2>
         </div>
         <span
@@ -207,25 +201,20 @@ function CandidateApplicationStatusCard({
         {getFlowDescription(application)}
       </p>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
         {flowSteps.map((step, index) => (
           <div
             key={step.label}
-            className="rounded-lg border border-outline-variant bg-surface-container-low p-4"
+            className="rounded-lg border border-outline-variant bg-surface-container-low px-3 py-3 text-center"
           >
-            <div className="flex items-center gap-3">
-              <span
-                className={`inline-flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${getFlowStepClassName(
-                  step.state,
-                )}`}
-              >
-                {index + 1}
-              </span>
-              <p className="text-sm font-semibold text-on-surface">{step.label}</p>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-on-surface-variant">
-              {step.description}
-            </p>
+            <span
+              className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${getFlowStepClassName(
+                step.state,
+              )}`}
+            >
+              {index + 1}
+            </span>
+            <p className="mt-2 text-sm font-semibold text-on-surface">{step.label}</p>
           </div>
         ))}
       </div>
@@ -247,7 +236,7 @@ function CandidateApplicationStatusCard({
             </div>
             {application.submittedAt ? (
               <div className="flex items-center justify-between gap-4">
-                <span>제출 일시</span>
+                <span>제출 시간</span>
                 <span className="font-medium text-on-surface">
                   {formatDateTime(application.submittedAt)}
                 </span>
@@ -257,17 +246,32 @@ function CandidateApplicationStatusCard({
         ) : null}
       </div>
 
-      <div className="mt-5">
-        <Link
-          href={application?.status === "SUBMITTED" ? "/me" : "#application-form"}
-          className="inline-flex rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
-        >
-          {application
-            ? application.status === "DRAFT"
-              ? "계속 작성"
-              : "내 지원 내역 보기"
-            : "지원 시작"}
-        </Link>
+      <div className="mt-5 space-y-2">
+        {primaryAction ? (
+          <Link
+            href={primaryAction.href}
+            className="inline-flex rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+          >
+            {primaryAction.label}
+          </Link>
+        ) : (
+          <span className="inline-flex cursor-not-allowed rounded-sm bg-primary/50 px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">
+            모집 마감
+          </span>
+        )}
+
+        {application ? (
+          <Link
+            href="/me"
+            className="block text-sm text-on-surface-variant transition-colors hover:text-primary"
+          >
+            내 지원 내역으로 이동
+          </Link>
+        ) : null}
+
+        {!primaryAction && unavailableReason ? (
+          <p className="text-sm text-on-surface-variant">{unavailableReason}</p>
+        ) : null}
       </div>
     </section>
   );
@@ -286,14 +290,14 @@ function CandidateLoginGate({
         로그인 후 지원할 수 있습니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-        로그인하면 지원서 작성, 임시 저장, 최종 제출까지 한 흐름으로 진행할 수 있습니다.
+        로그인하면 지원서 작성, 임시 저장, 최종 제출, 내 지원 내역 확인까지 이어서 진행할 수 있습니다.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={loginHref}
           className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
         >
-          지원자 로그인
+          로그인하고 지원
         </Link>
         <Link
           href={signupHref}
@@ -310,7 +314,7 @@ function CandidateApplicationLoadErrorCard({ message }: { message: string }) {
   return (
     <section className="rounded-sm border border-error/30 bg-card p-7">
       <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-        저장된 지원서를 불러오지 못했습니다
+        지원 정보를 불러오지 못했습니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">{message}</p>
       <div className="mt-6">
@@ -321,20 +325,6 @@ function CandidateApplicationLoadErrorCard({ message }: { message: string }) {
           내 지원 내역 보기
         </Link>
       </div>
-    </section>
-  );
-}
-
-function CandidateQuestionLoadErrorCard({ message }: { message: string }) {
-  return (
-    <section className="rounded-sm border border-error/30 bg-card p-7">
-      <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
-        지원 문항을 불러오지 못했습니다
-      </h2>
-      <p className="mt-3 text-sm leading-7 text-on-surface-variant">{message}</p>
-      <p className="mt-2 text-sm leading-7 text-on-surface-variant">
-        잠시 후 다시 시도해 주세요. 문제가 계속되면 관리자에게 문의해 주세요.
-      </p>
     </section>
   );
 }
@@ -358,22 +348,6 @@ export default async function JobPostingDetailPage({
     notFound();
   }
 
-  let questions: JobPostingQuestion[] = [];
-  let questionLoadError: string | null = null;
-
-  try {
-    questions = await getJobPostingQuestions(jobPostingId);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      questions = [];
-    } else {
-      questionLoadError =
-        error instanceof Error
-          ? error.message
-          : "지원 문항을 불러오지 못했습니다.";
-    }
-  }
-
   let candidateApplication: CandidateApplicationDetail | null = null;
   let candidateApplicationLoadError: string | null = null;
 
@@ -394,13 +368,13 @@ export default async function JobPostingDetailPage({
         candidateApplicationLoadError = error.message;
       } else {
         candidateApplicationLoadError =
-          "잠시 후 다시 시도해 주세요. 문제가 계속되면 관리자에게 문의해 주세요.";
+          "지원 정보를 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.";
       }
     }
   }
 
   const draftAvailability = getDraftAvailability(jobPosting);
-  const next = encodeURIComponent(`/job-postings/${jobPosting.id}`);
+  const next = encodeURIComponent(`/job-postings/${jobPosting.id}/apply`);
   const loginHref = `/auth/login?next=${next}`;
   const signupHref = `/auth/login?mode=signup&next=${next}`;
 
@@ -417,25 +391,15 @@ export default async function JobPostingDetailPage({
                 <CandidateApplicationLoadErrorCard
                   message={candidateApplicationLoadError}
                 />
-              ) : questionLoadError ? (
-                <CandidateQuestionLoadErrorCard message={questionLoadError} />
               ) : (
-                <div className="space-y-6">
-                  <CandidateApplicationStatusCard application={candidateApplication} />
-                  <div id="application-form">
-                    <ApplicationDraftForm
-                      candidateSession={candidateSession}
-                      jobPostingId={jobPosting.id}
-                      canSave={draftAvailability.canSave}
-                      helperText={getApplicationHelperText(
-                        candidateApplication,
-                        draftAvailability,
-                      )}
-                      initialApplication={candidateApplication}
-                      questions={questions}
-                    />
-                  </div>
-                </div>
+                <CandidateApplicationStatusCard
+                  application={candidateApplication}
+                  jobPostingId={jobPosting.id}
+                  canSave={draftAvailability.canSave}
+                  unavailableReason={
+                    !draftAvailability.canSave ? draftAvailability.reason : undefined
+                  }
+                />
               )
             ) : (
               <CandidateLoginGate loginHref={loginHref} signupHref={signupHref} />

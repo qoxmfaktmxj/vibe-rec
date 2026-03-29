@@ -12,6 +12,7 @@ import {
   getJobPosting,
   getJobPostingQuestions,
 } from "@/shared/api/recruitment";
+import { isJobPostingOpenForApplications } from "@/shared/lib/recruitment";
 
 interface ApplyPageProps {
   params: Promise<{ id: string }>;
@@ -81,9 +82,17 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
     );
   }
 
-  // If already submitted, redirect to detail page
+  // Submitted applications should be viewed from the candidate workspace.
   if (existingApplication?.status === "SUBMITTED") {
-    redirect(`/job-postings/${jobPostingId}`);
+    redirect(`/me/applications/${existingApplication.applicationId}`);
+  }
+
+  // Drafts become read-only once the posting is no longer open.
+  if (
+    existingApplication?.status === "DRAFT" &&
+    !isJobPostingOpenForApplications(jobPosting)
+  ) {
+    redirect(`/me/applications/${existingApplication.applicationId}`);
   }
 
   return (

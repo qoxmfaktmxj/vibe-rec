@@ -1,8 +1,6 @@
 import Link from "next/link";
 
-import type {
-  AdminApplicantSummary,
-} from "@/entities/admin/applicant-model";
+import type { AdminApplicantSummary } from "@/entities/admin/applicant-model";
 import {
   formatDateTime,
   getApplicationReviewStatusClassName,
@@ -15,9 +13,7 @@ interface AdminApplicantTableProps {
   applicants: AdminApplicantSummary[];
 }
 
-export function AdminApplicantTable({
-  applicants,
-}: AdminApplicantTableProps) {
+export function AdminApplicantTable({ applicants }: AdminApplicantTableProps) {
   if (applicants.length === 0) {
     return (
       <div className="border-t border-outline-variant px-6 py-14 text-center">
@@ -25,7 +21,7 @@ export function AdminApplicantTable({
           현재 조건에 맞는 지원자가 없습니다.
         </p>
         <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-          검색 조건을 조정하거나 일부 필터를 해제한 뒤 다시 확인해 주세요.
+          검색 조건을 조정하거나 필터를 해제한 뒤 다시 확인해 주세요.
         </p>
       </div>
     );
@@ -79,7 +75,9 @@ export function AdminApplicantTable({
 
                 <td className="px-6 py-5">
                   <span
-                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(applicant.applicationStatus)}`}
+                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(
+                      applicant.applicationStatus,
+                    )}`}
                   >
                     {getApplicationStatusLabel(applicant.applicationStatus)}
                   </span>
@@ -87,7 +85,9 @@ export function AdminApplicantTable({
 
                 <td className="px-6 py-5">
                   <span
-                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(applicant.reviewStatus)}`}
+                    className={`inline-flex min-w-[96px] items-center justify-center rounded-sm px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(
+                      applicant.reviewStatus,
+                    )}`}
                   >
                     {getApplicationReviewStatusLabel(applicant.reviewStatus)}
                   </span>

@@ -101,8 +101,9 @@ public class CandidateProfileService {
     public void saveProfile(CandidateAccount account, SaveCandidateProfileRequest request) {
         Long accountId = account.getId();
 
+        profileRepository.createProfileIfMissing(accountId);
         CandidateProfile profile = profileRepository.findByCandidateAccountId(accountId)
-                .orElseGet(() -> new CandidateProfile(account));
+                .orElseThrow(() -> new IllegalStateException("Candidate profile row was not created."));
         profile.update(request.introductionTemplate(), request.coreStrengthTemplate(), request.careerYears());
         profileRepository.save(profile);
 
