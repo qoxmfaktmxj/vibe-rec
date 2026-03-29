@@ -15,10 +15,15 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          cache: maven
+          cache: gradle
+      - name: Ensure Gradle wrapper is executable
+        working-directory: apps/api
+        run: chmod +x ./gradlew
       - name: Run tests
         working-directory: apps/api
-        run: ./mvnw test -B -Dspring.profiles.active=tc
+        env:
+          SPRING_PROFILES_ACTIVE: tc
+        run: ./gradlew test --console=plain
 
   frontend:
     runs-on: ubuntu-latest
