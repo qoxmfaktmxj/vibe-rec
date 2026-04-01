@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"$path = ($env:CLAUDE_FILE_PATH -replace '\\\\','/'); if ($path -match 'apps/web/.*\\.tsx$') { Write-Output '[HARNESS] Design system check: use globals.css tokens, rounded-lg, Sora font. No bg-white/text-gray-*/bg-blue-*/rounded-2xl. Read DESIGN.md if unsure.' }\""
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"$path = ($env:CLAUDE_FILE_PATH -replace '\\\\','/'); if ($path -match 'db/migration/V[0-9].*\\.sql$') { Write-Output '[HARNESS] WARNING: Flyway migrations are APPEND-ONLY. Never modify existing migration files. Only create new V{n+1}__ files.' }\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"$path = ($env:CLAUDE_FILE_PATH -replace '\\\\','/'); if ($path -match 'apps/api/.*\\.java$') { Set-Location 'apps/api'; .\\gradlew.bat classes -q 2>&1 | Select-Object -Last 20 }\"",
+            "timeout": 45000
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -Command \"$path = ($env:CLAUDE_FILE_PATH -replace '\\\\','/'); if ($path -match 'apps/web/.*\\.(ts|tsx)$') { Set-Location 'apps/web'; npx tsc --noEmit --pretty 2>&1 | Select-Object -First 30 }\"",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}

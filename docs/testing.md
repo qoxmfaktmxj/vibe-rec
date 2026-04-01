@@ -8,7 +8,7 @@ Run all backend tests:
 
 ```powershell
 cd apps/api
-.\mvnw.cmd test
+.\gradlew.bat test --console=plain
 ```
 
 Current scope includes:

@@ -58,6 +58,15 @@ $env:NEXT_PUBLIC_API_BASE_URL="http://127.0.0.1:8080/api"
 npm run dev
 ```
 
+`apps/web/.env.example`를 `apps/web/.env.local`로 복사해도 같은 기본값으로 실행할 수 있습니다.
+
+## Claude Harness
+
+- PostgreSQL를 먼저 띄운 뒤 `launch.json`의 web/api 프로필을 사용해야 합니다.
+- `.claude/launch.json` 기준 기본 실행 조합은 web `3000`, api `8080`
+- `.claude/settings.json` hooks는 Windows PowerShell 기준으로 동작
+- web의 기본 API URL도 `8080`으로 맞춰 fresh clone과 launch 설정이 같은 기준을 사용합니다.
+
 ## 데모 데이터
 
 - Flyway migration: `apps/api/src/main/resources/db/migration/V25__refresh_realistic_demo_dataset.sql`

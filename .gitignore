@@ -26,6 +26,11 @@ apps/web/.git.create-next-app.backup/
 infra/postgres/data/
 uploads/
 .omx/
+.omc/
 apps/api/.data/
-.claude/
+.claude/*
+!.claude/commands/
+!.claude/commands/*.md
+!.claude/launch.json
+!.claude/settings.json
 .gstack/

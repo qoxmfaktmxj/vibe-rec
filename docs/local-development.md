@@ -31,27 +31,17 @@ Default values:
 
 ```powershell
 cd apps/api
-.\mvnw.cmd spring-boot:run
+.\gradlew.bat bootRun --args=--server.port=8080
 ```
 
 Default API base:
 - `http://127.0.0.1:8080/api`
 
-### Run on port 8083
-
-This matches the checked-in web local config.
-
-```powershell
-cd apps/api
-$env:SERVER_PORT="8083"
-.\mvnw.cmd spring-boot:run
-```
-
 ### Useful API endpoints
 
-- `GET http://127.0.0.1:8083/api/ping`
-- `GET http://127.0.0.1:8083/api/job-postings`
-- `GET http://127.0.0.1:8083/api/actuator/health`
+- `GET http://127.0.0.1:8080/api/ping`
+- `GET http://127.0.0.1:8080/api/job-postings`
+- `GET http://127.0.0.1:8080/api/actuator/health`
 
 ## Web
 
@@ -66,14 +56,14 @@ npm run dev
 Default web URL:
 - `http://127.0.0.1:3000`
 
-The checked-in `.env.local` points the web app to:
+Create `apps/web/.env.local` from the checked-in example:
 
 ```env
-API_BASE_URL=http://127.0.0.1:8083/api
-NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8083/api
+API_BASE_URL=http://127.0.0.1:8080/api
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8080/api
 ```
 
-If you change the API port, update `apps/web/.env.local` to match.
+`.env.local` is local-only and is not committed. If you change the API port, update `apps/web/.env.local` to match.
 
 ## Recommended Manual Smoke Flow
 

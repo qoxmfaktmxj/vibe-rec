@@ -8,6 +8,13 @@
       "port": 3000,
       "autoPort": true,
       "cwd": "apps/web"
+    },
+    {
+      "name": "api-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", ".\\gradlew.bat", "bootRun", "--args=--server.port=8080"],
+      "port": 8080,
+      "cwd": "apps/api"
     }
   ]
 }
