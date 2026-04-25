@@ -1,8 +1,13 @@
 ﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ApplicantReviewForm } from "@/features/admin/applicants/ApplicantReviewForm";
+import { HiringDecisionSection } from "@/features/admin/hiring/HiringDecisionSection";
+import { InterviewSection } from "@/features/admin/interview/InterviewSection";
 import { getAdminApplicant } from "@/shared/api/admin-applicants";
 import { getAdminAttachments } from "@/shared/api/attachments";
+import { getAdminInterviews } from "@/shared/api/admin-interviews";
+import { getAdminJobPostingSteps } from "@/shared/api/admin-job-postings";
 import {
   formatDateTime,
   formatFileSize,
@@ -34,6 +39,11 @@ export default async function AdminApplicantDetailPage({
   if (!applicant) {
     notFound();
   }
+
+  const [interviews, steps] = await Promise.all([
+    getAdminInterviews(applicationId),
+    getAdminJobPostingSteps(applicant.jobPostingId),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -90,6 +100,37 @@ export default async function AdminApplicantDetailPage({
             value={applicant.finalStatus ? getFinalStatusLabel(applicant.finalStatus) : "대기"}
           />
         </div>
+      </section>
+
+      <section className="space-y-8" aria-labelledby="applicant-operations-heading">
+        <div className="space-y-2">
+          <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+            운영 액션
+          </p>
+          <h2
+            id="applicant-operations-heading"
+            className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface"
+          >
+            상태 변경 → 면접 → 최종 결정을 한 흐름으로 처리합니다
+          </h2>
+          <p className="max-w-3xl text-sm leading-7 text-on-surface-variant">
+            지원자 상세에서 검토 상태를 바꾸고, 면접 일정을 추가한 뒤, 합격 상태에서 최종 채용 결정을 기록할 수 있습니다.
+          </p>
+        </div>
+
+        <ApplicantReviewForm applicant={applicant} />
+        <InterviewSection
+          applicationId={applicationId}
+          interviews={interviews}
+          steps={steps}
+        />
+        <HiringDecisionSection
+          applicationId={applicationId}
+          currentFinalStatus={applicant.finalStatus}
+          currentNote={applicant.finalNote}
+          currentDecidedAt={applicant.finalDecidedAt}
+          reviewStatus={applicant.reviewStatus}
+        />
       </section>
 
       <section className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_360px]">
