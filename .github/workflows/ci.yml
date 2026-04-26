@@ -9,6 +9,20 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: vibe_rec_test
+          POSTGRES_USER: vibe_rec
+          POSTGRES_PASSWORD: vibe_rec
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U vibe_rec -d vibe_rec_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -22,7 +36,9 @@ jobs:
       - name: Run tests
         working-directory: apps/api
         env:
-          SPRING_PROFILES_ACTIVE: tc
+          DB_URL: jdbc:postgresql://127.0.0.1:5435/vibe_rec_test
+          DB_USERNAME: vibe_rec
+          DB_PASSWORD: vibe_rec
         run: ./gradlew test --console=plain
 
   frontend:
