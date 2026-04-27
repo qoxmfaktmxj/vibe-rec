@@ -6,6 +6,19 @@ import { useRouter } from "next/navigation";
 const inputClassName =
   "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20";
 
+function LoginProgressIndicator({ label }: { label: string }) {
+  return (
+    <div className="space-y-2" role="status" aria-live="polite">
+      <div className="h-1.5 overflow-hidden rounded-full bg-primary/15">
+        <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
+      </div>
+      <p className="text-center text-xs font-medium text-on-surface-variant">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 type AdminAuthMode = "login" | "signup";
 
 export function AdminAuthForm({
@@ -54,6 +67,7 @@ export function AdminAuthForm({
       const responseBody = (await response.json()) as { message?: string };
       if (!response.ok) {
         setErrorMessage(responseBody.message ?? "관리자 인증에 실패했습니다.");
+        setIsPending(false);
         return;
       }
 
@@ -61,7 +75,6 @@ export function AdminAuthForm({
       router.refresh();
     } catch {
       setErrorMessage("요청 처리 중 네트워크 오류가 발생했습니다.");
-    } finally {
       setIsPending(false);
     }
   }
@@ -257,6 +270,12 @@ export function AdminAuthForm({
               ? "관리자 계정 만들기"
               : "로그인"}
         </button>
+
+        {isPending ? (
+          <LoginProgressIndicator
+            label={mode === "signup" ? "관리자 계정 생성 후 이동 중입니다." : "관리자 페이지로 이동 중입니다."}
+          />
+        ) : null}
       </form>
     </div>
   );
