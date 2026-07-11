@@ -420,6 +420,21 @@
 }
 
 /* ══════════════════════════════════════════════════
+   Scroll Reveal — one-shot fade-in-up on viewport entry
+   (paired with ScrollReveal.tsx IntersectionObserver)
+   ══════════════════════════════════════════════════ */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal-on-scroll-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════════════
    Custom Scrollbar
    ══════════════════════════════════════════════════ */
 ::-webkit-scrollbar {
@@ -454,5 +469,11 @@
 
   .card-interactive:hover {
     transform: none;
+  }
+
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

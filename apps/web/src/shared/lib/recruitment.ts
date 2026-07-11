@@ -82,6 +82,50 @@ export function formatRecruitmentPeriod(posting: {
   return formatDateRange(posting.opensAt, posting.closesAt);
 }
 
+export type JobPostingDdayInfo =
+  | { kind: "rolling" }
+  | { kind: "closed" }
+  | { kind: "dday"; days: number; label: string; urgent: boolean };
+
+/**
+ * D-day metadata for a job posting card. Rolling postings never expire (live dot),
+ * fixed-term postings without a close date fall back to "closed" once past open.
+ */
+export function getJobPostingDdayInfo(posting: {
+  closesAt: string | null;
+  recruitmentMode: RecruitmentMode;
+}): JobPostingDdayInfo {
+  if (posting.recruitmentMode === "ROLLING") {
+    return { kind: "rolling" };
+  }
+
+  if (!posting.closesAt) {
+    return { kind: "closed" };
+  }
+
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const closesAt = new Date(posting.closesAt);
+  const startOfCloseDay = new Date(
+    closesAt.getFullYear(),
+    closesAt.getMonth(),
+    closesAt.getDate(),
+  ).getTime();
+
+  const days = Math.round((startOfCloseDay - startOfToday) / (1000 * 60 * 60 * 24));
+
+  if (days < 0) {
+    return { kind: "closed" };
+  }
+
+  return {
+    kind: "dday",
+    days,
+    label: days === 0 ? "D-DAY" : `D-${days}`,
+    urgent: days <= 7,
+  };
+}
+
 export function isJobPostingOpenForApplications(posting: JobPostingAvailability) {
   const now = Date.now();
   const opensAt = new Date(posting.opensAt).getTime();

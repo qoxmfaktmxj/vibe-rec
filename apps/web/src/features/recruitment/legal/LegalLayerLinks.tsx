@@ -73,7 +73,14 @@ const legalContent = {
   },
 } as const;
 
-export function LegalLayerLinks() {
+interface LegalLayerLinksProps {
+  /** Override the trigger link styling — used when embedding in the dark footer. */
+  linkClassName?: string;
+}
+
+export function LegalLayerLinks({
+  linkClassName = "transition-colors hover:text-brand",
+}: LegalLayerLinksProps = {}) {
   const [activeModal, setActiveModal] = useState<LegalType>(null);
 
   const content = useMemo(() => {
@@ -89,18 +96,10 @@ export function LegalLayerLinks() {
 
   return (
     <>
-      <button
-        type="button"
-        className="transition-colors hover:text-brand"
-        onClick={() => setActiveModal("privacy")}
-      >
+      <button type="button" className={linkClassName} onClick={() => setActiveModal("privacy")}>
         개인정보처리방침
       </button>
-      <button
-        type="button"
-        className="transition-colors hover:text-brand"
-        onClick={() => setActiveModal("terms")}
-      >
+      <button type="button" className={linkClassName} onClick={() => setActiveModal("terms")}>
         이용약관
       </button>
       {content ? (
