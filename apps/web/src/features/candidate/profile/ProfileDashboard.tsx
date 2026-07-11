@@ -27,7 +27,7 @@ export function ProfileDashboard({
   const tabClassName = (tab: string) =>
     `px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
       activeTab === tab
-        ? "border-primary text-primary"
+        ? "border-brand text-brand"
         : "border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant"
     }`;
 

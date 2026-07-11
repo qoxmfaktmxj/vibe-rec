@@ -59,7 +59,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
               지원자 워크스페이스
             </p>
-            <h1 className="mt-3 font-headline text-4xl font-medium tracking-[-0.05em]">
+            <h1 className="mt-3 font-headline text-4xl font-medium tracking-[-0.02em]">
               {session.name}
             </h1>
             <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -97,7 +97,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
         <section className="rounded-sm border border-outline-variant bg-card p-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="font-headline text-lg font-medium tracking-[-0.04em]">
+              <h2 className="font-headline text-lg font-medium tracking-[-0.02em]">
                 프로필 관리
               </h2>
               <p className="mt-1 text-sm text-on-surface-variant">
@@ -119,7 +119,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
                 지원 내역 보기
               </p>
-              <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em]">
+              <h2 className="mt-3 font-headline text-3xl font-medium tracking-[-0.02em]">
                 내 지원 내역
               </h2>
               <p className="mt-2 text-sm text-on-surface-variant">

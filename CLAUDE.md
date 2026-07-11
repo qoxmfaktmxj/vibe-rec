@@ -25,7 +25,7 @@ docker compose -f compose.deploy.yaml up -d postgres
 ### 1. 디자인 시스템 (DESIGN.md)
 UI 작업 전 반드시 `DESIGN.md`를 읽을 것. 모든 색상은 `globals.css` 토큰 사용.
 - 금지: `bg-white`(→`bg-card`), `text-gray-*`, `bg-blue-*`, hardcoded hex
-- 금지: `font-inter`, `font-roboto` (→ Sora + IBM Plex Mono)
+- 금지: `font-inter`, `font-roboto` (→ Wanted Sans Variable + Sora + Spline Sans Mono)
 - 금지: `rounded-2xl`, `rounded-3xl` (→ `rounded-lg`, `rounded-full` for badges)
 
 ### 2. Flyway 마이그레이션 (append-only)

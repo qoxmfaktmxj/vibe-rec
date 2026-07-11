@@ -39,7 +39,7 @@ export function JobPostingList({
             className="card-interactive card-shadow flex h-full flex-col rounded-xl border border-outline-variant bg-card p-6"
           >
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-primary">
+              <span className="rounded-md bg-brand/8 px-2.5 py-1 text-xs font-medium text-brand">
                 {getRecruitmentCategoryLabel(jobPosting.recruitmentCategory)}
               </span>
 
@@ -57,7 +57,7 @@ export function JobPostingList({
             </div>
 
             <div className="mt-4 space-y-3">
-              <h3 className="font-headline text-lg font-medium tracking-[-0.03em] text-on-surface">
+              <h3 className="font-headline text-lg font-medium tracking-[-0.02em] text-on-surface">
                 {jobPosting.title}
               </h3>
               <p className="text-sm leading-6 text-on-surface-variant">
@@ -84,7 +84,7 @@ export function JobPostingList({
 
             <Link
               href={`/job-postings/${jobPosting.id}`}
-              className="mt-auto inline-flex w-fit self-start pt-6 text-sm font-semibold text-primary transition-colors hover:text-primary/70"
+              className="mt-auto inline-flex w-fit self-start pt-6 text-sm font-semibold text-brand transition-colors hover:text-brand/70"
             >
               {isRolling ? "상세 보기" : "공고 보기"}
             </Link>

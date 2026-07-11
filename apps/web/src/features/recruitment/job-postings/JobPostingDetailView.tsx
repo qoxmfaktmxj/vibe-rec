@@ -28,7 +28,7 @@ export function JobPostingDetailView({
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
                 {jobPosting.publicKey}
               </p>
-              <h1 className="mt-3 font-headline text-4xl font-medium tracking-[-0.05em] text-on-surface">
+              <h1 className="mt-3 font-headline text-4xl font-medium tracking-[-0.02em] text-on-surface">
                 {jobPosting.title}
               </h1>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -38,8 +38,8 @@ export function JobPostingDetailView({
                 <span
                   className={`rounded-sm px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] ${
                     jobPosting.recruitmentMode === "ROLLING"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-stone-100 text-stone-700"
+                      ? "bg-brand/10 text-brand"
+                      : "bg-surface-container text-on-surface-variant"
                   }`}
                 >
                   {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
@@ -68,7 +68,7 @@ export function JobPostingDetailView({
               <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
                 전형
               </p>
-              <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+              <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
                 채용 단계
               </h2>
             </div>
@@ -88,7 +88,7 @@ export function JobPostingDetailView({
                     <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
                       {step.stepOrder}단계 · {getStepTypeLabel(step.stepType)}
                     </p>
-                    <h3 className="font-headline text-lg font-medium tracking-[-0.03em] text-on-surface">
+                    <h3 className="font-headline text-lg font-medium tracking-[-0.02em] text-on-surface">
                       {step.title}
                     </h3>
                   </div>

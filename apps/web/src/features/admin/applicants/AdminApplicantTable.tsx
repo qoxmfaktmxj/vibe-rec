@@ -17,7 +17,7 @@ export function AdminApplicantTable({ applicants }: AdminApplicantTableProps) {
   if (applicants.length === 0) {
     return (
       <div className="border-t border-outline-variant px-6 py-14 text-center">
-        <p className="font-headline text-2xl font-semibold tracking-[-0.04em] text-on-surface">
+        <p className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
           현재 조건에 맞는 지원자가 없습니다.
         </p>
         <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -52,7 +52,7 @@ export function AdminApplicantTable({ applicants }: AdminApplicantTableProps) {
               >
                 <td className="px-6 py-5">
                   <div className="space-y-1.5">
-                    <p className="font-headline text-lg font-semibold tracking-[-0.04em] text-on-surface">
+                    <p className="font-headline text-lg font-semibold tracking-[-0.02em] text-on-surface">
                       {applicant.applicantName}
                     </p>
                     <p className="text-sm text-on-surface-variant">

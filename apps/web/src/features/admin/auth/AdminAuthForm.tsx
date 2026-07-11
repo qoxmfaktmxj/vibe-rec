@@ -4,13 +4,13 @@ import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const inputClassName =
-  "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-brand focus:ring-2 focus:ring-ring/25";
 
 function LoginProgressIndicator({ label }: { label: string }) {
   return (
     <div className="space-y-2" role="status" aria-live="polite">
-      <div className="h-1.5 overflow-hidden rounded-full bg-primary/15">
-        <div className="h-full w-2/3 animate-pulse rounded-full bg-primary" />
+      <div className="h-1.5 overflow-hidden rounded-full bg-brand/15">
+        <div className="h-full w-2/3 animate-pulse rounded-full bg-brand" />
       </div>
       <p className="text-center text-xs font-medium text-on-surface-variant">
         {label}
@@ -132,7 +132,7 @@ export function AdminAuthForm({
           {modeCopy.eyebrow}
         </p>
         <div className="space-y-1">
-          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
             {modeCopy.title}
           </h2>
           <p className="text-sm leading-6 text-on-surface-variant">

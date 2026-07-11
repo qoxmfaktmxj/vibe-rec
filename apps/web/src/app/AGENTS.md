@@ -11,10 +11,10 @@ Next.js App Router directory containing all pages, layouts, loading states, erro
 
 | File | Description |
 |------|-------------|
-| `layout.tsx` | Root layout — Sora + IBM Plex Mono fonts, `<html lang="ko">` |
+| `layout.tsx` | Root layout — Wanted Sans Variable (body, CSS import) + Sora (headline) + Spline Sans Mono fonts, `<html lang="ko">` |
 | `globals.css` | Design tokens (CSS variables), Tailwind config, custom utilities |
 | `page.tsx` | Homepage — hero section + featured job postings |
-| `icon.svg` | Favicon — primary blue background with white "H" |
+| `icon.svg` | Favicon — ink (`#16283C`) background with white "H" |
 | `error.tsx` | Global error boundary |
 | `not-found.tsx` | 404 page |
 

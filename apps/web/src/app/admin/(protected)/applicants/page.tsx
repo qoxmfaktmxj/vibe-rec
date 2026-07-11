@@ -11,10 +11,10 @@ import { getJobPostings } from "@/shared/api/recruitment";
 
 const PAGE_SIZE = 30;
 const selectClassName =
-  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-brand focus:bg-card focus:ring-2 focus:ring-ring/25";
 
 const inputClassName =
-  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:bg-card focus:ring-2 focus:ring-ring/25";
 
 const fieldLabelClassName =
   "text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant";
@@ -267,7 +267,7 @@ export default async function AdminApplicantsPage({
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
               지원자 목록
             </p>
-            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
               지원자 현황
             </h2>
           </div>
@@ -316,7 +316,7 @@ function StatCard({
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
         {label}
       </p>
-      <p className="mt-3 font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
+      <p className="mt-3 font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface">
         {value}
       </p>
     </div>

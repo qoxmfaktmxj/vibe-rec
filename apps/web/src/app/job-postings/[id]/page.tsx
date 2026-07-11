@@ -128,7 +128,7 @@ function getFlowStepClassName(step: FlowStep["state"]) {
     case "done":
       return "border-transparent bg-primary text-primary-foreground";
     case "current":
-      return "border-primary bg-primary/10 text-primary";
+      return "border-brand bg-brand/10 text-brand";
     default:
       return "border-outline-variant bg-surface-container-low text-on-surface-variant";
   }
@@ -182,15 +182,15 @@ function CandidateApplicationStatusCard({
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
             지원 현황
           </p>
-          <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+          <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
             내 현재 상태
           </h2>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
+          className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${
             application
               ? getApplicationStatusClassName(application.status)
-              : "bg-stone-200 text-stone-700"
+              : "bg-surface-container text-on-surface-variant ring-outline-variant"
           }`}
         >
           {getApplicationStatusText(application)}
@@ -263,7 +263,7 @@ function CandidateApplicationStatusCard({
         {application ? (
           <Link
             href="/me"
-            className="block text-sm text-on-surface-variant transition-colors hover:text-primary"
+            className="block text-sm text-on-surface-variant transition-colors hover:text-brand"
           >
             내 지원 내역으로 이동
           </Link>
@@ -286,7 +286,7 @@ function CandidateLoginGate({
 }) {
   return (
     <section className="rounded-sm border border-outline-variant bg-card p-7">
-      <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+      <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
         로그인 후 지원할 수 있습니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -313,7 +313,7 @@ function CandidateLoginGate({
 function CandidateApplicationLoadErrorCard({ message }: { message: string }) {
   return (
     <section className="rounded-sm border border-error/30 bg-card p-7">
-      <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+      <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
         지원 정보를 불러오지 못했습니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">{message}</p>

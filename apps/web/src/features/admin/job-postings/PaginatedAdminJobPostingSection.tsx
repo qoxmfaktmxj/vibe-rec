@@ -42,7 +42,7 @@ export function PaginatedAdminJobPostingSection({
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-4 border-b border-outline-variant pb-4">
         <div>
-          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
             {title}
           </h2>
           <p className="mt-2 text-sm leading-6 text-on-surface-variant">
@@ -73,14 +73,14 @@ export function PaginatedAdminJobPostingSection({
                   <span
                     className={`rounded-md px-2.5 py-1 text-xs font-medium ${
                       jobPosting.recruitmentMode === "ROLLING"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-stone-100 text-stone-700"
+                        ? "bg-brand/10 text-brand"
+                        : "bg-surface-container text-on-surface-variant"
                     }`}
                   >
                     {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
                   </span>
                   <span
-                    className={`rounded-md px-2.5 py-1 text-xs font-medium ${getJobPostingStatusClassName(
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${getJobPostingStatusClassName(
                       jobPosting.status,
                     )}`}
                   >
@@ -91,7 +91,7 @@ export function PaginatedAdminJobPostingSection({
                   </span>
                 </div>
 
-                <p className="font-headline text-lg font-medium tracking-[-0.03em] text-on-surface">
+                <p className="font-headline text-lg font-medium tracking-[-0.02em] text-on-surface">
                   {jobPosting.title}
                 </p>
                 <p className="text-sm text-on-surface-variant">
@@ -111,7 +111,7 @@ export function PaginatedAdminJobPostingSection({
                 </Link>
                 <Link
                   href={`/admin/job-postings/${jobPosting.id}/questions`}
-                  className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
+                  className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
                 >
                   질문 관리
                 </Link>

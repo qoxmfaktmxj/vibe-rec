@@ -187,7 +187,7 @@ export function ApplicationWizard({
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
           지원하기
         </p>
-        <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+        <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
           {jobPostingTitle}
         </h1>
       </div>

@@ -118,13 +118,13 @@ export function getJobPostingStatusLabel(status: JobPostingStatus) {
 export function getJobPostingStatusClassName(status: JobPostingStatus) {
   switch (status) {
     case "OPEN":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "CLOSED":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     case "DRAFT":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -229,11 +229,11 @@ export function getApplicationStatusLabel(status: ApplicationStatus) {
 export function getApplicationStatusClassName(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
-      return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "DRAFT":
-      return "bg-amber-50 text-amber-800 ring-amber-200";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     default:
-      return "bg-stone-100 text-stone-700 ring-stone-200";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -259,15 +259,15 @@ export function getApplicationReviewStatusClassName(
 ) {
   switch (reviewStatus) {
     case "NEW":
-      return "bg-primary-container text-primary ring-primary/10";
+      return "bg-primary-container text-brand ring-brand/20";
     case "IN_REVIEW":
-      return "bg-sky-50 text-sky-800 ring-sky-200";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "PASSED":
-      return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "REJECTED":
-      return "bg-rose-50 text-rose-800 ring-rose-200";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     default:
-      return "bg-stone-100 text-stone-700 ring-stone-200";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -335,15 +335,15 @@ export function getInterviewStatusLabel(status: InterviewStatus) {
 export function getInterviewStatusClassName(status: InterviewStatus) {
   switch (status) {
     case "SCHEDULED":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "COMPLETED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "CANCELLED":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     case "NO_SHOW":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -365,15 +365,15 @@ export function getEvaluationResultLabel(result: EvaluationResult) {
 export function getEvaluationResultClassName(result: EvaluationResult) {
   switch (result) {
     case "PENDING":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     case "PASS":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "FAIL":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     case "HOLD":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -395,15 +395,15 @@ export function getFinalStatusLabel(status: ApplicationFinalStatus) {
 export function getFinalStatusClassName(status: ApplicationFinalStatus) {
   switch (status) {
     case "OFFER_MADE":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "ACCEPTED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "DECLINED":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     case "WITHDRAWN":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -442,15 +442,15 @@ export function getNotificationTypeLabel(type: string) {
 export function getNotificationTypeClassName(type: string) {
   switch (type) {
     case "OFFER":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "REJECTION":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     case "INTERVIEW_INVITE":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "GENERAL":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 

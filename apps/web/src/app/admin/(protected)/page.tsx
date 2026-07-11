@@ -31,7 +31,7 @@ export default async function AdminPage() {
       <section className="rounded-xl border border-outline-variant bg-card p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold text-primary">
+            <p className="text-xs font-semibold text-brand">
               대시보드
             </p>
             <h1 className="mt-2 font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface">
@@ -51,13 +51,13 @@ export default async function AdminPage() {
             </Link>
             <Link
               href="/admin/applicants"
-              className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
+              className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
             >
               지원자 보기
             </Link>
             <Link
               href="/"
-              className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
+              className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
             >
               공개 사이트
             </Link>
@@ -72,7 +72,7 @@ export default async function AdminPage() {
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-4">
             <StatCard label="전체 공고" value={jobPostings.length} />
-            <StatCard label="모집 중" value={openCount} accent="text-primary" />
+            <StatCard label="모집 중" value={openCount} accent="text-brand" />
             <StatCard label="공개 공고" value={publishedCount} />
             <StatCard label="상시 채용" value={groupedJobPostings.rolling.length} />
           </div>
@@ -121,7 +121,7 @@ function StatCard({
       <p className="text-xs font-medium text-on-surface-variant">
         {label}
       </p>
-      <p className={`mt-2 font-headline text-4xl font-bold tracking-[-0.04em] ${accent}`}>
+      <p className={`mt-2 font-headline text-4xl font-bold tracking-[-0.02em] ${accent}`}>
         {value}
       </p>
     </div>

@@ -29,7 +29,7 @@ export async function PublicSiteHeader({
         <div className="flex items-center justify-between gap-6">
           <Link
             href="/"
-            className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
+            className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface"
           >
             HireFlow
           </Link>
@@ -43,7 +43,7 @@ export async function PublicSiteHeader({
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm font-medium text-on-surface transition-colors hover:text-primary"
+                className="text-sm font-medium text-on-surface transition-colors hover:text-brand"
               >
                 {item.label}
               </a>
@@ -51,8 +51,8 @@ export async function PublicSiteHeader({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  activePath.startsWith(item.href) ? "text-primary" : "text-on-surface"
+                className={`text-sm font-medium transition-colors hover:text-brand ${
+                  activePath.startsWith(item.href) ? "text-brand" : "text-on-surface"
                 }`}
               >
                 {item.label}
@@ -64,7 +64,7 @@ export async function PublicSiteHeader({
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/me"
-                className="text-right transition-colors hover:text-primary"
+                className="text-right transition-colors hover:text-brand"
               >
                 <p className="text-xs font-medium text-on-surface-variant">
                   지원자
@@ -99,7 +99,7 @@ export async function PublicSiteHeader({
               </Link>
               <Link
                 href="/auth/login?mode=signup"
-                className="rounded-lg border border-outline-variant px-5 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
+                className="rounded-lg border border-outline-variant px-5 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
               >
                 회원가입
               </Link>

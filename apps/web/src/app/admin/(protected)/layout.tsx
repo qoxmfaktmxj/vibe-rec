@@ -90,7 +90,7 @@ export default async function AdminLayout({
                 관리자 워크스페이스
               </p>
               <div className="space-y-2">
-                <h1 className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
+                <h1 className="font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface">
                   HireFlow 관리자
                 </h1>
                 <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">

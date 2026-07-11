@@ -3,7 +3,7 @@
 import type { ApplicationAnswer, JobPostingQuestion } from "@/entities/recruitment/model";
 
 const inputClassName =
-  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-ring/25";
 
 // Fixed trend questions (code constants)
 export const TREND_QUESTIONS = [
@@ -136,7 +136,7 @@ export function WizardStep4QuestionsSubmit({ data, onChange, customQuestions, di
                           disabled={disabled}
                           checked={answer?.answerChoice === choice}
                           onChange={() => updateCustomAnswer(q.id, { answerChoice: choice })}
-                          className="h-4 w-4 text-primary"
+                          className="h-4 w-4 text-brand"
                         />
                         <span className="text-sm text-on-surface">{choice}</span>
                       </label>

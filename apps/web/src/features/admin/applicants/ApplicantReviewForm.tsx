@@ -43,7 +43,7 @@ const reviewOptions: Array<{
 ];
 
 const inputClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/25";
 
 export function ApplicantReviewForm({ applicant }: ApplicantReviewFormProps) {
   const router = useRouter();
@@ -111,20 +111,20 @@ export function ApplicantReviewForm({ applicant }: ApplicantReviewFormProps) {
       <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
         심사 관리
       </p>
-      <h2 className="mt-3 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+      <h2 className="mt-3 font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
         심사 상태를 관리합니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">
         간략한 검토 메모를 남겨주세요. 다음 담당자가 검토 근거를 바로 파악할 수 있습니다.
       </p>
 
-      <div className="mt-5 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
+      <div className="mt-5 rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
             현재 상태
           </span>
           <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getApplicationReviewStatusClassName(
+            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(
               applicant.reviewStatus,
             )}`}
           >
@@ -132,7 +132,7 @@ export function ApplicantReviewForm({ applicant }: ApplicantReviewFormProps) {
           </span>
           {applicant.finalStatus ? (
             <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getFinalStatusClassName(
+              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getFinalStatusClassName(
                 applicant.finalStatus,
               )}`}
             >
@@ -168,7 +168,7 @@ export function ApplicantReviewForm({ applicant }: ApplicantReviewFormProps) {
           className={`mt-5 rounded-xl px-4 py-3 text-sm ${
             isError
               ? "bg-error-container text-destructive"
-              : "bg-secondary-container text-[#7d2a54]"
+              : "bg-secondary-container text-rose-900"
           }`}
         >
           {message}

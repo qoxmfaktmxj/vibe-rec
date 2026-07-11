@@ -68,7 +68,7 @@ export default async function CandidateApplicationDetailPage({
           <div className="space-y-3">
             <Link
               href="/me"
-              className="text-sm font-medium text-on-surface-variant transition-colors hover:text-primary"
+              className="text-sm font-medium text-on-surface-variant transition-colors hover:text-brand"
             >
               내 지원 내역으로 돌아가기
             </Link>
@@ -76,7 +76,7 @@ export default async function CandidateApplicationDetailPage({
               <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
                 지원서 문서
               </p>
-              <h1 className="mt-2 font-headline text-4xl font-medium tracking-[-0.05em] text-on-surface">
+              <h1 className="mt-2 font-headline text-4xl font-medium tracking-[-0.02em] text-on-surface">
                 제출한 지원 내용을 다시 확인합니다
               </h1>
             </div>

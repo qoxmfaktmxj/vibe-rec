@@ -23,11 +23,11 @@ export default async function Home() {
       <main>
         <section className="hero-gradient border-b border-outline-variant px-6 py-28 md:px-16 md:py-36">
           <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-7 text-center">
-            <span className="animate-fade-in-up inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary">
+            <span className="animate-fade-in-up inline-flex items-center gap-2 rounded-full bg-brand/10 px-4 py-1.5 text-xs font-medium text-brand">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-success"></span>
               현재 지원 가능한 공고 {applicableJobPostings.length}건
             </span>
-            <h1 className="animate-fade-in-up-delay-1 max-w-4xl font-headline text-5xl font-semibold leading-[1.08] tracking-[-0.04em] text-on-surface md:text-7xl">
+            <h1 className="animate-fade-in-up-delay-1 max-w-4xl font-headline text-5xl font-semibold leading-[1.08] tracking-[-0.02em] text-on-surface md:text-7xl">
               채용 운영의 모든 흐름을
               <br />
               한 곳에서 관리하세요
@@ -48,7 +48,7 @@ export default async function Home() {
           ) : null}
           <div className="mb-10 flex items-end justify-between gap-6">
             <div>
-              <h2 className="font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+              <h2 className="font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
                 지원 가능한 채용 공고
               </h2>
             </div>
@@ -70,7 +70,7 @@ export default async function Home() {
               href="https://www.minseok91.cloud"
               target="_blank"
               rel="noreferrer"
-              className="transition-colors hover:text-primary"
+              className="transition-colors hover:text-brand"
             >
               문의
             </a>

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 
 const inputClassName =
-  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border-none bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 placeholder:text-outline focus:bg-surface-container-lowest focus:ring-2 focus:ring-ring/25";
 
 interface QuestionItem {
   questionText: string;
@@ -200,7 +200,7 @@ export function JobPostingQuestionEditor({
               <button
                 type="button"
                 onClick={() => addChoice(qIdx)}
-                className="text-xs text-primary hover:underline"
+                className="text-xs text-brand hover:underline"
               >
                 선택지 추가
               </button>

@@ -12,9 +12,9 @@ export default function Error({
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="flex max-w-2xl flex-col items-center gap-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-primary/25 bg-primary-container">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-brand/25 bg-primary-container">
           <svg
-            className="h-7 w-7 text-primary"
+            className="h-7 w-7 text-brand"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -31,7 +31,7 @@ export default function Error({
           500
         </p>
         <div className="space-y-3">
-          <h1 className="font-headline text-3xl font-medium tracking-[-0.05em] text-on-surface">
+          <h1 className="font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
             문제가 발생했습니다
           </h1>
           <p className="max-w-xl text-sm leading-7 text-on-surface-variant">

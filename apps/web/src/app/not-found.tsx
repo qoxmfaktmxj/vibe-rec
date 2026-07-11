@@ -23,7 +23,7 @@ export default function NotFound() {
           404
         </p>
         <div className="space-y-3">
-          <h1 className="font-headline text-3xl font-medium tracking-[-0.05em] text-on-surface">
+          <h1 className="font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
             페이지를 찾을 수 없습니다
           </h1>
           <p className="max-w-lg text-sm leading-7 text-on-surface-variant">

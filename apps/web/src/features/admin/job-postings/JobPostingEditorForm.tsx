@@ -11,7 +11,7 @@ import {
 } from "@/shared/lib/recruitment";
 
 const fieldClassName =
-  "w-full rounded-sm border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-sm border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25";
 
 interface JobPostingEditorFormProps {
   mode: "create" | "edit";

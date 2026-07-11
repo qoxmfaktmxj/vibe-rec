@@ -91,14 +91,14 @@ export function LegalLayerLinks() {
     <>
       <button
         type="button"
-        className="transition-colors hover:text-primary"
+        className="transition-colors hover:text-brand"
         onClick={() => setActiveModal("privacy")}
       >
         개인정보처리방침
       </button>
       <button
         type="button"
-        className="transition-colors hover:text-primary"
+        className="transition-colors hover:text-brand"
         onClick={() => setActiveModal("terms")}
       >
         이용약관
@@ -118,14 +118,14 @@ export function LegalLayerLinks() {
             <div className="mb-6 flex items-center justify-between gap-4 border-b border-outline-variant pb-4">
               <h3
                 id="legal-modal-title"
-                className="font-headline text-2xl font-medium tracking-[-0.03em] text-on-surface"
+                className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface"
               >
                 {content.title}
               </h3>
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-sm border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-primary hover:text-primary"
+                className="rounded-sm border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-brand hover:text-brand"
               >
                 닫기
               </button>

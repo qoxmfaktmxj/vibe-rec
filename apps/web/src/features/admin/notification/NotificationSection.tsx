@@ -23,7 +23,7 @@ const notificationTypeOptions = [
 ];
 
 const inputClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-ring/25";
 
 export function NotificationSection({
   applicationId,
@@ -87,7 +87,7 @@ export function NotificationSection({
             알림 관리
           </p>
           <div className="space-y-2">
-            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
               지원자 커뮤니케이션을 기록합니다
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -110,7 +110,7 @@ export function NotificationSection({
           className={`mt-5 rounded-xl px-4 py-3 text-sm ${
             isError
               ? "bg-error-container text-destructive"
-              : "bg-secondary-container text-[#00731e]"
+              : "bg-secondary-container text-emerald-900"
           }`}
         >
           {message}
@@ -120,7 +120,7 @@ export function NotificationSection({
       {showForm ? (
         <form
           onSubmit={handleSubmit}
-          className="mt-6 space-y-4 rounded-2xl border border-outline-variant/70 bg-surface-container-low p-6"
+          className="mt-6 space-y-4 rounded-xl border border-outline-variant/70 bg-surface-container-low p-6"
         >
           <div className="grid gap-4 xl:grid-cols-[220px_1fr]">
             <label className="block text-sm font-semibold text-on-surface-variant">
@@ -148,7 +148,7 @@ export function NotificationSection({
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:shadow-black/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "저장 중..." : "알림 저장"}
           </button>
@@ -156,7 +156,7 @@ export function NotificationSection({
       ) : null}
 
       {notifications.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
+        <div className="mt-6 rounded-xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
           <p className="text-sm font-semibold text-on-surface">등록된 알림이 없습니다.</p>
           <p className="mt-2 text-sm leading-7 text-on-surface-variant">
             첫 번째 커뮤니케이션을 기록하세요.
@@ -167,11 +167,11 @@ export function NotificationSection({
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-6 py-4"
+              className="rounded-xl border border-outline-variant/70 bg-surface-container-low px-6 py-4"
             >
               <div className="flex flex-wrap items-center gap-3">
                 <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getNotificationTypeClassName(notification.type)}`}
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getNotificationTypeClassName(notification.type)}`}
                 >
                   {getNotificationTypeLabel(notification.type)}
                 </span>

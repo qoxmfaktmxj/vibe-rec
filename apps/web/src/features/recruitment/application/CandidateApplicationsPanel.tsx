@@ -71,7 +71,7 @@ export function CandidateApplicationsPanel({
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="space-y-2">
-                  <h3 className="font-headline text-2xl font-medium tracking-[-0.03em] text-on-surface">
+                  <h3 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
                     {application.jobPostingTitle}
                   </h3>
                   <p className="text-sm leading-7 text-on-surface-variant">
@@ -84,14 +84,14 @@ export function CandidateApplicationsPanel({
 
                 <div className="flex flex-wrap gap-2">
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${getApplicationStatusClassName(
+                    className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${getApplicationStatusClassName(
                       application.status,
                     )}`}
                   >
                     {getApplicationStatusLabel(application.status)}
                   </span>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${getApplicationReviewStatusClassName(
+                    className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${getApplicationReviewStatusClassName(
                       application.reviewStatus,
                     )}`}
                   >
@@ -135,7 +135,7 @@ export function CandidateApplicationsPanel({
                 </Link>
                 <Link
                   href={`/job-postings/${application.jobPostingId}`}
-                  className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+                  className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface transition-colors hover:border-brand hover:text-brand"
                 >
                   원문 공고 보기
                 </Link>
@@ -166,7 +166,7 @@ export function CandidateApplicationsPanel({
               </div>
               <div className="flex items-center gap-3">
                 <span
-                  className={`rounded-full px-3 py-1 text-[10px] font-medium ${getApplicationReviewStatusClassName(
+                  className={`rounded-full px-3 py-1 text-[10px] font-medium ring-1 ring-inset ${getApplicationReviewStatusClassName(
                     application.reviewStatus,
                   )}`}
                 >
@@ -180,7 +180,7 @@ export function CandidateApplicationsPanel({
                       ? `/job-postings/${application.jobPostingId}/apply`
                       : `/me/applications/${application.applicationId}`
                   }
-                  className="text-xs font-medium text-primary hover:underline"
+                  className="text-xs font-medium text-brand hover:underline"
                 >
                   {application.status === "DRAFT" ? "이어서 작성" : "지원서 보기"}
                 </Link>

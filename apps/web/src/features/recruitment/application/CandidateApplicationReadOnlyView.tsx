@@ -90,7 +90,7 @@ function SectionTitle({
         {eyebrow}
       </p>
       <div className="space-y-1">
-        <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+        <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
           {title}
         </h2>
         {description ? (
@@ -125,7 +125,7 @@ export function CandidateApplicationReadOnlyView({
               지원서 상세
             </p>
             <div className="space-y-2">
-              <h1 className="font-headline text-3xl font-medium tracking-[-0.05em] text-on-surface">
+              <h1 className="font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
                 {summary.jobPostingTitle}
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -194,13 +194,13 @@ export function CandidateApplicationReadOnlyView({
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href={`/job-postings/${summary.jobPostingId}`}
-            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium tracking-[0.08em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium tracking-[0.08em] text-on-surface transition-colors hover:border-brand hover:text-brand"
           >
             원문 공고 보기
           </Link>
           <Link
             href="/job-postings"
-            className="rounded-sm bg-primary px-5 py-3 text-xs font-medium tracking-[0.08em] text-primary-foreground transition-colors hover:bg-[#7a2451]"
+            className="rounded-sm bg-primary px-5 py-3 text-xs font-medium tracking-[0.08em] text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             다른 공고 보기
           </Link>
@@ -470,7 +470,7 @@ export function CandidateApplicationReadOnlyView({
                   <a
                     key={attachment.id}
                     href={`/api/attachments/${attachment.id}/download`}
-                    className="block rounded-sm border border-outline-variant px-4 py-3 transition-colors hover:border-primary hover:bg-surface-container-low"
+                    className="block rounded-sm border border-outline-variant px-4 py-3 transition-colors hover:border-brand hover:bg-surface-container-low"
                   >
                     <p className="truncate text-sm font-medium text-on-surface">
                       {attachment.originalFilename}

@@ -29,7 +29,7 @@ export default async function JobPostingListPage() {
             <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
               채용 공고
             </p>
-            <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+            <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
               지원 가능한 채용 공고
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -40,7 +40,7 @@ export default async function JobPostingListPage() {
 
         {!fetchError && jobPostings.length === 0 ? (
           <div className="rounded-sm border border-outline-variant bg-card px-8 py-16 text-center">
-            <p className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+            <p className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
               현재 모집 중인 포지션이 없습니다
             </p>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-on-surface-variant">

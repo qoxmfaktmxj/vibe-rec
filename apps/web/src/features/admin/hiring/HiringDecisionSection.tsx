@@ -48,7 +48,7 @@ const finalStatusOptions: Array<{
 ];
 
 const inputClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-ring/25";
 
 export function HiringDecisionSection({
   applicationId,
@@ -122,7 +122,7 @@ export function HiringDecisionSection({
             최종 결정
           </p>
           <div className="space-y-2">
-            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
               채용 최종 결과를 기록합니다
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -131,7 +131,7 @@ export function HiringDecisionSection({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-5 py-4 xl:w-[320px]">
+        <div className="rounded-xl border border-outline-variant/70 bg-surface-container-low px-5 py-4 xl:w-[320px]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
             선택된 결과
           </p>
@@ -141,7 +141,7 @@ export function HiringDecisionSection({
       </div>
 
       {!isEligible ? (
-        <div className="mt-6 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-6 py-5">
+        <div className="mt-6 rounded-xl border border-outline-variant/70 bg-surface-container-low px-6 py-5">
           <p className="text-sm leading-7 text-on-surface">
             최종 결정은 심사 합격 후에만 가능합니다. 현재 심사 상태:{" "}
             <span className="font-semibold">{getApplicationReviewStatusLabel(reviewStatus)}</span>
@@ -150,11 +150,11 @@ export function HiringDecisionSection({
       ) : null}
 
       {currentFinalStatus ? (
-        <div className="mt-6 rounded-2xl border border-outline-variant/70 bg-surface-container-low px-6 py-5">
+        <div className="mt-6 rounded-xl border border-outline-variant/70 bg-surface-container-low px-6 py-5">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm font-semibold text-on-surface-variant">현재 결과</span>
             <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getFinalStatusClassName(currentFinalStatus)}`}
+              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getFinalStatusClassName(currentFinalStatus)}`}
             >
               {getFinalStatusLabel(currentFinalStatus)}
             </span>
@@ -176,7 +176,7 @@ export function HiringDecisionSection({
           className={`mt-5 rounded-xl px-4 py-3 text-sm ${
             isError
               ? "bg-error-container text-destructive"
-              : "bg-secondary-container text-[#00731e]"
+              : "bg-secondary-container text-emerald-900"
           }`}
         >
           {message}
@@ -215,7 +215,7 @@ export function HiringDecisionSection({
         <button
           type="submit"
           disabled={isPending || !isEligible}
-          className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 xl:col-span-2"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-gradient-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:shadow-black/10 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 xl:col-span-2"
         >
           {isPending
             ? "저장 중..."

@@ -95,7 +95,7 @@ function JobPostingSection({
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-4 border-b border-outline-variant pb-4">
         <div>
-          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
             {title}
           </h2>
           <p className="mt-2 text-sm leading-6 text-on-surface-variant">
@@ -256,7 +256,7 @@ export function JobPostingBrowser({
         <section className="rounded-xl border border-outline-variant bg-card p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-primary">
+              <p className="text-xs font-semibold text-brand">
                 채용 검색
               </p>
               {showAvailabilityFilter ? (
@@ -276,8 +276,8 @@ export function JobPostingBrowser({
                         aria-pressed={isActive}
                         className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
                           isActive
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-outline-variant bg-background text-on-surface hover:border-primary/40"
+                            ? "border-brand bg-brand text-primary-foreground"
+                            : "border-outline-variant bg-background text-on-surface hover:border-brand/40"
                         }`}
                       >
                         {filter.label}
@@ -300,8 +300,8 @@ export function JobPostingBrowser({
                       aria-describedby="job-posting-filter-description"
                       className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
                         isActive
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-outline-variant bg-background text-on-surface hover:border-primary/40"
+                          ? "border-brand bg-brand text-primary-foreground"
+                          : "border-outline-variant bg-background text-on-surface hover:border-brand/40"
                       }`}
                     >
                       <span>{filter.label}</span>
@@ -329,7 +329,7 @@ export function JobPostingBrowser({
                 onChange={(event) => setQuery(event.target.value)}
                 type="search"
                 placeholder={searchPlaceholder}
-                className="w-full rounded-lg border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25"
               />
             </label>
           </div>
