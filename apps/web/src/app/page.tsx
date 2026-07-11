@@ -1,7 +1,7 @@
 import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
-import { RecruitmentStepper } from "@/features/recruitment/shared/RecruitmentStepper";
+import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import { ScrollReveal } from "@/features/recruitment/shared/ScrollReveal";
 import { getJobPostings } from "@/shared/api/recruitment";
 import {

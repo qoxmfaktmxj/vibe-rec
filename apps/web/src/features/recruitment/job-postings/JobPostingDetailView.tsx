@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { JobPostingDetail } from "@/entities/recruitment/model";
-import { RecruitmentStepper } from "@/features/recruitment/shared/RecruitmentStepper";
+import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import {
   formatDateRange,
   formatRecruitmentPeriod,

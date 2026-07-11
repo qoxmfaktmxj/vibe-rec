@@ -5,7 +5,7 @@ import type { CandidateApplicationDetail } from "@/entities/recruitment/model";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
 import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { JobPostingDetailView } from "@/features/recruitment/job-postings/JobPostingDetailView";
-import { RecruitmentStepper } from "@/features/recruitment/shared/RecruitmentStepper";
+import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import {
   CandidateApiError,
   getCurrentCandidateSession,
