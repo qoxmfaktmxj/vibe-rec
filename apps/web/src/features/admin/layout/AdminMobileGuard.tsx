@@ -65,7 +65,7 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
 
           <Link
             href="/"
-            className="mt-6 inline-flex rounded-sm border border-outline-variant px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-brand hover:text-brand"
+            className="mt-6 inline-flex rounded-sm border border-outline-variant px-5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
           >
             공개 사이트로 이동
           </Link>

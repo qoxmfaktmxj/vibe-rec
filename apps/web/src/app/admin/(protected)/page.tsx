@@ -25,13 +25,28 @@ export default async function AdminPage() {
   const groupedJobPostings = groupJobPostings(jobPostings);
   const publishedCount = jobPostings.filter((jobPosting) => jobPosting.published).length;
   const openCount = jobPostings.filter((jobPosting) => jobPosting.status === "OPEN").length;
+  const draftCount = jobPostings.filter((jobPosting) => jobPosting.status === "DRAFT").length;
+  const closedCount = jobPostings.filter((jobPosting) => jobPosting.status === "CLOSED").length;
+  const total = jobPostings.length;
+
+  const statusDistribution = [
+    { label: "모집 중", count: openCount, token: "var(--chart-1)" },
+    { label: "임시 저장", count: draftCount, token: "var(--chart-2)" },
+    { label: "마감", count: closedCount, token: "var(--chart-4)" },
+  ].filter((segment) => segment.count > 0);
+
+  const categoryDistribution = [
+    { label: "신입 채용", count: groupedJobPostings.newGrad.length, token: "var(--chart-1)" },
+    { label: "경력 채용", count: groupedJobPostings.experienced.length, token: "var(--chart-2)" },
+    { label: "상시 채용", count: groupedJobPostings.rolling.length, token: "var(--chart-3)" },
+  ].filter((segment) => segment.count > 0);
 
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-outline-variant bg-card p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold text-brand">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">
               대시보드
             </p>
             <h1 className="mt-2 font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface">
@@ -45,7 +60,7 @@ export default async function AdminPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/job-postings/new"
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
             >
               공고 등록
             </Link>
@@ -70,12 +85,29 @@ export default async function AdminPage() {
             <p className="mt-2 leading-6">{loadError}</p>
           </div>
         ) : (
-          <div className="mt-6 grid gap-4 md:grid-cols-4">
-            <StatCard label="전체 공고" value={jobPostings.length} />
-            <StatCard label="모집 중" value={openCount} accent="text-brand" />
-            <StatCard label="공개 공고" value={publishedCount} />
-            <StatCard label="상시 채용" value={groupedJobPostings.rolling.length} />
-          </div>
+          <>
+            <div className="mt-6 grid gap-4 md:grid-cols-4">
+              <StatCard label="전체 공고" value={jobPostings.length} />
+              <StatCard label="모집 중" value={openCount} accent="text-brand" />
+              <StatCard label="공개 공고" value={publishedCount} />
+              <StatCard label="상시 채용" value={groupedJobPostings.rolling.length} />
+            </div>
+
+            {total > 0 ? (
+              <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                <DistributionBar
+                  title="공고 상태 분포"
+                  segments={statusDistribution}
+                  total={total}
+                />
+                <DistributionBar
+                  title="채용 유형 분포"
+                  segments={categoryDistribution}
+                  total={total}
+                />
+              </div>
+            ) : null}
+          </>
         )}
       </section>
 
@@ -113,17 +145,78 @@ function StatCard({
   accent = "text-on-surface",
 }: {
   label: string;
-  value: number;
+  value: number | string;
   accent?: string;
 }) {
   return (
-    <div className="stat-card card-shadow rounded-xl border border-outline-variant bg-card px-5 py-5 transition-colors hover:bg-surface-container-low">
-      <p className="text-xs font-medium text-on-surface-variant">
+    <div className="rounded-xl border border-outline-variant bg-card px-5 py-5 elevation-1 transition-colors hover:bg-surface-container-low">
+      <p className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-on-surface-variant">
         {label}
       </p>
-      <p className={`mt-2 font-headline text-4xl font-bold tracking-[-0.02em] ${accent}`}>
+      <p className={`mt-2 font-headline tabular-nums text-3xl font-bold tracking-[-0.02em] ${accent}`}>
         {value}
       </p>
+    </div>
+  );
+}
+
+interface DistributionSegment {
+  label: string;
+  count: number;
+  token: string;
+}
+
+function DistributionBar({
+  title,
+  segments,
+  total,
+}: {
+  title: string;
+  segments: DistributionSegment[];
+  total: number;
+}) {
+  const summaryLabel = segments
+    .map((segment) => `${segment.label} ${segment.count}건`)
+    .join(", ");
+
+  return (
+    <div className="rounded-xl border border-outline-variant bg-surface-container-low p-5">
+      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+        {title}
+      </p>
+
+      <div
+        role="img"
+        aria-label={`${title}: 전체 ${total}건 중 ${summaryLabel}`}
+        className="mt-4 flex h-2.5 w-full overflow-hidden rounded-full bg-surface-container"
+      >
+        {segments.map((segment) => (
+          <div
+            key={segment.label}
+            className="h-full first:rounded-l-full last:rounded-r-full"
+            style={{
+              width: `${(segment.count / total) * 100}%`,
+              backgroundColor: segment.token,
+            }}
+          />
+        ))}
+      </div>
+
+      <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+        {segments.map((segment) => (
+          <li key={segment.label} className="flex items-center gap-2 text-xs">
+            <span
+              aria-hidden="true"
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: segment.token }}
+            />
+            <span className="text-on-surface-variant">{segment.label}</span>
+            <span className="font-mono tabular-nums text-on-surface">
+              {segment.count}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

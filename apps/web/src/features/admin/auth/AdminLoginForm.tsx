@@ -108,7 +108,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-sm bg-primary py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-sm bg-primary py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "로그인 중..." : "로그인"}
       </button>

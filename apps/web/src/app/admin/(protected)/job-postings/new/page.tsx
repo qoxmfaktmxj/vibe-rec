@@ -43,7 +43,7 @@ export default async function AdminNewJobPostingPage() {
 
         <Link
           href="/admin"
-          className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-brand"
+          className="text-xs font-medium text-on-surface-variant transition-colors hover:text-brand"
         >
           대시보드로
         </Link>

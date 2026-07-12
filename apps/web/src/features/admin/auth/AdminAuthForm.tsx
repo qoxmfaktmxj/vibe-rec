@@ -4,7 +4,7 @@ import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const inputClassName =
-  "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-brand focus:ring-2 focus:ring-ring/25";
+  "w-full rounded-lg border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-brand focus:ring-2 focus:ring-ring/25";
 
 function LoginProgressIndicator({ label }: { label: string }) {
   return (
@@ -141,11 +141,11 @@ export function AdminAuthForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 rounded-sm bg-surface-container-low p-1">
+      <div className="grid grid-cols-2 gap-2 rounded-lg bg-surface-container-low p-1">
         <button
           type="button"
           onClick={() => switchMode("login")}
-          className={`rounded-sm px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             mode === "login"
               ? "bg-primary text-primary-foreground"
               : "text-on-surface-variant hover:text-on-surface"
@@ -156,7 +156,7 @@ export function AdminAuthForm({
         <button
           type="button"
           onClick={() => switchMode("signup")}
-          className={`rounded-sm px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             mode === "signup"
               ? "bg-primary text-primary-foreground"
               : "text-on-surface-variant hover:text-on-surface"
@@ -260,7 +260,7 @@ export function AdminAuthForm({
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-sm bg-primary py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending
             ? mode === "signup"

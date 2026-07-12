@@ -24,7 +24,7 @@ export default async function AdminLoginPage({
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
-      <div className="w-full max-w-md rounded-sm border border-outline-variant bg-surface px-10 py-12">
+      <div className="w-full max-w-md rounded-xl border border-outline-variant bg-card px-10 py-12 elevation-2">
         <div className="space-y-4 border-b border-outline-variant pb-8">
           <p className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
             HireFlow
@@ -43,7 +43,7 @@ export default async function AdminLoginPage({
           <AdminAuthForm defaultMode={defaultMode} />
         </div>
 
-        <div className="mt-8 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">
+        <div className="mt-8 flex items-center justify-between text-xs font-medium text-on-surface-variant">
           <Link href="/" className="transition-colors hover:text-brand">
             홈으로 이동
           </Link>

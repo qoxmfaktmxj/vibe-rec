@@ -221,7 +221,7 @@ export function JobPostingQuestionEditor({
           type="button"
           disabled={isPending}
           onClick={handleSave}
-          className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+          className="rounded-sm bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
         >
           문항 저장
         </button>

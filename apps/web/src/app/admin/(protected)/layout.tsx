@@ -60,7 +60,8 @@ export default async function AdminLayout({
         <div className="space-y-8">
           <Link
             href="/admin"
-            className="flex h-12 w-12 items-center justify-center rounded-sm border border-sidebar-border bg-sidebar-accent shadow-[0_18px_36px_-26px_rgba(0,0,0,0.45)]"
+            aria-label="HireFlow 관리자 홈"
+            className="flex h-12 w-12 items-center justify-center rounded-lg border border-sidebar-border bg-sidebar-accent elevation-2"
           >
             <span className="font-headline text-xl font-semibold">H</span>
           </Link>
@@ -69,14 +70,14 @@ export default async function AdminLayout({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-sm border border-sidebar-border bg-sidebar-accent px-3 py-4 text-center">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground/70">
+          <div className="rounded-lg border border-sidebar-border bg-sidebar-accent px-3 py-4 text-center">
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-sidebar-foreground">
               관리자 모드
             </p>
-            <p className="mt-2 text-xs font-medium leading-5">채용 운영 워크스페이스</p>
+            <p className="mt-2 text-xs font-medium leading-5 text-sidebar-foreground/90">채용 운영 워크스페이스</p>
           </div>
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sm font-semibold uppercase">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-accent text-sm font-semibold uppercase text-sidebar-foreground">
             {session.displayName?.charAt(0) ?? "A"}
           </div>
         </div>
@@ -100,12 +101,12 @@ export default async function AdminLayout({
             </div>
 
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <div className="rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm shadow-[0_18px_40px_-30px_rgba(31,41,55,0.28)]">
+              <div className="rounded-lg border border-outline-variant bg-card px-4 py-3 text-sm elevation-1">
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">
                   현재 세션
                 </p>
                 <p className="mt-1 font-semibold text-on-surface">{session.displayName}</p>
-                <p className="text-xs text-on-surface-variant">{session.role}</p>
+                <p className="font-mono text-xs uppercase tracking-[0.08em] text-on-surface-variant">{session.role}</p>
               </div>
               <AdminLogoutButton redirectTo="/admin/login" />
             </div>

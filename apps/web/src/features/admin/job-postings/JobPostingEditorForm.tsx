@@ -350,14 +350,14 @@ export function JobPostingEditorForm({
             type="button"
             onClick={handleSubmit}
             disabled={isPending}
-            className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+            className="rounded-sm bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
           >
             {submitLabel}
           </button>
           {questionEditorHref ? (
             <a
               href={questionEditorHref}
-              className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+              className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium text-on-surface"
             >
               질문 관리
             </a>
@@ -366,7 +366,7 @@ export function JobPostingEditorForm({
         <button
           type="button"
           onClick={() => router.push("/admin")}
-          className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+          className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium text-on-surface"
         >
           대시보드로
         </button>

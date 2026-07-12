@@ -208,7 +208,7 @@ export function ApplicantReviewForm({ applicant }: ApplicantReviewFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "심사 결과 저장"}
       </button>
