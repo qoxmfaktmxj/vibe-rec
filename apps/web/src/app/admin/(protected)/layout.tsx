@@ -42,6 +42,18 @@ const navItems = [
   },
 ];
 
+const privacyNavItem = {
+  href: "/admin/data-requests",
+  label: "개인정보 요청",
+  icon: (
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 3.75l7.5 3v5.25c0 4.5-3.15 7.95-7.5 8.25-4.35-.3-7.5-3.75-7.5-8.25V6.75l7.5-3zm0 5.25v4.5m0 3h.008"
+    />
+  ),
+};
+
 export default async function AdminLayout({
   children,
 }: Readonly<{
@@ -52,6 +64,10 @@ export default async function AdminLayout({
   if (!session) {
     redirect("/admin/login");
   }
+
+  const visibleNavItems = session.permissions.includes("DATA_PRIVACY_MANAGE")
+    ? [navItems[0], navItems[1], privacyNavItem, navItems[2]]
+    : navItems;
 
   return (
     <AdminMobileGuard>
@@ -65,7 +81,7 @@ export default async function AdminLayout({
             <span className="font-headline text-xl font-semibold">H</span>
           </Link>
 
-          <AdminRailNav items={navItems} />
+          <AdminRailNav items={visibleNavItems} />
         </div>
 
         <div className="space-y-4">

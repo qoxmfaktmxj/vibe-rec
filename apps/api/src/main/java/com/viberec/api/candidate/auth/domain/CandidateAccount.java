@@ -42,6 +42,9 @@ public class CandidateAccount {
     @Column(name = "last_authenticated_at")
     private OffsetDateTime lastAuthenticatedAt;
 
+    @Column(name = "email_verified_at")
+    private OffsetDateTime emailVerifiedAt;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -76,6 +79,12 @@ public class CandidateAccount {
         this.status = CandidateAccountStatus.ACTIVE;
     }
 
+    public void markEmailVerified(OffsetDateTime verifiedAt) {
+        if (emailVerifiedAt == null) {
+            emailVerifiedAt = verifiedAt;
+        }
+    }
+
     public Long getId() { return id; }
     public String getEmail() { return email; }
     public String getNormalizedEmail() { return normalizedEmail; }
@@ -83,5 +92,7 @@ public class CandidateAccount {
     public String getPhone() { return phoneNumber; }
     public CandidateAccountStatus getStatus() { return status; }
     public OffsetDateTime getLastAuthenticatedAt() { return lastAuthenticatedAt; }
+    public OffsetDateTime getEmailVerifiedAt() { return emailVerifiedAt; }
+    public boolean isEmailVerified() { return emailVerifiedAt != null; }
     public boolean isActive() { return status == CandidateAccountStatus.ACTIVE; }
 }

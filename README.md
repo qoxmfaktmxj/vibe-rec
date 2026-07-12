@@ -60,6 +60,10 @@ npm run dev
 
 `apps/web/.env.example`를 `apps/web/.env.local`로 복사해도 같은 기본값으로 실행할 수 있습니다.
 
+운영 환경에서는 web 포트를 외부에 직접 노출하지 않고 신뢰할 수 있는 reverse proxy 뒤에 둡니다.
+인증 요청 제한이 실제 클라이언트 네트워크를 구분할 수 있도록 proxy는 `X-Forwarded-For`에
+접속 주소를 append해야 하며, `compose.deploy.yaml`은 web/API 포트를 loopback에만 바인딩합니다.
+
 ## Claude Harness
 
 - PostgreSQL를 먼저 띄운 뒤 `launch.json`의 web/api 프로필을 사용해야 합니다.

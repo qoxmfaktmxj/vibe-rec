@@ -37,6 +37,19 @@ public class Interview {
     private OffsetDateTime scheduledAt;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "interview_type", nullable = false, length = 20)
+    private InterviewType interviewType;
+
+    @Column(name = "duration_minutes", nullable = false)
+    private int durationMinutes;
+
+    @Column(length = 300)
+    private String location;
+
+    @Column(name = "online_link", length = 1000)
+    private String onlineLink;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private InterviewStatus status;
 
@@ -52,10 +65,23 @@ public class Interview {
     protected Interview() {
     }
 
-    public Interview(Application application, JobPostingStep jobPostingStep, OffsetDateTime scheduledAt, String note) {
+    public Interview(
+            Application application,
+            JobPostingStep jobPostingStep,
+            InterviewType interviewType,
+            OffsetDateTime scheduledAt,
+            int durationMinutes,
+            String location,
+            String onlineLink,
+            String note
+    ) {
         this.application = application;
         this.jobPostingStep = jobPostingStep;
+        this.interviewType = interviewType;
         this.scheduledAt = scheduledAt;
+        this.durationMinutes = durationMinutes;
+        this.location = location;
+        this.onlineLink = onlineLink;
         this.status = InterviewStatus.SCHEDULED;
         this.note = note;
     }
@@ -106,6 +132,22 @@ public class Interview {
 
     public OffsetDateTime getScheduledAt() {
         return scheduledAt;
+    }
+
+    public InterviewType getInterviewType() {
+        return interviewType;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getOnlineLink() {
+        return onlineLink;
     }
 
     public InterviewStatus getStatus() {

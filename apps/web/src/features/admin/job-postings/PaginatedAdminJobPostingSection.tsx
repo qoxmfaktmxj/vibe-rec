@@ -18,6 +18,7 @@ interface PaginatedAdminJobPostingSectionProps {
   description: string;
   jobPostings: AdminJobPosting[];
   emptyMessage: string;
+  canManage: boolean;
   pageSize?: number;
 }
 
@@ -26,6 +27,7 @@ export function PaginatedAdminJobPostingSection({
   description,
   jobPostings,
   emptyMessage,
+  canManage,
   pageSize = 9,
 }: PaginatedAdminJobPostingSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -102,20 +104,26 @@ export function PaginatedAdminJobPostingSection({
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/admin/job-postings/${jobPosting.id}`}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:shadow-md"
-                >
-                  공고 수정
-                </Link>
-                <Link
-                  href={`/admin/job-postings/${jobPosting.id}/questions`}
-                  className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
-                >
-                  질문 관리
-                </Link>
-              </div>
+              {canManage ? (
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href={`/admin/job-postings/${jobPosting.id}`}
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:shadow-md"
+                  >
+                    공고 수정
+                  </Link>
+                  <Link
+                    href={`/admin/job-postings/${jobPosting.id}/questions`}
+                    className="rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-primary hover:text-primary"
+                  >
+                    질문 관리
+                  </Link>
+                </div>
+              ) : (
+                <span className="rounded-full bg-background px-3 py-1.5 text-xs font-medium text-on-surface-variant">
+                  조회 전용
+                </span>
+              )}
             </div>
           ))}
         </div>

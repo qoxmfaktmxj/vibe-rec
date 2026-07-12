@@ -16,13 +16,26 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:25}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${SMTP_STARTTLS:false}
+      mail.smtp.connectiontimeout: ${SMTP_CONNECTION_TIMEOUT_MS:5000}
+      mail.smtp.timeout: ${SMTP_READ_TIMEOUT_MS:10000}
+      mail.smtp.writetimeout: ${SMTP_WRITE_TIMEOUT_MS:10000}
 
 server:
   port: ${SERVER_PORT:8080}
   servlet:
     context-path: /api
   error:
-    include-message: always
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
 
 management:
   endpoints:
@@ -40,8 +53,31 @@ info:
     phase: mvp-read-write-auth
 
 app:
+  web-base-url: ${APP_WEB_BASE_URL:http://localhost:3000}
+  time-zone: ${APP_TIME_ZONE:Asia/Seoul}
+  auth-rate-limit:
+    hash-secret: ${AUTH_RATE_LIMIT_HASH_SECRET:local-development-only}
+    cleanup-delay-ms: ${AUTH_RATE_LIMIT_CLEANUP_DELAY_MS:3600000}
+    login:
+      max-failures: ${AUTH_LOGIN_MAX_FAILURES:5}
+      network-max-failures: ${AUTH_LOGIN_NETWORK_MAX_FAILURES:50}
+      window-minutes: ${AUTH_LOGIN_WINDOW_MINUTES:15}
+      block-minutes: ${AUTH_LOGIN_BLOCK_MINUTES:15}
+    signup:
+      max-requests: ${AUTH_SIGNUP_MAX_REQUESTS:10}
+    password-reset:
+      network-max-requests: ${AUTH_PASSWORD_RESET_NETWORK_MAX_REQUESTS:20}
+    mail:
+      max-requests: ${AUTH_MAIL_MAX_REQUESTS:3}
+      window-minutes: ${AUTH_MAIL_WINDOW_MINUTES:60}
+      block-minutes: ${AUTH_MAIL_BLOCK_MINUTES:60}
+  recruitment:
+    review-sla-hours: ${APP_REVIEW_SLA_HOURS:72}
   upload:
     base-dir: ${UPLOAD_DIR:./uploads}
+  candidate:
+    mail:
+      from: ${APP_CANDIDATE_MAIL_FROM:no-reply@hireflow.local}
   admin:
     dev-account:
       enabled: ${APP_ADMIN_DEV_ACCOUNT_ENABLED:false}

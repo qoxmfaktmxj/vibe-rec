@@ -4,6 +4,7 @@ import type {
   ApplicationFinalStatus,
   FinalDecisionResponse,
   NotificationResponse,
+  NotificationTemplatePreview,
 } from "@/entities/recruitment/model";
 import {
   AdminApiError,
@@ -59,6 +60,7 @@ export async function makeFinalDecision(
 export async function createNotification(
   applicationId: number,
   payload: {
+    templateId?: number | null;
     type: string;
     title: string;
     content: string;
@@ -96,4 +98,37 @@ export async function getNotifications(applicationId: number) {
   );
 
   return parseHiringResponse<NotificationResponse[]>(response);
+}
+
+export async function getNotificationTemplates(applicationId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/applicants/${applicationId}/notification-templates`,
+    {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+    },
+  );
+
+  return parseHiringResponse<NotificationTemplatePreview[]>(response);
+}
+
+export async function retryNotification(applicationId: number, notificationId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/applicants/${applicationId}/notifications/${notificationId}/retry`,
+    {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+    },
+  );
+
+  return parseHiringResponse<NotificationResponse>(response);
 }

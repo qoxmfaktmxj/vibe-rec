@@ -187,6 +187,7 @@ export function ApplicationDraftForm({
   const [pendingAction, setPendingAction] = useState<FormActionMode | null>(null);
   const [uploadingFiles, setUploadingFiles] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const submitKeyRef = useRef<string | null>(null);
 
   const isSubmitted = application?.status === "SUBMITTED";
   const formDisabled = !canSave || isSubmitted || pendingAction !== null;
@@ -298,13 +299,19 @@ export function ApplicationDraftForm({
     setPendingAction(mode);
 
     try {
+      if (mode === "submit") submitKeyRef.current ??= crypto.randomUUID();
       const response = await fetch(
         mode === "draft"
           ? `/api/job-postings/${jobPostingId}/application-draft`
           : `/api/job-postings/${jobPostingId}/application-submit`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(mode === "submit" && submitKeyRef.current
+              ? { "Idempotency-Key": submitKeyRef.current }
+              : {}),
+          },
           body: JSON.stringify(buildPayload()),
         },
       );

@@ -21,22 +21,22 @@ public class AdminAuthController {
         this.adminAuthService = adminAuthService;
     }
 
-    @PostMapping("/signup")
-    public AdminLoginResponse signup(@Valid @RequestBody AdminSignupRequest request) {
-        return adminAuthService.signup(request);
-    }
-
     @PostMapping("/login")
-    public AdminLoginResponse login(@Valid @RequestBody AdminLoginRequest request) {
-        return adminAuthService.login(request);
+    public AdminLoginResponse login(
+            @Valid @RequestBody AdminLoginRequest request,
+            @RequestHeader(value = "X-Client-Network", required = false) String clientNetwork
+    ) {
+        return adminAuthService.login(request, clientNetwork);
     }
 
     @GetMapping("/session")
+    @RequiresAdminSession
     public AdminSessionResponse getSession(@RequestHeader("X-Admin-Session") String sessionToken) {
         return adminAuthService.getSession(sessionToken);
     }
 
     @PostMapping("/logout")
+    @RequiresAdminSession
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@RequestHeader("X-Admin-Session") String sessionToken) {
         adminAuthService.logout(sessionToken);

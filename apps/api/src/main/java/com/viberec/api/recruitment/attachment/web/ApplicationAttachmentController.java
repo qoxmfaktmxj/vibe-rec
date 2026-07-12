@@ -5,7 +5,9 @@ import com.viberec.api.candidate.auth.service.CandidateAuthService;
 import com.viberec.api.recruitment.attachment.domain.ApplicationAttachment;
 import com.viberec.api.recruitment.attachment.service.AttachmentService;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -78,7 +80,13 @@ public class ApplicationAttachmentController {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getOriginalName() + "\"")
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename(attachment.getOriginalName(), StandardCharsets.UTF_8)
+                                .build()
+                                .toString()
+                )
                 .body(resource);
     }
 }

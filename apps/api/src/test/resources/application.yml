@@ -8,6 +8,14 @@ spring:
     locations: classpath:db/migration
 
 app:
+  auth-rate-limit:
+    signup:
+      max-requests: 1000
+  notification:
+    dispatch-initial-delay-ms: 3600000
+  candidate:
+    mail:
+      dispatch-initial-delay-ms: 3600000
   admin:
     dev-account:
       enabled: true

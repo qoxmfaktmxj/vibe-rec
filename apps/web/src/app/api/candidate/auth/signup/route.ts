@@ -3,13 +3,18 @@
 import type { CandidateSignupPayload } from "@/entities/candidate/model";
 import { CandidateApiError, signupCandidate } from "@/shared/api/candidate-auth";
 import { CANDIDATE_SESSION_COOKIE } from "@/shared/lib/candidate-auth";
+import { getClientNetwork } from "@/shared/lib/client-network";
 import { buildSessionCookieOptions } from "@/shared/lib/session-cookie";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as CandidateSignupPayload;
 
   try {
-    const response = await signupCandidate(payload);
+    const response = await signupCandidate(
+      payload,
+      request.headers.get("user-agent"),
+      getClientNetwork(request),
+    );
     const nextResponse = NextResponse.json({
       candidateAccountId: response.candidateAccountId,
       email: response.email,
@@ -17,6 +22,7 @@ export async function POST(request: Request) {
       phone: response.phone,
       authenticatedAt: response.authenticatedAt,
       expiresAt: response.expiresAt,
+      emailVerified: response.emailVerified,
     });
 
     nextResponse.cookies.set(

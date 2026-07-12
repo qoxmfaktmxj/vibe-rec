@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import java.time.Duration;
 
 @Entity
 @Table(name = "job_posting_step", schema = "recruit")
@@ -43,6 +44,36 @@ public class JobPostingStep {
 
     @Column(name = "ends_at")
     private OffsetDateTime endsAt;
+
+    protected JobPostingStep() {
+    }
+
+    public JobPostingStep(
+            JobPosting jobPosting,
+            short stepOrder,
+            JobPostingStepType stepType,
+            String title,
+            String description,
+            OffsetDateTime startsAt,
+            OffsetDateTime endsAt
+    ) {
+        this.jobPosting = jobPosting;
+        this.stepOrder = stepOrder;
+        this.stepType = stepType;
+        this.title = title;
+        this.description = description;
+        this.startsAt = startsAt;
+        this.endsAt = endsAt;
+    }
+
+    void shiftSchedule(Duration duration) {
+        if (startsAt != null) {
+            startsAt = startsAt.plus(duration);
+        }
+        if (endsAt != null) {
+            endsAt = endsAt.plus(duration);
+        }
+    }
 
     public Long getId() {
         return id;

@@ -26,6 +26,10 @@ export default async function AdminNewJobPostingPage() {
     redirect("/admin/login");
   }
 
+  if (!adminSession.permissions.includes("JOB_POSTING_MANAGE")) {
+    redirect("/admin");
+  }
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-start justify-between gap-4">

@@ -23,6 +23,8 @@ import com.viberec.api.candidate.profile.web.SaveCandidateProfileRequest;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CandidateProfileService {
@@ -86,6 +88,7 @@ public class CandidateProfileService {
                 .toList();
 
         return new CandidateProfileResponse(
+                profile != null ? profile.getVersion() : 0,
                 profile != null ? profile.getIntroductionTemplate() : null,
                 profile != null ? profile.getCoreStrengthTemplate() : null,
                 profile != null ? profile.getCareerYears() : null,
@@ -98,14 +101,20 @@ public class CandidateProfileService {
     }
 
     @Transactional
-    public void saveProfile(CandidateAccount account, SaveCandidateProfileRequest request) {
+    public CandidateProfileResponse saveProfile(CandidateAccount account, SaveCandidateProfileRequest request) {
         Long accountId = account.getId();
 
         profileRepository.createProfileIfMissing(accountId);
         CandidateProfile profile = profileRepository.findByCandidateAccountId(accountId)
                 .orElseThrow(() -> new IllegalStateException("Candidate profile row was not created."));
+        if (profile.getVersion() != request.revision()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "다른 화면에서 프로필이 변경되었습니다. 최신 내용을 다시 불러와 주세요."
+            );
+        }
         profile.update(request.introductionTemplate(), request.coreStrengthTemplate(), request.careerYears());
-        profileRepository.save(profile);
+        profileRepository.saveAndFlush(profile);
 
         if (request.educations() != null) {
             educationRepository.deleteByCandidateAccountId(accountId);
@@ -146,5 +155,6 @@ public class CandidateProfileService {
                             dto.proficiency(), dto.testName(), dto.testScore(), dto.sortOrder()))
                     .toList());
         }
+        return getProfile(account);
     }
 }

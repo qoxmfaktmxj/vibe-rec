@@ -5,17 +5,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.viberec.api.admin.jobposting.service.AdminJobPostingService;
 import com.viberec.api.admin.jobposting.web.AdminJobPostingUpsertRequest;
+import com.viberec.api.admin.jobposting.web.JobPostingPublicationState;
+import com.viberec.api.admin.jobposting.web.ScheduleJobPostingPublicationRequest;
 import com.viberec.api.candidate.auth.repository.CandidateAccountRepository;
 import com.viberec.api.candidate.auth.repository.CandidateSessionRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationResumeRawRepository;
 import com.viberec.api.recruitment.application.repository.ApplicationAnswerRepository;
+import com.viberec.api.recruitment.application.repository.ApplicationEventRepository;
 import com.viberec.api.recruitment.application.service.ApplicationDraftService;
 import com.viberec.api.recruitment.application.service.CandidateApplicationQueryService;
 import com.viberec.api.recruitment.application.web.ResumeEducationDto;
 import com.viberec.api.recruitment.application.web.ResumeExperienceDto;
 import com.viberec.api.recruitment.application.web.SaveApplicationDraftRequest;
 import com.viberec.api.recruitment.jobposting.repository.JobPostingQuestionRepository;
+import com.viberec.api.recruitment.jobposting.repository.JobPostingStepRepository;
+import com.viberec.api.recruitment.evaluation.domain.ScorecardCriterion;
+import com.viberec.api.recruitment.evaluation.repository.ScorecardCriterionRepository;
 import com.viberec.api.recruitment.jobposting.web.SaveJobPostingQuestionRequest;
 import com.viberec.api.recruitment.jobposting.domain.RecruitmentCategory;
 import com.viberec.api.recruitment.jobposting.domain.RecruitmentMode;
@@ -50,7 +56,16 @@ class RecruitmentMvpTests extends IntegrationTestBase {
     private ApplicationAnswerRepository applicationAnswerRepository;
 
     @Autowired
+    private ApplicationEventRepository applicationEventRepository;
+
+    @Autowired
     private JobPostingQuestionRepository jobPostingQuestionRepository;
+
+    @Autowired
+    private JobPostingStepRepository jobPostingStepRepository;
+
+    @Autowired
+    private ScorecardCriterionRepository scorecardCriterionRepository;
 
     @Autowired
     private CandidateSessionRepository candidateSessionRepository;
@@ -66,6 +81,7 @@ class RecruitmentMvpTests extends IntegrationTestBase {
 
     @BeforeEach
     void cleanApplications() {
+        applicationEventRepository.deleteAll();
         applicationAnswerRepository.deleteAll();
         applicationResumeRawRepository.deleteAll();
         applicationRepository.deleteAll();
@@ -79,7 +95,7 @@ class RecruitmentMvpTests extends IntegrationTestBase {
         var jobPostings = jobPostingService.getPublishedJobPostings();
 
         assertThat(jobPostings)
-                .hasSize(20)
+                .hasSizeGreaterThanOrEqualTo(20)
                 .extracting("id")
                 .contains(1001L, 1002L, 1011L, 1020L);
 
@@ -167,6 +183,119 @@ class RecruitmentMvpTests extends IntegrationTestBase {
     }
 
     @Test
+    @Transactional
+    void schedulesPublicationUsingServerTimeAndKeepsPreviewAvailableBeforeRelease() {
+        OffsetDateTime originalOpen = OffsetDateTime.now().plusDays(2);
+        OffsetDateTime originalClose = originalOpen.plusDays(10);
+        var created = adminJobPostingService.createJobPosting(
+                new AdminJobPostingUpsertRequest(
+                        null,
+                        "scheduled-platform-role-" + System.nanoTime(),
+                        "Scheduled Platform Role",
+                        "A posting prepared for a controlled release",
+                        "This draft verifies preview and scheduled publication boundaries.",
+                        "FULL_TIME",
+                        RecruitmentCategory.EXPERIENCED,
+                        RecruitmentMode.FIXED_TERM,
+                        "Seoul",
+                        com.viberec.api.recruitment.jobposting.domain.JobPostingStatus.DRAFT,
+                        false,
+                        originalOpen,
+                        originalClose
+                )
+        );
+
+        OffsetDateTime scheduledAt = OffsetDateTime.now().plusDays(5);
+        var scheduled = adminJobPostingService.schedulePublication(
+                created.id(),
+                new ScheduleJobPostingPublicationRequest(scheduledAt)
+        );
+
+        assertThat(scheduled.publicationState()).isEqualTo(JobPostingPublicationState.SCHEDULED);
+        assertThat(scheduled.status().name()).isEqualTo("OPEN");
+        assertThat(scheduled.published()).isTrue();
+        assertThat(scheduled.closesAt()).isEqualTo(scheduledAt.plusDays(10));
+        assertThat(adminJobPostingService.getPreview(created.id()).jobPosting().id()).isEqualTo(created.id());
+        assertThat(jobPostingService.getPublishedJobPostings())
+                .extracting("id")
+                .doesNotContain(created.id());
+        assertThatThrownBy(() -> jobPostingService.getJobPosting(created.id()))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.NOT_FOUND);
+
+        var published = adminJobPostingService.schedulePublication(
+                created.id(),
+                new ScheduleJobPostingPublicationRequest(OffsetDateTime.now().minusMinutes(1))
+        );
+
+        assertThat(published.publicationState()).isEqualTo(JobPostingPublicationState.PUBLISHED);
+        assertThat(jobPostingService.getPublishedJobPostings())
+                .extracting("id")
+                .contains(created.id());
+        assertThatThrownBy(() -> adminJobPostingService.schedulePublication(
+                created.id(),
+                new ScheduleJobPostingPublicationRequest(OffsetDateTime.now().plusDays(1))
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    @Transactional
+    void clonesPostingConfigurationIntoIndependentDraftRecords() {
+        jobPostingQuestionRepository.save(new com.viberec.api.recruitment.jobposting.domain.JobPostingQuestion(
+                jobPostingStepRepository.findByJobPostingIdOrderByStepOrderAsc(1001L).getFirst().getJobPosting(),
+                "Describe an enterprise migration you led.",
+                com.viberec.api.recruitment.jobposting.domain.QuestionType.TEXT,
+                null,
+                true,
+                90
+        ));
+        var sourceSteps = jobPostingStepRepository.findByJobPostingIdOrderByStepOrderAsc(1001L);
+        var sourceInterviewStep = sourceSteps.stream()
+                .filter(step -> step.getStepType().name().equals("INTERVIEW"))
+                .findFirst()
+                .orElseThrow();
+        var sourceCriterion = scorecardCriterionRepository.save(new ScorecardCriterion(
+                sourceInterviewStep,
+                "Clone verification " + System.nanoTime(),
+                "clone verification " + System.nanoTime(),
+                "This criterion must be copied to a new step record.",
+                (short) 10,
+                false,
+                (short) 90
+        ));
+
+        var clone = adminJobPostingService.cloneJobPosting(1001L);
+        var clonedSteps = jobPostingStepRepository.findByJobPostingIdOrderByStepOrderAsc(clone.id());
+        var clonedQuestions = jobPostingQuestionRepository.findByJobPostingIdOrderBySortOrder(clone.id());
+        var clonedInterviewStep = clonedSteps.stream()
+                .filter(step -> step.getStepOrder() == sourceInterviewStep.getStepOrder())
+                .findFirst()
+                .orElseThrow();
+        var clonedCriteria = scorecardCriterionRepository
+                .findByJobPostingStepIdOrderBySortOrderAscIdAsc(clonedInterviewStep.getId());
+
+        assertThat(clone.status().name()).isEqualTo("DRAFT");
+        assertThat(clone.published()).isFalse();
+        assertThat(clone.publicKey()).startsWith("platform-backend-engineer-copy");
+        assertThat(clonedSteps).hasSameSizeAs(sourceSteps);
+        assertThat(clonedSteps).extracting("id").doesNotContainAnyElementsOf(
+                sourceSteps.stream().map(step -> step.getId()).toList()
+        );
+        assertThat(clonedQuestions)
+                .extracting("questionText")
+                .contains("Describe an enterprise migration you led.");
+        assertThat(clonedCriteria)
+                .anySatisfy(criterion -> {
+                    assertThat(criterion.getName()).isEqualTo(sourceCriterion.getName());
+                    assertThat(criterion.getId()).isNotEqualTo(sourceCriterion.getId());
+                });
+    }
+
+    @Test
     void savesApplicationDraftForOpenJobPosting() {
         var candidate = createCandidateAccount("Kim Recruit", "kim.recruit@example.com", "010-1234-5678");
 
@@ -213,6 +342,184 @@ class RecruitmentMvpTests extends IntegrationTestBase {
                 .get()
                 .extracting("status")
                 .hasToString("SUBMITTED");
+    }
+
+    @Test
+    void requiresVerifiedEmailOnlyForFinalSubmission() {
+        var signup = candidateAuthService.signup(
+                new com.viberec.api.candidate.auth.web.CandidateSignupRequest(
+                        "Unverified Kim",
+                        "unverified@example.com",
+                        "010-4040-5050",
+                        "password123"
+                )
+        );
+        var candidate = candidateAuthService.requireActiveAccount(signup.sessionToken());
+        var request = validSubmitRequest(1001L, Map.of(
+                "introduction", "I can save a draft while email verification is pending.",
+                "coreStrength", "I complete identity verification before final submission."
+        ));
+
+        assertThat(applicationDraftService.saveDraft(1001L, candidate, request).submittedAt()).isNull();
+        assertThatThrownBy(() -> applicationDraftService.submit(1001L, candidate, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.FORBIDDEN);
+
+        verifyCandidateEmail("unverified@example.com");
+        var verifiedCandidate = candidateAuthService.requireActiveAccount(signup.sessionToken());
+        assertThat(applicationDraftService.submit(1001L, verifiedCandidate, request).submittedAt()).isNotNull();
+    }
+
+    @Test
+    void replaysIdenticalSubmissionAndRejectsChangedPayloadForSameIdempotencyKey() {
+        var candidate = createCandidateAccount("Idempotent Kim", "idempotent@example.com", "010-2468-1357");
+        var request = new SaveApplicationDraftRequest(
+                Map.of(
+                        "introduction", "I have delivered reliable application submission workflows for enterprise hiring teams.",
+                        "coreStrength", "I design retry-safe APIs that preserve a single business outcome."
+                ),
+                null, null, null, null, null
+        );
+        String idempotencyKey = "submission-retry-1001";
+
+        var first = applicationDraftService.submit(1001L, candidate, request, idempotencyKey);
+        var replay = applicationDraftService.submit(1001L, candidate, request, idempotencyKey);
+
+        assertThat(replay.applicationId()).isEqualTo(first.applicationId());
+        assertThat(applicationRepository.findByJobPostingIdAndCandidateAccountId(1001L, candidate.getId())).isPresent();
+        assertThat(applicationEventRepository.countByApplicationIdAndEventType(
+                first.applicationId(),
+                "APPLICATION_SUBMITTED"
+        )).isEqualTo(1);
+
+        var changedRequest = new SaveApplicationDraftRequest(
+                Map.of(
+                        "introduction", "This is a different submission payload with enough content to pass validation.",
+                        "coreStrength", "The same key must never authorize a changed request payload."
+                ),
+                null, null, null, null, null
+        );
+        assertThatThrownBy(() -> applicationDraftService.submit(
+                1001L,
+                candidate,
+                changedRequest,
+                idempotencyKey
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void rejectsSubmissionWhenRequiredQuestionIsMissing() {
+        var candidate = createCandidateAccount("Required Kim", "required@example.com", "010-1212-3434");
+        jobPostingService.saveQuestionsForJobPosting(
+                1001L,
+                List.of(new SaveJobPostingQuestionRequest(
+                        "지원 직무와 관련된 경험을 설명해 주세요.",
+                        "TEXT",
+                        null,
+                        true,
+                        0
+                ))
+        );
+
+        assertThatThrownBy(() -> applicationDraftService.submit(
+                1001L,
+                candidate,
+                new SaveApplicationDraftRequest(
+                        Map.of(
+                                "introduction", "I have led recruitment workflow modernization projects for enterprise hiring teams.",
+                                "coreStrength", "I translate hiring operations into resilient platform workflows."
+                        ),
+                        null, null, null, null, null
+                )
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void rejectsChoiceThatIsNotConfiguredForQuestion() {
+        var candidate = createCandidateAccount("Choice Kim", "choice@example.com", "010-5656-7878");
+        jobPostingService.saveQuestionsForJobPosting(
+                1001L,
+                List.of(new SaveJobPostingQuestionRequest(
+                        "선호 근무 방식을 선택해 주세요.",
+                        "CHOICE",
+                        "[\"Remote\",\"Seoul\"]",
+                        true,
+                        0
+                ))
+        );
+        Long questionId = jobPostingQuestionRepository
+                .findByJobPostingIdOrderBySortOrder(1001L)
+                .getFirst()
+                .getId();
+
+        assertThatThrownBy(() -> applicationDraftService.submit(
+                1001L,
+                candidate,
+                new SaveApplicationDraftRequest(
+                        Map.of(
+                                "introduction", "I have led recruitment workflow modernization projects for enterprise hiring teams.",
+                                "coreStrength", "I translate hiring operations into resilient platform workflows.",
+                                "answers", List.of(Map.of(
+                                        "questionId", questionId,
+                                        "answerChoice", "Busan"
+                                ))
+                        ),
+                        null, null, null, null, null
+                )
+        ))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(error -> ((ResponseStatusException) error).getStatusCode())
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void submitsConfiguredTextChoiceAndScaleAnswers() {
+        var candidate = createCandidateAccount("Typed Kim", "typed@example.com", "010-9898-7676");
+        jobPostingService.saveQuestionsForJobPosting(
+                1001L,
+                List.of(
+                        new SaveJobPostingQuestionRequest("관련 경험을 설명해 주세요.", "TEXT", null, true, 0),
+                        new SaveJobPostingQuestionRequest(
+                                "선호 근무 방식을 선택해 주세요.",
+                                "CHOICE",
+                                "[\"Remote\",\"Seoul\"]",
+                                true,
+                                1
+                        ),
+                        new SaveJobPostingQuestionRequest("직무 적합도를 선택해 주세요.", "SCALE", null, true, 2)
+                )
+        );
+        var questions = jobPostingQuestionRepository.findByJobPostingIdOrderBySortOrder(1001L);
+
+        var response = applicationDraftService.submit(
+                1001L,
+                candidate,
+                new SaveApplicationDraftRequest(
+                        Map.of(
+                                "introduction", "I have led recruitment workflow modernization projects for enterprise hiring teams.",
+                                "coreStrength", "I translate hiring operations into resilient platform workflows.",
+                                "answers", List.of(
+                                        Map.of("questionId", questions.get(0).getId(), "answerText", "관련 플랫폼을 운영했습니다."),
+                                        Map.of("questionId", questions.get(1).getId(), "answerChoice", "Remote"),
+                                        Map.of("questionId", questions.get(2).getId(), "answerScale", 5)
+                                )
+                        ),
+                        null, null, null, null, null
+                )
+        );
+
+        assertThat(applicationAnswerRepository.findByApplicationId(response.applicationId()))
+                .hasSize(3)
+                .anySatisfy(answer -> assertThat(answer.getAnswerText()).isEqualTo("관련 플랫폼을 운영했습니다."))
+                .anySatisfy(answer -> assertThat(answer.getAnswerChoice()).isEqualTo("Remote"))
+                .anySatisfy(answer -> assertThat(answer.getAnswerScale()).isEqualTo((short) 5));
     }
 
     @Test
@@ -336,7 +643,12 @@ class RecruitmentMvpTests extends IntegrationTestBase {
 
         assertThat(responses).hasSize(2);
         assertThat(responses.getFirst().jobPostingId()).isEqualTo(1011L);
+        assertThat(responses.getFirst().candidateVisibleStage().name()).isEqualTo("SCREENING");
+        assertThat(responses.getFirst().nextAction().name()).isEqualTo("WAIT_FOR_REVIEW");
+        assertThat(responses.getFirst().lastChangedAt()).isNotNull();
         assertThat(responses.get(1).jobPostingId()).isEqualTo(1001L);
+        assertThat(responses.get(1).candidateVisibleStage().name()).isEqualTo("DRAFT");
+        assertThat(responses.get(1).nextAction().name()).isEqualTo("COMPLETE_APPLICATION");
     }
 
     @Test

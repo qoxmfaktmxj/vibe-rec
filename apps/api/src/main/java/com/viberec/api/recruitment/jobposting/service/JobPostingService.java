@@ -13,6 +13,7 @@ import com.viberec.api.recruitment.jobposting.web.JobPostingSummaryResponse;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
 import com.viberec.api.recruitment.jobposting.web.SaveJobPostingQuestionRequest;
 import java.util.List;
+import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,14 +38,16 @@ public class JobPostingService {
     }
 
     public List<JobPostingSummaryResponse> getPublishedJobPostings() {
+        OffsetDateTime now = OffsetDateTime.now();
         return jobPostingRepository.findByPublishedTrueOrderByOpensAtDesc().stream()
+                .filter(jobPosting -> jobPosting.isPubliclyVisibleAt(now))
                 .map(this::toSummaryResponse)
                 .toList();
     }
 
     public JobPostingDetailResponse getJobPosting(Long id) {
         JobPosting jobPosting = jobPostingRepository.findWithStepsById(id)
-                .filter(JobPosting::isPublished)
+                .filter(candidate -> candidate.isPubliclyVisibleAt(OffsetDateTime.now()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting not found."));
 
         return new JobPostingDetailResponse(
@@ -67,8 +70,18 @@ public class JobPostingService {
     @Transactional(readOnly = true)
     public List<JobPostingQuestionResponse> getQuestionsForJobPosting(Long jobPostingId) {
         jobPostingRepository.findById(jobPostingId)
-                .filter(JobPosting::isPublished)
+                .filter(jobPosting -> jobPosting.isPubliclyVisibleAt(OffsetDateTime.now()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting not found"));
+        return getQuestions(jobPostingId);
+    }
+
+    public List<JobPostingQuestionResponse> getQuestionsForAdmin(Long jobPostingId) {
+        jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job posting not found"));
+        return getQuestions(jobPostingId);
+    }
+
+    private List<JobPostingQuestionResponse> getQuestions(Long jobPostingId) {
         return jobPostingQuestionRepository.findByJobPostingIdOrderBySortOrder(jobPostingId).stream()
                 .map(q -> new JobPostingQuestionResponse(
                         q.getId(),

@@ -25,12 +25,16 @@ export async function POST(request: Request, { params }: RouteProps) {
   try {
     await getRequiredAdminSessionToken();
     const payload = (await request.json()) as {
-      score: number | null;
+      criterionScores: Array<{
+        criterionId: number;
+        score: number;
+        comment?: string | null;
+      }>;
       comment?: string | null;
       result: EvaluationResult;
     };
     const evaluation = await createEvaluation(id, {
-      score: payload.score,
+      criterionScores: payload.criterionScores,
       comment: payload.comment ?? null,
       result: payload.result,
     });

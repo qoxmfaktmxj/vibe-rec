@@ -2,12 +2,10 @@
 
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const inputClassName =
   "w-full rounded-sm border border-outline-variant bg-card px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20";
-
-const ADMIN_LOGIN_SHORTCUT_USERNAME = "admin";
-const ADMIN_LOGIN_SHORTCUT_PASSWORD = "admin";
 
 function LoginProgressIndicator({ label }: { label: string }) {
   return (
@@ -49,35 +47,6 @@ export function CandidateAuthForm({
   async function submitAuth() {
     try {
       const normalizedEmail = email.trim();
-      const isAdminLoginShortcut =
-        mode === "login" &&
-        normalizedEmail.toLowerCase() === ADMIN_LOGIN_SHORTCUT_USERNAME &&
-        password === ADMIN_LOGIN_SHORTCUT_PASSWORD;
-
-      if (isAdminLoginShortcut) {
-        const adminResponse = await fetch("/api/admin/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: ADMIN_LOGIN_SHORTCUT_USERNAME,
-            password: ADMIN_LOGIN_SHORTCUT_PASSWORD,
-          }),
-        });
-
-        const adminResponseBody = (await adminResponse.json()) as { message?: string };
-        if (!adminResponse.ok) {
-          setErrorMessage(adminResponseBody.message ?? "관리자 로그인에 실패했습니다.");
-          setIsPending(false);
-          return;
-        }
-
-        router.push("/admin");
-        router.refresh();
-        return;
-      }
-
       const response = await fetch(
         mode === "signup" ? "/api/candidate/auth/signup" : "/api/candidate/auth/login",
         {
@@ -101,14 +70,21 @@ export function CandidateAuthForm({
         },
       );
 
-      const responseBody = (await response.json()) as { message?: string };
+      const responseBody = (await response.json()) as {
+        message?: string;
+        emailVerified?: boolean;
+      };
       if (!response.ok) {
         setErrorMessage(responseBody.message ?? "지원자 인증에 실패했습니다.");
         setIsPending(false);
         return;
       }
 
-      router.push(nextPath);
+      if (responseBody.emailVerified === false) {
+        router.push(`/auth/verify-email?next=${encodeURIComponent(nextPath)}`);
+      } else {
+        router.push(nextPath);
+      }
       router.refresh();
     } catch {
       setErrorMessage("지원자 인증 중 예기치 않은 오류가 발생했습니다.");
@@ -242,14 +218,14 @@ export function CandidateAuthForm({
             className="ml-1 block text-sm font-semibold text-on-surface-variant"
             htmlFor="candidate-email"
           >
-            {mode === "login" ? "이메일 또는 관리자 ID" : "이메일"}
+            이메일
           </label>
           <input
             id="candidate-email"
             name="email"
-            type={mode === "login" ? "text" : "email"}
+            type="email"
             autoComplete="email"
-            placeholder={mode === "login" ? "applicant@example.com 또는 admin" : "applicant@example.com"}
+            placeholder="applicant@example.com"
             className={inputClassName}
             value={email}
             disabled={isPending}
@@ -334,6 +310,17 @@ export function CandidateAuthForm({
               ? "가입하기"
               : "로그인"}
         </button>
+
+        {mode === "login" ? (
+          <div className="text-right">
+            <Link
+              href="/auth/forgot-password"
+              className="text-sm font-semibold text-primary underline-offset-4 hover:underline focus:ring-2 focus:ring-primary/20"
+            >
+              비밀번호를 잊으셨나요?
+            </Link>
+          </div>
+        ) : null}
 
         {isPending ? (
           <LoginProgressIndicator

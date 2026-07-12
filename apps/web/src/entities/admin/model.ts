@@ -21,12 +21,6 @@ export interface AdminLoginPayload {
   password: string;
 }
 
-export interface AdminSignupPayload {
-  username: string;
-  displayName: string;
-  password: string;
-}
-
 export interface AdminLoginResponse extends AdminSession {
   sessionToken: string;
 }
@@ -51,4 +45,11 @@ export type UpdateAdminJobPostingPayload = AdminJobPostingPayload;
 
 export interface AdminJobPosting extends AdminJobPostingPayload {
   id: number;
+  publicationState: "DRAFT" | "SCHEDULED" | "PUBLISHED" | "CLOSED";
+}
+
+export interface AdminJobPostingPreview {
+  jobPosting: AdminJobPosting;
+  steps: import("@/entities/recruitment/model").JobPostingStep[];
+  questions: import("@/entities/recruitment/model").JobPostingQuestion[];
 }

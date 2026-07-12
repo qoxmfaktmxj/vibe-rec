@@ -10,6 +10,8 @@ import com.viberec.api.admin.auth.web.AdminLoginResponse;
 import com.viberec.api.admin.auth.web.AdminSessionResponse;
 import com.viberec.api.admin.auth.web.AdminSignupRequest;
 import com.viberec.api.platform.permission.service.PermissionService;
+import com.viberec.api.platform.security.AuthenticationRateLimitScope;
+import com.viberec.api.platform.security.AuthenticationRateLimitService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +37,7 @@ public class AdminAuthService {
     private final AdminAccountRepository adminAccountRepository;
     private final AdminSessionRepository adminSessionRepository;
     private final PermissionService permissionService;
+    private final AuthenticationRateLimitService authenticationRateLimitService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final long sessionDurationHours;
 
@@ -42,11 +45,13 @@ public class AdminAuthService {
             AdminAccountRepository adminAccountRepository,
             AdminSessionRepository adminSessionRepository,
             PermissionService permissionService,
+            AuthenticationRateLimitService authenticationRateLimitService,
             @Value("${app.admin.session.duration-hours:12}") long sessionDurationHours
     ) {
         this.adminAccountRepository = adminAccountRepository;
         this.adminSessionRepository = adminSessionRepository;
         this.permissionService = permissionService;
+        this.authenticationRateLimitService = authenticationRateLimitService;
         this.sessionDurationHours = sessionDurationHours;
     }
 
@@ -68,9 +73,32 @@ public class AdminAuthService {
 
     @Transactional
     public AdminLoginResponse login(AdminLoginRequest request) {
+        return login(request, null);
+    }
+
+    @Transactional
+    public AdminLoginResponse login(AdminLoginRequest request, String clientNetwork) {
         String normalizedUsername = normalizeUsername(request.username());
+        authenticationRateLimitService.assertLoginAllowed(
+                AuthenticationRateLimitScope.ADMIN_LOGIN,
+                clientNetwork,
+                normalizedUsername
+        );
         AdminAccount account = adminAccountRepository.authenticate(normalizedUsername, request.password())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."));
+                .orElse(null);
+        if (account == null) {
+            authenticationRateLimitService.recordLoginFailure(
+                    AuthenticationRateLimitScope.ADMIN_LOGIN,
+                    clientNetwork,
+                    normalizedUsername
+            );
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
+        authenticationRateLimitService.clearLoginFailures(
+                AuthenticationRateLimitScope.ADMIN_LOGIN,
+                clientNetwork,
+                normalizedUsername
+        );
 
         adminAccountRepository.markAuthenticated(account.getId());
         OffsetDateTime authenticatedAt = OffsetDateTime.now();

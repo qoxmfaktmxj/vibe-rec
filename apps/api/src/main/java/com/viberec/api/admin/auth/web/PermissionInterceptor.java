@@ -25,17 +25,23 @@ public class PermissionInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        RequiresPermission annotation = handlerMethod.getMethodAnnotation(RequiresPermission.class);
-        if (annotation == null) {
-            return true;
-        }
-
         String sessionToken = request.getHeader("X-Admin-Session");
         if (sessionToken == null || sessionToken.isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "관리자 세션이 없거나 만료되었습니다.");
         }
 
         AdminSessionResponse session = adminAuthService.getSession(sessionToken);
+        RequiresPermission annotation = handlerMethod.getMethodAnnotation(RequiresPermission.class);
+        if (annotation == null) {
+            if (handlerMethod.hasMethodAnnotation(RequiresAdminSession.class)) {
+                return true;
+            }
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "관리자 엔드포인트에 필요한 권한이 설정되지 않았습니다."
+            );
+        }
+
         String role = session.role().name();
         String requiredPermission = annotation.value();
 

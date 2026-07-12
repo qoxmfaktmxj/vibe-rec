@@ -1,4 +1,5 @@
 export interface CandidateProfile {
+  revision: number;
   introductionTemplate: string | null;
   coreStrengthTemplate: string | null;
   careerYears: number | null;

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type {
   CandidateApplicationDetail,
   JobPostingQuestion,
@@ -36,6 +37,7 @@ export function ApplicationWizard({
 }: ApplicationWizardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const submitKeyRef = useRef<string | null>(null);
 
   // Initialize from existing draft or defaults
   const [currentStep, setCurrentStep] = useState(initialApplication?.currentStep ?? 1);
@@ -122,6 +124,21 @@ export function ApplicationWizard({
       if (step2Data.introduction.length < 20) return "자기소개는 최소 20자 이상 작성해주세요.";
       if (step2Data.coreStrength.length < 10) return "핵심 역량은 최소 10자 이상 작성해주세요.";
     }
+    if (step === 4) {
+      const missingRequiredQuestion = customQuestions.find((question) => {
+        if (!question.required) return false;
+        const answer = step4Data.customAnswers.find(
+          (candidateAnswer) => candidateAnswer.questionId === question.id,
+        );
+        if (!answer) return true;
+        if (question.questionType === "TEXT") return !answer.answerText?.trim();
+        if (question.questionType === "CHOICE") return !answer.answerChoice?.trim();
+        return answer.answerScale == null;
+      });
+      if (missingRequiredQuestion) {
+        return `필수 질문에 답변해 주세요: ${missingRequiredQuestion.questionText}`;
+      }
+    }
     return null;
   }
 
@@ -141,11 +158,10 @@ export function ApplicationWizard({
   }
 
   function handlePrev() {
+    const targetStep = Math.max(currentStep - 1, 1);
+    setCurrentStep(targetStep);
     startTransition(async () => {
-      const success = await saveDraft(currentStep - 1);
-      if (success) {
-        setCurrentStep((prev) => Math.max(prev - 1, 1));
-      }
+      await saveDraft(targetStep);
     });
   }
 
@@ -156,14 +172,24 @@ export function ApplicationWizard({
   }
 
   function handleSubmit() {
+    const validationError = validateStep(4);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     startTransition(async () => {
       setError(null);
       setSaveStatus("제출 중...");
       try {
         const payload = buildPayload(4);
+        submitKeyRef.current ??= crypto.randomUUID();
         const response = await fetch(`/api/job-postings/${jobPostingId}/application-submit`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Idempotency-Key": submitKeyRef.current,
+          },
           body: JSON.stringify(payload),
         });
         if (!response.ok) {
@@ -191,6 +217,21 @@ export function ApplicationWizard({
           {jobPostingTitle}
         </h1>
       </div>
+
+      {!candidateSession.emailVerified ? (
+        <div className="rounded-lg border border-primary/30 bg-primary-container px-4 py-3 text-sm text-on-surface">
+          <p className="font-semibold">이메일 확인 후 최종 제출할 수 있습니다.</p>
+          <p className="mt-1 leading-7 text-on-surface-variant">
+            임시저장은 계속 사용할 수 있습니다. 확인 메일을 다시 받거나 확인 상태를 완료해 주세요.
+          </p>
+          <Link
+            href={`/auth/verify-email?next=${encodeURIComponent(`/job-postings/${jobPostingId}/apply`)}`}
+            className="mt-2 inline-flex min-h-[44px] items-center font-semibold text-primary underline-offset-4 hover:underline focus:ring-2 focus:ring-primary/20"
+          >
+            이메일 확인하기
+          </Link>
+        </div>
+      ) : null}
 
       {/* Step Indicator */}
       <WizardStepIndicator currentStep={currentStep} />
@@ -281,7 +322,7 @@ export function ApplicationWizard({
           ) : (
             <button
               type="button"
-              disabled={isPending}
+              disabled={isPending || !candidateSession.emailVerified}
               onClick={handleSubmit}
               className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
             >

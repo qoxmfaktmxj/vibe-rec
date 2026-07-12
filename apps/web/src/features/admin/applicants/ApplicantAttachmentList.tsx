@@ -50,6 +50,11 @@ export function ApplicantAttachmentList({
               <p className="text-xs text-outline">
                 {formatFileSize(attachment.fileSizeBytes)} &bull; {formatDateTime(attachment.uploadedAt)}
               </p>
+              <p className="mt-1 text-xs text-on-surface-variant">
+                {attachment.validationStatus === "SIGNATURE_VALIDATED"
+                  ? "파일 서명 검증 완료"
+                  : "이전 업로드 파일 · 검증 상태 미확인"}
+              </p>
             </div>
           </div>
           <a

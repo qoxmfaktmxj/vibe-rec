@@ -33,12 +33,11 @@ public class CandidateProfileController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> saveProfile(
+    public ResponseEntity<CandidateProfileResponse> saveProfile(
             @RequestHeader(value = "X-Candidate-Session", required = false) String sessionToken,
             @RequestBody SaveCandidateProfileRequest request
     ) {
         CandidateAccount account = candidateAuthService.requireActiveAccount(sessionToken);
-        profileService.saveProfile(account, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(profileService.saveProfile(account, request));
     }
 }

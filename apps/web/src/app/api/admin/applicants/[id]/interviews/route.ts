@@ -8,6 +8,7 @@ import {
   getAdminInterviews,
   scheduleInterview,
 } from "@/shared/api/admin-interviews";
+import type { InterviewType } from "@/entities/recruitment/model";
 
 interface RouteProps {
   params: Promise<{ id: string }>;
@@ -54,7 +55,11 @@ export async function POST(request: Request, { params }: RouteProps) {
     await getRequiredAdminSessionToken();
     const payload = (await request.json()) as {
       jobPostingStepId: number;
-      scheduledAt?: string | null;
+      interviewType: InterviewType;
+      scheduledAt: string;
+      durationMinutes: number;
+      location?: string | null;
+      onlineLink?: string | null;
       note?: string | null;
     };
     const interview = await scheduleInterview(applicationId, payload);

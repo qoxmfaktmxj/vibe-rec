@@ -2,12 +2,19 @@
 import { notFound } from "next/navigation";
 
 import { ApplicantReviewForm } from "@/features/admin/applicants/ApplicantReviewForm";
+import { ApplicantAssignmentPanel } from "@/features/admin/applicants/ApplicantAssignmentPanel";
 import { HiringDecisionSection } from "@/features/admin/hiring/HiringDecisionSection";
 import { InterviewSection } from "@/features/admin/interview/InterviewSection";
-import { getAdminApplicant } from "@/shared/api/admin-applicants";
+import { NotificationSection } from "@/features/admin/notification/NotificationSection";
+import { getAdminApplicant, getAdminApplicantOptions } from "@/shared/api/admin-applicants";
+import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getAdminAttachments } from "@/shared/api/attachments";
 import { getAdminInterviews } from "@/shared/api/admin-interviews";
-import { getAdminJobPostingSteps } from "@/shared/api/admin-job-postings";
+import { getNotificationTemplates, getNotifications } from "@/shared/api/admin-hiring";
+import {
+  getAdminJobPostingSteps,
+  getAdminScorecardCriteria,
+} from "@/shared/api/admin-job-postings";
 import {
   formatDateTime,
   formatFileSize,
@@ -31,19 +38,35 @@ export default async function AdminApplicantDetailPage({
     notFound();
   }
 
-  const [applicant, attachments] = await Promise.all([
+  const [applicant, attachments, options, adminSession] = await Promise.all([
     getAdminApplicant(applicationId),
     getAdminAttachments(applicationId).catch(() => []),
+    getAdminApplicantOptions(),
+    getCurrentAdminSession(),
   ]);
 
   if (!applicant) {
     notFound();
   }
 
-  const [interviews, steps] = await Promise.all([
+  const [interviews, steps, notifications, notificationTemplates] = await Promise.all([
     getAdminInterviews(applicationId),
     getAdminJobPostingSteps(applicant.jobPostingId),
+    getNotifications(applicationId),
+    getNotificationTemplates(applicationId),
   ]);
+  const interviewSteps = steps.filter(
+    (step): step is typeof step & { id: number } =>
+      step.stepType === "INTERVIEW" && step.id !== undefined,
+  );
+  const scorecardsByStepId = Object.fromEntries(
+    await Promise.all(
+      interviewSteps.map(async (step) => [
+        step.id,
+        await getAdminScorecardCriteria(applicant.jobPostingId, step.id),
+      ] as const),
+    ),
+  );
 
   return (
     <div className="space-y-8">
@@ -100,8 +123,27 @@ export default async function AdminApplicantDetailPage({
             value={applicant.finalStatus ? getFinalStatusLabel(applicant.finalStatus) : "대기"}
           />
         </div>
+        {applicant.withdrawnAt ? (
+          <div className="mt-5 rounded-xl border border-outline-variant bg-surface-container-low p-4 text-sm">
+            <p className="font-semibold text-on-surface">
+              지원자가 {formatDateTime(applicant.withdrawnAt)}에 지원을 철회했습니다.
+            </p>
+            <p className="mt-2 whitespace-pre-line text-on-surface-variant">
+              사유: {applicant.withdrawalReason ?? "사유 없음"}
+            </p>
+          </div>
+        ) : null}
       </section>
 
+      <ApplicantAssignmentPanel
+        applicationId={applicationId}
+        initialAssignedAdminId={applicant.assignedAdminId}
+        initialTags={applicant.tags}
+        options={options}
+        canManage={adminSession?.permissions.includes("APPLICANT_REVIEW") ?? false}
+      />
+
+      {applicant.applicationStatus === "SUBMITTED" ? (
       <section className="space-y-8" aria-labelledby="applicant-operations-heading">
         <div className="space-y-2">
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
@@ -123,6 +165,7 @@ export default async function AdminApplicantDetailPage({
           applicationId={applicationId}
           interviews={interviews}
           steps={steps}
+          scorecardsByStepId={scorecardsByStepId}
         />
         <HiringDecisionSection
           applicationId={applicationId}
@@ -132,6 +175,17 @@ export default async function AdminApplicantDetailPage({
           reviewStatus={applicant.reviewStatus}
         />
       </section>
+      ) : null}
+
+      <NotificationSection
+        applicationId={applicationId}
+        notifications={notifications}
+        templates={notificationTemplates}
+        canSend={
+          applicant.applicationStatus === "SUBMITTED" &&
+          (adminSession?.permissions.includes("NOTIFICATION_SEND") ?? false)
+        }
+      />
 
       <section className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_360px]">
         <div className="space-y-8">

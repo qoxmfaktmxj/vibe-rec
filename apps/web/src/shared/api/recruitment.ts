@@ -4,11 +4,13 @@ import type { AttachmentSummary } from "@/entities/recruitment/attachment-model"
 import type {
   CandidateApplicationDetail,
   CandidateApplicationSummary,
+  CandidateNotification,
   ApplicationDraftResponse,
   JobPostingDetail,
   JobPostingQuestion,
   JobPostingSummary,
   SaveApplicationDraftPayload,
+  WithdrawApplicationResponse,
 } from "@/entities/recruitment/model";
 import { getApiBaseUrl } from "@/shared/lib/api-config";
 
@@ -110,6 +112,7 @@ export async function submitApplication(
   jobPostingId: number,
   payload: SaveApplicationDraftPayload,
   sessionToken: string,
+  idempotencyKey: string,
 ) {
   return apiFetch<ApplicationDraftResponse>(
     `/job-postings/${jobPostingId}/application-submit`,
@@ -117,6 +120,7 @@ export async function submitApplication(
       method: "POST",
       headers: withCandidateSession(sessionToken, {
         "Content-Type": "application/json",
+        "Idempotency-Key": idempotencyKey,
       }),
       body: JSON.stringify(payload),
     },
@@ -146,6 +150,42 @@ export async function getCandidateApplications(sessionToken: string) {
   return apiFetch<CandidateApplicationSummary[]>("/candidate/applications", {
     headers: withCandidateSession(sessionToken),
   });
+}
+
+export async function getCandidateNotifications(sessionToken: string) {
+  return apiFetch<CandidateNotification[]>("/candidate/notifications", {
+    headers: withCandidateSession(sessionToken),
+  });
+}
+
+export async function markCandidateNotificationRead(
+  notificationId: number,
+  sessionToken: string,
+) {
+  return apiFetch<CandidateNotification>(
+    `/candidate/notifications/${notificationId}/read`,
+    {
+      method: "PATCH",
+      headers: withCandidateSession(sessionToken),
+    },
+  );
+}
+
+export async function withdrawCandidateApplication(
+  applicationId: number,
+  reason: string,
+  sessionToken: string,
+) {
+  return apiFetch<WithdrawApplicationResponse>(
+    `/candidate/applications/${applicationId}/withdraw`,
+    {
+      method: "PATCH",
+      headers: withCandidateSession(sessionToken, {
+        "Content-Type": "application/json",
+      }),
+      body: JSON.stringify({ reason }),
+    },
+  );
 }
 
 export async function getCandidateApplicationAttachments(

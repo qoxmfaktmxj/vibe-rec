@@ -28,7 +28,7 @@ Application configuration, database migrations, static assets, and templates for
 
 - **Flyway migrations are append-only** — never modify existing migration files
 - New migrations must use the next version number: `V{n+1}__{description}.sql`
-- Current latest migration: `V25__refresh_realistic_demo_dataset.sql`
+- Current latest migration: `V35__create_candidate_data_requests.sql`
 - `application.yml` uses `${ENV_VAR:default}` syntax for environment-based config
 - DB connection defaults to `localhost:5435/vibe_rec` for local development
 - Dev admin account is configurable via `APP_ADMIN_DEV_ACCOUNT_*` env vars

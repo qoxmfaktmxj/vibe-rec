@@ -4,6 +4,10 @@ import type {
   AdminApplicantDetail,
   AdminApplicantFilters,
   AdminApplicantPage,
+  AdminApplicantOptions,
+  AdminApplicantSavedSearch,
+  BulkApplicantOperationPayload,
+  BulkApplicantOperationResponse,
   UpdateApplicantReviewStatusPayload,
 } from "@/entities/admin/applicant-model";
 import {
@@ -47,6 +51,14 @@ function buildApplicantsQuery(filters: AdminApplicantFilters) {
     searchParams.set("reviewStatus", filters.reviewStatus);
   }
 
+  if (filters.assignedAdminId) {
+    searchParams.set("assignedAdminId", String(filters.assignedAdminId));
+  }
+
+  if (filters.tagId) {
+    searchParams.set("tagId", String(filters.tagId));
+  }
+
   if (filters.applicantName?.trim()) {
     searchParams.set("applicantName", filters.applicantName.trim());
   }
@@ -61,6 +73,14 @@ function buildApplicantsQuery(filters: AdminApplicantFilters) {
 
   if (filters.query?.trim()) {
     searchParams.set("query", filters.query.trim());
+  }
+
+  if (filters.sort) {
+    searchParams.set("sort", filters.sort);
+  }
+
+  if (filters.direction) {
+    searchParams.set("direction", filters.direction);
   }
 
   if (filters.page && filters.page > 1) {
@@ -109,6 +129,124 @@ export async function getAdminApplicant(applicationId: number) {
   }
 
   return parseAdminApplicantResponse<AdminApplicantDetail>(response);
+}
+
+export async function getAdminApplicantOptions() {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(`${getApiBaseUrl()}/admin/applicants/options`, {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "X-Admin-Session": sessionToken,
+    },
+  });
+  return parseAdminApplicantResponse<AdminApplicantOptions>(response);
+}
+
+export async function updateAdminApplicantAssignee(
+  applicationId: number,
+  adminAccountId: number | null,
+) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/applicants/${applicationId}/assignee`,
+    {
+      method: "PATCH",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+      body: JSON.stringify({ adminAccountId }),
+    },
+  );
+  return parseAdminApplicantResponse<AdminApplicantDetail>(response);
+}
+
+export async function addAdminApplicantTag(applicationId: number, name: string) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(`${getApiBaseUrl()}/admin/applicants/${applicationId}/tags`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Admin-Session": sessionToken,
+    },
+    body: JSON.stringify({ name }),
+  });
+  return parseAdminApplicantResponse<AdminApplicantDetail>(response);
+}
+
+export async function removeAdminApplicantTag(applicationId: number, tagId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/applicants/${applicationId}/tags/${tagId}`,
+    {
+      method: "DELETE",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+    },
+  );
+  return parseAdminApplicantResponse<AdminApplicantDetail>(response);
+}
+
+export async function getAdminApplicantSavedSearches() {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(`${getApiBaseUrl()}/admin/applicants/saved-searches`, {
+    cache: "no-store",
+    headers: { Accept: "application/json", "X-Admin-Session": sessionToken },
+  });
+  return parseAdminApplicantResponse<AdminApplicantSavedSearch[]>(response);
+}
+
+export async function createAdminApplicantSavedSearch(
+  name: string,
+  filters: Record<string, string>,
+) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(`${getApiBaseUrl()}/admin/applicants/saved-searches`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Admin-Session": sessionToken,
+    },
+    body: JSON.stringify({ name, filters }),
+  });
+  return parseAdminApplicantResponse<AdminApplicantSavedSearch>(response);
+}
+
+export async function deleteAdminApplicantSavedSearch(savedSearchId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(`${getApiBaseUrl()}/admin/applicants/saved-searches/${savedSearchId}`, {
+    method: "DELETE",
+    cache: "no-store",
+    headers: { "X-Admin-Session": sessionToken },
+  });
+  if (!response.ok) {
+    await parseAdminApplicantResponse<never>(response);
+  }
+}
+
+export async function bulkUpdateAdminApplicants(payload: BulkApplicantOperationPayload) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(`${getApiBaseUrl()}/admin/applicants/bulk`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Admin-Session": sessionToken,
+    },
+    body: JSON.stringify(payload),
+  });
+  return parseAdminApplicantResponse<BulkApplicantOperationResponse>(response);
 }
 
 export async function updateAdminApplicantReviewStatus(

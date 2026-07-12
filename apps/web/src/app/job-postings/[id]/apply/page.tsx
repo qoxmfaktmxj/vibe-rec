@@ -83,7 +83,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
   }
 
   // Submitted applications should be viewed from the candidate workspace.
-  if (existingApplication?.status === "SUBMITTED") {
+  if (existingApplication && existingApplication.status !== "DRAFT") {
     redirect(`/me/applications/${existingApplication.applicationId}`);
   }
 

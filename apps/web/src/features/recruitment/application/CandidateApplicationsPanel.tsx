@@ -7,6 +7,9 @@ import type { CandidateApplicationSummary } from "@/entities/recruitment/model";
 import { PaginationBar } from "@/features/shared/PaginationBar";
 import {
   formatDateTime,
+  getCandidateNextActionLabel,
+  getCandidateVisibleStageClassName,
+  getCandidateVisibleStageLabel,
   getApplicationReviewStatusClassName,
   getApplicationReviewStatusLabel,
   getApplicationStatusClassName,
@@ -103,6 +106,19 @@ export function CandidateApplicationsPanel({
                     </span>
                   ) : null}
                 </div>
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${getCandidateVisibleStageClassName(
+                    application.candidateVisibleStage,
+                  )}`}
+                >
+                  현재 단계: {getCandidateVisibleStageLabel(application.candidateVisibleStage)}
+                </span>
+                <span className="text-on-surface-variant">
+                  {getCandidateNextActionLabel(application.nextAction)}
+                </span>
               </div>
 
               <dl className="mt-5 grid gap-3 text-sm text-on-surface-variant md:grid-cols-2">

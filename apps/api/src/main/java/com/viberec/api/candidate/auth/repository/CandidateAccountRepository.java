@@ -70,4 +70,31 @@ public interface CandidateAccountRepository extends JpaRepository<CandidateAccou
             nativeQuery = true
     )
     void markAuthenticated(@Param("id") Long id);
+
+    @Query(
+            value = """
+                    select exists (
+                        select 1
+                        from platform.candidate_account
+                        where id = :id
+                          and status = 'ACTIVE'
+                          and password_hash = crypt(cast(:password as text), password_hash)
+                    )
+                    """,
+            nativeQuery = true
+    )
+    boolean passwordMatches(@Param("id") Long id, @Param("password") String password);
+
+    @Modifying
+    @Query(
+            value = """
+                    update platform.candidate_account
+                    set password_hash = crypt(cast(:password as text), gen_salt('bf')),
+                        last_authenticated_at = current_timestamp,
+                        updated_at = current_timestamp
+                    where id = :id
+                    """,
+            nativeQuery = true
+    )
+    void updatePassword(@Param("id") Long id, @Param("password") String password);
 }

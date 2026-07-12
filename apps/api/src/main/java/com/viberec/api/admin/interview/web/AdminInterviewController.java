@@ -38,8 +38,8 @@ public class AdminInterviewController {
             @PathVariable Long id,
             @Valid @RequestBody CreateInterviewRequest request
     ) {
-        authorize(sessionToken);
-        return adminInterviewService.createInterview(id, request);
+        AdminSessionResponse session = authorize(sessionToken);
+        return adminInterviewService.createInterview(id, request, "ADMIN", session.adminAccountId());
     }
 
     @GetMapping("/admin/applicants/{id}/interviews")
@@ -59,8 +59,8 @@ public class AdminInterviewController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateInterviewRequest request
     ) {
-        authorize(sessionToken);
-        return adminInterviewService.updateInterview(id, request);
+        AdminSessionResponse session = authorize(sessionToken);
+        return adminInterviewService.updateInterview(id, request, "ADMIN", session.adminAccountId());
     }
 
     @PostMapping("/admin/interviews/{id}/evaluations")

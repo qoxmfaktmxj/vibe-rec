@@ -2,8 +2,14 @@
 import { notFound, redirect } from "next/navigation";
 
 import { JobPostingEditorForm } from "@/features/admin/job-postings/JobPostingEditorForm";
+import { JobPostingLifecycleActions } from "@/features/admin/job-postings/JobPostingLifecycleActions";
+import { ScorecardEditor } from "@/features/admin/interview/ScorecardEditor";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
-import { getAdminJobPosting } from "@/shared/api/admin-job-postings";
+import {
+  getAdminJobPosting,
+  getAdminJobPostingSteps,
+  getAdminScorecardCriteria,
+} from "@/shared/api/admin-job-postings";
 
 interface AdminEditJobPostingPageProps {
   params: Promise<{ id: string }>;
@@ -24,10 +30,27 @@ export default async function AdminEditJobPostingPage({
     redirect("/admin/login");
   }
 
+  if (!adminSession.permissions.includes("JOB_POSTING_MANAGE")) {
+    redirect("/admin");
+  }
+
   const jobPosting = await getAdminJobPosting(jobPostingId).catch(() => null);
   if (!jobPosting) {
     notFound();
   }
+  const steps = await getAdminJobPostingSteps(jobPostingId);
+  const interviewSteps = steps.filter(
+    (step): step is typeof step & { id: number } =>
+      step.stepType === "INTERVIEW" && step.id !== undefined,
+  );
+  const initialCriteriaByStep = Object.fromEntries(
+    await Promise.all(
+      interviewSteps.map(async (step) => [
+        step.id,
+        await getAdminScorecardCriteria(jobPostingId, step.id),
+      ] as const),
+    ),
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -59,10 +82,17 @@ export default async function AdminEditJobPostingPage({
         </div>
       </div>
 
+      <JobPostingLifecycleActions jobPosting={jobPosting} />
+
       <JobPostingEditorForm
         mode="edit"
         jobPostingId={jobPostingId}
         initialValue={jobPosting}
+      />
+      <ScorecardEditor
+        jobPostingId={jobPostingId}
+        interviewSteps={interviewSteps}
+        initialCriteriaByStep={initialCriteriaByStep}
       />
     </div>
   );

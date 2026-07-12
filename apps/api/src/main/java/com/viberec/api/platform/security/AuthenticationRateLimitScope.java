@@ -1,0 +1,11 @@
+package com.viberec.api.platform.security;
+
+public enum AuthenticationRateLimitScope {
+    ADMIN_LOGIN,
+    CANDIDATE_LOGIN,
+    AUTH_LOGIN_NETWORK,
+    CANDIDATE_SIGNUP_NETWORK,
+    CANDIDATE_PASSWORD_RESET,
+    CANDIDATE_PASSWORD_RESET_NETWORK,
+    CANDIDATE_EMAIL_VERIFICATION
+}

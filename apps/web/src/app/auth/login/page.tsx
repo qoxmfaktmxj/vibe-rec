@@ -4,20 +4,13 @@ import { redirect } from "next/navigation";
 import { CandidateAuthForm } from "@/features/recruitment/application/CandidateAuthForm";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
+import { resolveInternalPath } from "@/shared/lib/internal-path";
 
 interface CandidateLoginPageProps {
   searchParams: Promise<{
     mode?: string;
     next?: string;
   }>;
-}
-
-function resolveNextPath(rawNext?: string) {
-  if (!rawNext || !rawNext.startsWith("/") || rawNext.startsWith("//")) {
-    return "/job-postings";
-  }
-
-  return rawNext;
 }
 
 export default async function CandidateLoginPage({
@@ -29,7 +22,7 @@ export default async function CandidateLoginPage({
     searchParams,
   ]);
   const defaultMode = params.mode === "signup" ? "signup" : "login";
-  const nextPath = resolveNextPath(params.next);
+  const nextPath = resolveInternalPath(params.next, "/job-postings");
 
   if (candidateSession) {
     redirect(nextPath);
