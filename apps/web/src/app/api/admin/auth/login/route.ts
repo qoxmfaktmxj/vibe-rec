@@ -3,13 +3,14 @@
 import type { AdminLoginPayload } from "@/entities/admin/model";
 import { AdminApiError, loginAdmin } from "@/shared/api/admin-auth";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
+import { getClientNetwork } from "@/shared/lib/client-network";
 import { buildSessionCookieOptions } from "@/shared/lib/session-cookie";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as AdminLoginPayload;
 
   try {
-    const response = await loginAdmin(payload);
+    const response = await loginAdmin(payload, getClientNetwork(request));
     const nextResponse = NextResponse.json({
       adminAccountId: response.adminAccountId,
       username: response.username,
@@ -33,7 +34,15 @@ export async function POST(request: Request) {
           ? "아이디와 비밀번호를 다시 확인해 주세요."
           : error.message;
 
-      return NextResponse.json({ message }, { status: error.status });
+      return NextResponse.json(
+        { message },
+        {
+          status: error.status,
+          headers: error.retryAfter
+            ? { "Retry-After": error.retryAfter }
+            : undefined,
+        },
+      );
     }
 
     return NextResponse.json(

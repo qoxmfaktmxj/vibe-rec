@@ -65,4 +65,8 @@ public class AdminAccount {
     public OffsetDateTime getLastAuthenticatedAt() {
         return lastAuthenticatedAt;
     }
+
+    public boolean isActive() {
+        return active;
+    }
 }

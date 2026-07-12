@@ -8,7 +8,22 @@ export type JobPostingStepType =
   | "INTERVIEW"
   | "OFFER";
 
-export type ApplicationStatus = "DRAFT" | "SUBMITTED";
+export type ApplicationStatus = "DRAFT" | "SUBMITTED" | "WITHDRAWN";
+export type CandidateVisibleStage =
+  | "DRAFT"
+  | "SCREENING"
+  | "INTERVIEW"
+  | "OFFER"
+  | "CLOSED";
+export type CandidateNextAction =
+  | "COMPLETE_APPLICATION"
+  | "WAIT_FOR_REVIEW"
+  | "WAIT_FOR_INTERVIEW"
+  | "PREPARE_FOR_INTERVIEW"
+  | "WAIT_FOR_DECISION"
+  | "REVIEW_OFFER"
+  | "CONTACT_RECRUITING"
+  | "NONE";
 export type ApplicationReviewStatus =
   | "NEW"
   | "IN_REVIEW"
@@ -132,10 +147,15 @@ export interface CandidateApplicationSummary {
   status: ApplicationStatus;
   reviewStatus: ApplicationReviewStatus;
   finalStatus: ApplicationFinalStatus | null;
+  candidateVisibleStage: CandidateVisibleStage;
+  nextAction: CandidateNextAction;
+  lastChangedAt: string;
   draftSavedAt: string;
   submittedAt: string | null;
   reviewedAt: string | null;
   finalDecidedAt: string | null;
+  withdrawnAt: string | null;
+  withdrawalReason: string | null;
 }
 
 export interface CandidateApplicationDetail extends ApplicationDraftResponse {
@@ -145,8 +165,13 @@ export interface CandidateApplicationDetail extends ApplicationDraftResponse {
   applicantPhone: string;
   reviewStatus: ApplicationReviewStatus;
   finalStatus: ApplicationFinalStatus | null;
+  candidateVisibleStage: CandidateVisibleStage;
+  nextAction: CandidateNextAction;
+  lastChangedAt: string;
   reviewedAt: string | null;
   finalDecidedAt: string | null;
+  withdrawnAt: string | null;
+  withdrawalReason: string | null;
   resumePayload: Record<string, unknown>;
   educations: ResumeEducation[];
   experiences: ResumeExperience[];
@@ -156,7 +181,15 @@ export interface CandidateApplicationDetail extends ApplicationDraftResponse {
   currentStep: number;
   motivationFit: string | null;
   answers: ApplicationAnswer[];
+  interviews: CandidateInterview[];
 }
+
+export type WithdrawApplicationResponse = {
+  applicationId: number;
+  status: "WITHDRAWN";
+  withdrawnAt: string;
+  withdrawalReason: string;
+};
 
 // 첨부파일
 export type ApplicationAttachment = {
@@ -196,6 +229,19 @@ export type InterviewStatus =
   | "CANCELLED"
   | "NO_SHOW";
 
+export type InterviewType = "PHONE" | "VIDEO" | "ONSITE" | "TECHNICAL";
+
+export type CandidateInterview = {
+  id: number;
+  stepTitle: string;
+  interviewType: InterviewType;
+  scheduledAt: string | null;
+  durationMinutes: number;
+  location: string | null;
+  onlineLink: string | null;
+  status: InterviewStatus;
+};
+
 export type EvaluationResult = "PENDING" | "PASS" | "FAIL" | "HOLD";
 
 export type EvaluationResponse = {
@@ -207,6 +253,26 @@ export type EvaluationResponse = {
   comment: string | null;
   result: EvaluationResult;
   createdAt: string;
+  criterionScores: EvaluationCriterionScore[];
+};
+
+export type ScorecardCriterion = {
+  id: number;
+  jobPostingStepId: number;
+  name: string;
+  description: string | null;
+  weight: number;
+  required: boolean;
+  sortOrder: number;
+};
+
+export type EvaluationCriterionScore = {
+  criterionId: number;
+  criterionName: string;
+  weight: number;
+  required: boolean;
+  score: number;
+  comment: string | null;
 };
 
 export type InterviewResponse = {
@@ -215,7 +281,11 @@ export type InterviewResponse = {
   jobPostingStepId: number;
   stepTitle: string;
   stepType: string;
+  interviewType: InterviewType;
   scheduledAt: string | null;
+  durationMinutes: number;
+  location: string | null;
+  onlineLink: string | null;
   status: InterviewStatus;
   note: string | null;
   createdAt: string;
@@ -246,7 +316,36 @@ export type NotificationResponse = {
   content: string;
   sentBy: number | null;
   sentByName: string | null;
+  channel: "IN_APP";
+  deliveryStatus: "PENDING" | "DELIVERED" | "FAILED";
+  deliveryAttempts: number;
+  nextAttemptAt: string | null;
+  deliveredAt: string | null;
+  readAt: string | null;
+  lastError: string | null;
   createdAt: string;
+  templateId: number | null;
+  manualRetryCount: number;
+};
+
+export type NotificationTemplatePreview = {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+  title: string;
+  content: string;
+};
+
+export type CandidateNotification = {
+  id: number;
+  applicationId: number;
+  jobPostingTitle: string;
+  type: string;
+  title: string;
+  content: string;
+  deliveredAt: string;
+  readAt: string | null;
 };
 
 // 공고별 질문

@@ -15,6 +15,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -223,6 +224,21 @@ public class JobPosting {
         }
 
         return closesAt != null && !now.isAfter(closesAt);
+    }
+
+    public boolean isPubliclyVisibleAt(OffsetDateTime now) {
+        return published && status != JobPostingStatus.DRAFT && !now.isBefore(opensAt);
+    }
+
+    public void schedulePublication(OffsetDateTime publishAt) {
+        Duration shift = Duration.between(opensAt, publishAt);
+        opensAt = publishAt;
+        if (closesAt != null) {
+            closesAt = closesAt.plus(shift);
+        }
+        steps.forEach(step -> step.shiftSchedule(shift));
+        status = JobPostingStatus.OPEN;
+        published = true;
     }
 
     public List<JobPostingStep> getSteps() {

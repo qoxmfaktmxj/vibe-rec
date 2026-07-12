@@ -36,12 +36,19 @@ function getApplicationStatusText(application: CandidateApplicationDetail | null
     return "미지원";
   }
 
+  if (application.status === "WITHDRAWN") {
+    return "지원 철회";
+  }
   return application.status === "SUBMITTED" ? "제출 완료" : "임시 저장";
 }
 
 function getFlowDescription(application: CandidateApplicationDetail | null) {
   if (!application) {
     return "아직 이 공고에 대한 지원을 시작하지 않았습니다.";
+  }
+
+  if (application.status === "WITHDRAWN") {
+    return "지원자가 지원을 철회해 채용 절차가 종료되었습니다.";
   }
 
   if (application.reviewStatus === "REJECTED") {
@@ -71,6 +78,10 @@ function getProgressLabel(application: CandidateApplicationDetail | null) {
     return "시작 전";
   }
 
+  if (application.status === "WITHDRAWN") {
+    return "지원 철회";
+  }
+
   if (
     application.finalStatus === "ACCEPTED" ||
     application.reviewStatus === "PASSED"
@@ -96,21 +107,23 @@ function getProgressLabel(application: CandidateApplicationDetail | null) {
 function getFlowSteps(application: CandidateApplicationDetail | null): FlowStep[] {
   const hasDraft = Boolean(application);
   const isSubmitted = application?.status === "SUBMITTED";
+  const isWithdrawn = application?.status === "WITHDRAWN";
   const isInReview = application?.reviewStatus === "IN_REVIEW";
   const isResolved =
     application?.reviewStatus === "PASSED" ||
     application?.reviewStatus === "REJECTED" ||
+    isWithdrawn ||
     application?.finalStatus === "ACCEPTED" ||
     application?.finalStatus === "DECLINED";
 
   return [
     {
       label: "작성",
-      state: hasDraft && !isSubmitted ? "current" : hasDraft ? "done" : "current",
+      state: hasDraft && !isSubmitted && !isWithdrawn ? "current" : hasDraft ? "done" : "current",
     },
     {
       label: "제출",
-      state: isSubmitted ? "done" : "upcoming",
+      state: isSubmitted || isWithdrawn ? "done" : "upcoming",
     },
     {
       label: "검토",

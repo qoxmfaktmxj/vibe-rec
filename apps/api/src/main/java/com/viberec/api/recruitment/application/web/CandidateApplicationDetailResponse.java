@@ -3,6 +3,8 @@ package com.viberec.api.recruitment.application.web;
 import com.viberec.api.recruitment.application.domain.ApplicationFinalStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
+import com.viberec.api.recruitment.application.domain.CandidateNextAction;
+import com.viberec.api.recruitment.application.domain.CandidateVisibleStage;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +19,15 @@ public record CandidateApplicationDetailResponse(
         ApplicationStatus status,
         ApplicationReviewStatus reviewStatus,
         ApplicationFinalStatus finalStatus,
+        CandidateVisibleStage candidateVisibleStage,
+        CandidateNextAction nextAction,
+        OffsetDateTime lastChangedAt,
         OffsetDateTime draftSavedAt,
         OffsetDateTime submittedAt,
         OffsetDateTime reviewedAt,
         OffsetDateTime finalDecidedAt,
+        OffsetDateTime withdrawnAt,
+        String withdrawalReason,
         Map<String, Object> resumePayload,
         List<ResumeEducationDto> educations,
         List<ResumeExperienceDto> experiences,
@@ -29,6 +36,7 @@ public record CandidateApplicationDetailResponse(
         List<ResumeLanguageDto> languages,
         Short currentStep,
         String motivationFit,
-        List<ApplicationAnswerDto> answers
+        List<ApplicationAnswerDto> answers,
+        List<CandidateInterviewResponse> interviews
 ) {
 }

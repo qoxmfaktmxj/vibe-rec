@@ -3,13 +3,18 @@
 import type { CandidateLoginPayload } from "@/entities/candidate/model";
 import { CandidateApiError, loginCandidate } from "@/shared/api/candidate-auth";
 import { CANDIDATE_SESSION_COOKIE } from "@/shared/lib/candidate-auth";
+import { getClientNetwork } from "@/shared/lib/client-network";
 import { buildSessionCookieOptions } from "@/shared/lib/session-cookie";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as CandidateLoginPayload;
 
   try {
-    const response = await loginCandidate(payload);
+    const response = await loginCandidate(
+      payload,
+      request.headers.get("user-agent"),
+      getClientNetwork(request),
+    );
     const nextResponse = NextResponse.json({
       candidateAccountId: response.candidateAccountId,
       email: response.email,
@@ -17,6 +22,7 @@ export async function POST(request: Request) {
       phone: response.phone,
       authenticatedAt: response.authenticatedAt,
       expiresAt: response.expiresAt,
+      emailVerified: response.emailVerified,
     });
 
     nextResponse.cookies.set(
@@ -28,7 +34,15 @@ export async function POST(request: Request) {
     return nextResponse;
   } catch (error) {
     if (error instanceof CandidateApiError) {
-      return NextResponse.json({ message: error.message }, { status: error.status });
+      return NextResponse.json(
+        { message: error.message },
+        {
+          status: error.status,
+          headers: error.retryAfter
+            ? { "Retry-After": error.retryAfter }
+            : undefined,
+        },
+      );
     }
 
     return NextResponse.json(

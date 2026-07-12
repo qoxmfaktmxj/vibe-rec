@@ -2,11 +2,19 @@ import Link from "next/link";
 
 import type {
   AdminApplicantFilters,
+  AdminApplicantSortField,
+  AdminSortDirection,
   ApplicationReviewStatus,
 } from "@/entities/admin/applicant-model";
 import type { ApplicationStatus } from "@/entities/recruitment/model";
 import { AdminApplicantTable } from "@/features/admin/applicants/AdminApplicantTable";
-import { getAdminApplicants } from "@/shared/api/admin-applicants";
+import { ApplicantSavedSearches } from "@/features/admin/applicants/ApplicantSavedSearches";
+import {
+  getAdminApplicantOptions,
+  getAdminApplicants,
+  getAdminApplicantSavedSearches,
+} from "@/shared/api/admin-applicants";
+import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getJobPostings } from "@/shared/api/recruitment";
 
 const PAGE_SIZE = 30;
@@ -31,6 +39,12 @@ function buildApplicantsHref(filters: AdminApplicantFilters, targetPage: number)
   if (filters.reviewStatus) {
     query.set("reviewStatus", filters.reviewStatus);
   }
+  if (filters.assignedAdminId) {
+    query.set("assignedAdminId", String(filters.assignedAdminId));
+  }
+  if (filters.tagId) {
+    query.set("tagId", String(filters.tagId));
+  }
   if (filters.applicantName) {
     query.set("applicantName", filters.applicantName);
   }
@@ -42,6 +56,12 @@ function buildApplicantsHref(filters: AdminApplicantFilters, targetPage: number)
   }
   if (filters.query) {
     query.set("query", filters.query);
+  }
+  if (filters.sort) {
+    query.set("sort", filters.sort);
+  }
+  if (filters.direction) {
+    query.set("direction", filters.direction);
   }
   if (targetPage > 1) {
     query.set("page", String(targetPage));
@@ -109,10 +129,14 @@ export default async function AdminApplicantsPage({
     jobPostingId?: string;
     applicationStatus?: ApplicationStatus;
     reviewStatus?: ApplicationReviewStatus;
+    assignedAdminId?: string;
+    tagId?: string;
     applicantName?: string;
     applicantEmail?: string;
     applicantPhone?: string;
     query?: string;
+    sort?: AdminApplicantSortField;
+    direction?: AdminSortDirection;
     page?: string;
   }>;
 }) {
@@ -124,22 +148,33 @@ export default async function AdminApplicantsPage({
   const page =
     Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
+  const assignedAdminId = filters.assignedAdminId ? Number(filters.assignedAdminId) : undefined;
+  const tagId = filters.tagId ? Number(filters.tagId) : undefined;
+  const sortFields: AdminApplicantSortField[] = ["SUBMITTED_AT", "APPLICANT_NAME", "REVIEWED_AT", "UPDATED_AT"];
+  const directions: AdminSortDirection[] = ["ASC", "DESC"];
   const normalizedFilters: AdminApplicantFilters = {
     jobPostingId:
       jobPostingId && Number.isInteger(jobPostingId) ? jobPostingId : undefined,
     applicationStatus: filters.applicationStatus,
     reviewStatus: filters.reviewStatus,
+    assignedAdminId: assignedAdminId && Number.isInteger(assignedAdminId) ? assignedAdminId : undefined,
+    tagId: tagId && Number.isInteger(tagId) ? tagId : undefined,
     applicantName: filters.applicantName?.trim() || undefined,
     applicantEmail: filters.applicantEmail?.trim() || undefined,
     applicantPhone: filters.applicantPhone?.trim() || undefined,
     query: filters.query?.trim() || undefined,
+    sort: filters.sort && sortFields.includes(filters.sort) ? filters.sort : "SUBMITTED_AT",
+    direction: filters.direction && directions.includes(filters.direction) ? filters.direction : "DESC",
     page,
     size: PAGE_SIZE,
   };
 
-  const [applicantPage, jobPostings] = await Promise.all([
+  const [applicantPage, jobPostings, options, savedSearches, adminSession] = await Promise.all([
     getAdminApplicants(normalizedFilters),
     getJobPostings().catch(() => []),
+    getAdminApplicantOptions(),
+    getAdminApplicantSavedSearches(),
+    getCurrentAdminSession(),
   ]);
 
   const applicants = applicantPage.items;
@@ -159,9 +194,29 @@ export default async function AdminApplicantsPage({
     applicantPage.totalItems === 0
       ? "현재 조건에 맞는 지원자가 없습니다."
       : `${startItem}-${endItem} / ${applicantPage.totalItems}명 표시 중`;
+  const currentSavedFilters = Object.fromEntries(
+    Object.entries({
+      jobPostingId: normalizedFilters.jobPostingId?.toString(),
+      applicationStatus: normalizedFilters.applicationStatus,
+      reviewStatus: normalizedFilters.reviewStatus,
+      assignedAdminId: normalizedFilters.assignedAdminId?.toString(),
+      tagId: normalizedFilters.tagId?.toString(),
+      applicantName: normalizedFilters.applicantName,
+      applicantEmail: normalizedFilters.applicantEmail,
+      applicantPhone: normalizedFilters.applicantPhone,
+      query: normalizedFilters.query,
+      sort: normalizedFilters.sort,
+      direction: normalizedFilters.direction,
+    }).filter((entry): entry is [string, string] => Boolean(entry[1])),
+  );
 
   return (
     <div className="space-y-6">
+      <ApplicantSavedSearches
+        initialSearches={savedSearches}
+        currentFilters={currentSavedFilters}
+      />
+
       <form className="border border-outline-variant bg-card px-5 py-5 shadow-[0_18px_40px_-30px_rgba(31,41,55,0.25)]">
         <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_auto]">
           <label className={`${fieldLabelClassName} xl:col-span-2`}>
@@ -200,6 +255,7 @@ export default async function AdminApplicantsPage({
               <option value="">전체</option>
               <option value="DRAFT">임시 저장</option>
               <option value="SUBMITTED">제출 완료</option>
+              <option value="WITHDRAWN">지원 철회</option>
             </select>
           </label>
 
@@ -238,7 +294,7 @@ export default async function AdminApplicantsPage({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <label className={fieldLabelClassName}>
             지원자 이메일
             <input
@@ -257,6 +313,52 @@ export default async function AdminApplicantsPage({
               className={inputClassName}
               placeholder="010-1234-5678"
             />
+          </label>
+
+          <label className={fieldLabelClassName}>
+            담당자
+            <select
+              name="assignedAdminId"
+              defaultValue={normalizedFilters.assignedAdminId?.toString() ?? ""}
+              className={selectClassName}
+            >
+              <option value="">전체</option>
+              {options.assignees.map((assignee) => (
+                <option key={assignee.id} value={assignee.id}>{assignee.displayName}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className={fieldLabelClassName}>
+            태그
+            <select
+              name="tagId"
+              defaultValue={normalizedFilters.tagId?.toString() ?? ""}
+              className={selectClassName}
+            >
+              <option value="">전체</option>
+              {options.tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>{tag.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className={fieldLabelClassName}>
+            정렬 기준
+            <select name="sort" defaultValue={normalizedFilters.sort} className={selectClassName}>
+              <option value="SUBMITTED_AT">제출 시각</option>
+              <option value="UPDATED_AT">최근 변경</option>
+              <option value="REVIEWED_AT">검토 시각</option>
+              <option value="APPLICANT_NAME">지원자 이름</option>
+            </select>
+          </label>
+
+          <label className={fieldLabelClassName}>
+            정렬 방향
+            <select name="direction" defaultValue={normalizedFilters.direction} className={selectClassName}>
+              <option value="DESC">내림차순</option>
+              <option value="ASC">오름차순</option>
+            </select>
           </label>
         </div>
       </form>
@@ -289,7 +391,11 @@ export default async function AdminApplicantsPage({
           />
         </div>
 
-        <AdminApplicantTable applicants={applicants} />
+        <AdminApplicantTable
+          applicants={applicants}
+          options={options}
+          canManage={adminSession?.permissions.includes("APPLICANT_REVIEW") ?? false}
+        />
 
         <div className="border-t border-outline-variant px-6 py-5">
           <PaginationLinks

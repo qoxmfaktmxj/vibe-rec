@@ -4,10 +4,15 @@ import com.viberec.api.candidate.auth.domain.CandidateAccount;
 import com.viberec.api.candidate.auth.domain.CandidateSession;
 import com.viberec.api.candidate.auth.repository.CandidateAccountRepository;
 import com.viberec.api.candidate.auth.repository.CandidateSessionRepository;
+import com.viberec.api.candidate.auth.web.CandidateAccountSessionResponse;
 import com.viberec.api.candidate.auth.web.CandidateLoginRequest;
 import com.viberec.api.candidate.auth.web.CandidateLoginResponse;
+import com.viberec.api.candidate.auth.web.CandidatePasswordChangeRequest;
 import com.viberec.api.candidate.auth.web.CandidateSessionResponse;
+import com.viberec.api.candidate.auth.web.CandidateSessionRevocationResponse;
 import com.viberec.api.candidate.auth.web.CandidateSignupRequest;
+import com.viberec.api.platform.security.AuthenticationRateLimitScope;
+import com.viberec.api.platform.security.AuthenticationRateLimitService;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +20,7 @@ import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,21 +34,42 @@ public class CandidateAuthService {
 
     private final CandidateAccountRepository candidateAccountRepository;
     private final CandidateSessionRepository candidateSessionRepository;
+    private final CandidateAccountRecoveryService candidateAccountRecoveryService;
+    private final AuthenticationRateLimitService authenticationRateLimitService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final long sessionDurationHours;
 
     public CandidateAuthService(
             CandidateAccountRepository candidateAccountRepository,
             CandidateSessionRepository candidateSessionRepository,
+            CandidateAccountRecoveryService candidateAccountRecoveryService,
+            AuthenticationRateLimitService authenticationRateLimitService,
             @Value("${app.candidate.session.duration-hours:12}") long sessionDurationHours
     ) {
         this.candidateAccountRepository = candidateAccountRepository;
         this.candidateSessionRepository = candidateSessionRepository;
+        this.candidateAccountRecoveryService = candidateAccountRecoveryService;
+        this.authenticationRateLimitService = authenticationRateLimitService;
         this.sessionDurationHours = sessionDurationHours;
     }
 
     @Transactional
     public CandidateLoginResponse signup(CandidateSignupRequest request) {
+        return signup(request, null, null);
+    }
+
+    @Transactional
+    public CandidateLoginResponse signup(CandidateSignupRequest request, String userAgent) {
+        return signup(request, userAgent, null);
+    }
+
+    @Transactional
+    public CandidateLoginResponse signup(
+            CandidateSignupRequest request,
+            String userAgent,
+            String clientNetwork
+    ) {
+        authenticationRateLimitService.consumeSignupRequest(clientNetwork);
         String normalizedEmail = normalizeEmail(request.email());
         if (candidateAccountRepository.findByNormalizedEmail(normalizedEmail).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 이메일입니다.");
@@ -56,30 +83,58 @@ public class CandidateAuthService {
                 request.password()
         );
 
-        return login(new CandidateLoginRequest(request.email(), request.password()));
+        CandidateAccount account = candidateAccountRepository.findByNormalizedEmail(normalizedEmail)
+                .orElseThrow(() -> new IllegalStateException("Created candidate account was not found."));
+        candidateAccountRecoveryService.issueEmailVerification(account);
+        candidateAccountRepository.markAuthenticated(account.getId());
+        authenticationRateLimitService.clearLoginFailures(
+                AuthenticationRateLimitScope.CANDIDATE_LOGIN,
+                clientNetwork,
+                normalizedEmail
+        );
+        return createSession(account, userAgent);
     }
 
     @Transactional
     public CandidateLoginResponse login(CandidateLoginRequest request) {
+        return login(request, null, null);
+    }
+
+    @Transactional
+    public CandidateLoginResponse login(CandidateLoginRequest request, String userAgent) {
+        return login(request, userAgent, null);
+    }
+
+    @Transactional
+    public CandidateLoginResponse login(
+            CandidateLoginRequest request,
+            String userAgent,
+            String clientNetwork
+    ) {
         String normalizedEmail = normalizeEmail(request.email());
+        authenticationRateLimitService.assertLoginAllowed(
+                AuthenticationRateLimitScope.CANDIDATE_LOGIN,
+                clientNetwork,
+                normalizedEmail
+        );
         CandidateAccount account = candidateAccountRepository.authenticate(normalizedEmail, request.password())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."));
+                .orElse(null);
+        if (account == null) {
+            authenticationRateLimitService.recordLoginFailure(
+                    AuthenticationRateLimitScope.CANDIDATE_LOGIN,
+                    clientNetwork,
+                    normalizedEmail
+            );
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다.");
+        }
+        authenticationRateLimitService.clearLoginFailures(
+                AuthenticationRateLimitScope.CANDIDATE_LOGIN,
+                clientNetwork,
+                normalizedEmail
+        );
 
         candidateAccountRepository.markAuthenticated(account.getId());
-        OffsetDateTime authenticatedAt = OffsetDateTime.now();
-        OffsetDateTime expiresAt = authenticatedAt.plusHours(sessionDurationHours);
-        String sessionToken = generateSessionToken();
-        candidateSessionRepository.save(new CandidateSession(account, hashSessionToken(sessionToken), expiresAt));
-
-        return new CandidateLoginResponse(
-                account.getId(),
-                account.getEmail(),
-                account.getDisplayName(),
-                account.getPhone(),
-                authenticatedAt,
-                expiresAt,
-                sessionToken
-        );
+        return createSession(account, userAgent);
     }
 
     @Transactional
@@ -95,13 +150,88 @@ public class CandidateAuthService {
                 account.getDisplayName(),
                 account.getPhone(),
                 Objects.requireNonNullElse(account.getLastAuthenticatedAt(), now),
-                session.getExpiresAt()
+                session.getExpiresAt(),
+                account.isEmailVerified()
         );
     }
 
     @Transactional
     public void logout(String sessionToken) {
-        candidateSessionRepository.invalidateByTokenHash(hashSessionToken(normalizeSessionToken(sessionToken)), OffsetDateTime.now());
+        candidateSessionRepository.invalidateByTokenHash(
+                hashSessionToken(normalizeSessionToken(sessionToken)),
+                OffsetDateTime.now()
+        );
+    }
+
+    @Transactional
+    public List<CandidateAccountSessionResponse> getActiveSessions(String sessionToken) {
+        CandidateSession currentSession = findActiveSession(sessionToken);
+        OffsetDateTime now = OffsetDateTime.now();
+        candidateSessionRepository.touch(currentSession.getId(), now);
+        return candidateSessionRepository.findActiveSessions(currentSession.getCandidateAccount().getId(), now).stream()
+                .map(session -> new CandidateAccountSessionResponse(
+                        session.getId(),
+                        session.getId().equals(currentSession.getId()),
+                        Objects.requireNonNullElse(session.getUserAgent(), "Unknown"),
+                        Objects.requireNonNullElse(session.getLastSeenAt(), session.getCreatedAt()),
+                        session.getCreatedAt(),
+                        session.getExpiresAt()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public CandidateSessionRevocationResponse revokeSession(String sessionToken, Long sessionId) {
+        CandidateSession currentSession = findActiveSession(sessionToken);
+        int revoked = candidateSessionRepository.invalidateOwnedSession(
+                currentSession.getCandidateAccount().getId(),
+                sessionId,
+                OffsetDateTime.now()
+        );
+        if (revoked == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "활성 세션을 찾을 수 없습니다.");
+        }
+        return new CandidateSessionRevocationResponse(currentSession.getId().equals(sessionId));
+    }
+
+    @Transactional
+    public void revokeOtherSessions(String sessionToken) {
+        CandidateSession currentSession = findActiveSession(sessionToken);
+        candidateSessionRepository.invalidateOtherSessions(
+                currentSession.getCandidateAccount().getId(),
+                currentSession.getId(),
+                OffsetDateTime.now()
+        );
+    }
+
+    @Transactional
+    public CandidateLoginResponse changePassword(
+            String sessionToken,
+            CandidatePasswordChangeRequest request,
+            String userAgent
+    ) {
+        CandidateSession currentSession = findActiveSession(sessionToken);
+        CandidateAccount account = currentSession.getCandidateAccount();
+        if (!candidateAccountRepository.passwordMatches(account.getId(), request.currentPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "현재 비밀번호가 올바르지 않습니다.");
+        }
+        if (candidateAccountRepository.passwordMatches(account.getId(), request.newPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+        }
+
+        candidateAccountRepository.updatePassword(account.getId(), request.newPassword());
+        candidateSessionRepository.invalidateAllSessions(account.getId(), OffsetDateTime.now());
+        return createSession(account, userAgent);
+    }
+
+    @Transactional
+    public CandidateLoginResponse resetPassword(
+            String token,
+            String newPassword,
+            String userAgent
+    ) {
+        CandidateAccount account = candidateAccountRecoveryService.resetPassword(token, newPassword);
+        return createSession(account, userAgent);
     }
 
     public CandidateAccount requireActiveAccount(String sessionToken) {
@@ -116,6 +246,29 @@ public class CandidateAuthService {
         String normalizedToken = normalizeSessionToken(sessionToken);
         return candidateSessionRepository.findActiveSessionByTokenHash(hashSessionToken(normalizedToken), OffsetDateTime.now())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "지원자 세션이 없거나 만료되었습니다."));
+    }
+
+    private CandidateLoginResponse createSession(CandidateAccount account, String userAgent) {
+        OffsetDateTime authenticatedAt = OffsetDateTime.now();
+        OffsetDateTime expiresAt = authenticatedAt.plusHours(sessionDurationHours);
+        String sessionToken = generateSessionToken();
+        candidateSessionRepository.save(new CandidateSession(
+                account,
+                hashSessionToken(sessionToken),
+                expiresAt,
+                normalizeUserAgent(userAgent)
+        ));
+
+        return new CandidateLoginResponse(
+                account.getId(),
+                account.getEmail(),
+                account.getDisplayName(),
+                account.getPhone(),
+                authenticatedAt,
+                expiresAt,
+                sessionToken,
+                account.isEmailVerified()
+        );
     }
 
     private String normalizeEmail(String email) {
@@ -147,6 +300,14 @@ public class CandidateAuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "지원자 세션이 없거나 만료되었습니다.");
         }
         return sessionToken.trim();
+    }
+
+    private String normalizeUserAgent(String userAgent) {
+        if (userAgent == null || userAgent.isBlank()) {
+            return "Unknown";
+        }
+        String normalized = userAgent.trim();
+        return normalized.substring(0, Math.min(normalized.length(), 512));
     }
 
     private String generateSessionToken() {

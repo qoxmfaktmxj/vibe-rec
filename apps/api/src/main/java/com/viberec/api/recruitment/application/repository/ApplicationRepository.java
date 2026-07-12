@@ -5,10 +5,12 @@ import com.viberec.api.recruitment.application.domain.ApplicationReviewStatus;
 import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.query.Param;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
@@ -16,6 +18,46 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Optional<Application> findByJobPostingIdAndCandidateAccountId(Long jobPostingId, Long candidateAccountId);
 
     Optional<Application> findByIdAndCandidateAccountId(Long id, Long candidateAccountId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select application from Application application where application.id = :applicationId")
+    Optional<Application> findForCommandById(@Param("applicationId") Long applicationId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select application
+            from Application application
+            where application.id = :applicationId
+              and application.candidateAccount.id = :candidateAccountId
+            """)
+    Optional<Application> findOwnedForCommandById(
+            @Param("applicationId") Long applicationId,
+            @Param("candidateAccountId") Long candidateAccountId
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select application
+            from Application application
+            where application.id = :applicationId
+              and application.candidateAccount.id = :candidateAccountId
+            """)
+    Optional<Application> findOwnedForAttachmentUpdate(
+            @Param("applicationId") Long applicationId,
+            @Param("candidateAccountId") Long candidateAccountId
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select application
+            from Application application
+            where application.jobPosting.id = :jobPostingId
+              and application.candidateAccount.id = :candidateAccountId
+            """)
+    Optional<Application> findOwnedByJobPostingForAttachmentUpdate(
+            @Param("jobPostingId") Long jobPostingId,
+            @Param("candidateAccountId") Long candidateAccountId
+    );
 
     @Query("""
             select application
@@ -33,9 +75,19 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             select application
             from Application application
             join fetch application.jobPosting jobPosting
+            left join fetch application.assignedAdmin
             where application.id = :applicationId
             """)
     Optional<Application> findWithJobPostingById(@Param("applicationId") Long applicationId);
+
+    @Query("""
+            select application
+            from Application application
+            join fetch application.jobPosting
+            left join fetch application.assignedAdmin
+            where application.id in :applicationIds
+            """)
+    List<Application> findAllForAdminBulk(@Param("applicationIds") java.util.Collection<Long> applicationIds);
 
     @Query("""
             select application
@@ -95,9 +147,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
                     select application
                     from Application application
                     join fetch application.jobPosting jobPosting
+                    left join fetch application.assignedAdmin assignedAdmin
                     where (:jobPostingId is null or jobPosting.id = :jobPostingId)
                       and (:applicationStatus is null or application.status = :applicationStatus)
                       and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
+                      and (:assignedAdminId is null or assignedAdmin.id = :assignedAdminId)
+                      and (
+                            :tagId is null
+                            or exists (
+                                select applicationTag.id
+                                from ApplicationTag applicationTag
+                                where applicationTag.application = application
+                                  and applicationTag.tag.id = :tagId
+                            )
+                      )
                       and (:applicantName = '' or lower(application.applicantName) like concat('%', :applicantName, '%'))
                       and (:applicantEmail = '' or lower(application.applicantEmail) like concat('%', :applicantEmail, '%'))
                       and (:applicantPhone = '' or lower(application.applicantPhone) like concat('%', :applicantPhone, '%'))
@@ -108,7 +171,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
                             or lower(application.applicantPhone) like concat('%', :query, '%')
                             or lower(jobPosting.title) like concat('%', :query, '%')
                       )
-                    order by coalesce(application.submittedAt, application.draftSavedAt) desc, application.id desc
                     """,
             countQuery = """
                     select count(application)
@@ -117,6 +179,16 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
                     where (:jobPostingId is null or jobPosting.id = :jobPostingId)
                       and (:applicationStatus is null or application.status = :applicationStatus)
                       and (:reviewStatus is null or application.reviewStatus = :reviewStatus)
+                      and (:assignedAdminId is null or application.assignedAdmin.id = :assignedAdminId)
+                      and (
+                            :tagId is null
+                            or exists (
+                                select applicationTag.id
+                                from ApplicationTag applicationTag
+                                where applicationTag.application = application
+                                  and applicationTag.tag.id = :tagId
+                            )
+                      )
                       and (:applicantName = '' or lower(application.applicantName) like concat('%', :applicantName, '%'))
                       and (:applicantEmail = '' or lower(application.applicantEmail) like concat('%', :applicantEmail, '%'))
                       and (:applicantPhone = '' or lower(application.applicantPhone) like concat('%', :applicantPhone, '%'))
@@ -133,6 +205,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             @Param("jobPostingId") Long jobPostingId,
             @Param("applicationStatus") ApplicationStatus applicationStatus,
             @Param("reviewStatus") ApplicationReviewStatus reviewStatus,
+            @Param("assignedAdminId") Long assignedAdminId,
+            @Param("tagId") Long tagId,
             @Param("applicantName") String applicantName,
             @Param("applicantEmail") String applicantEmail,
             @Param("applicantPhone") String applicantPhone,

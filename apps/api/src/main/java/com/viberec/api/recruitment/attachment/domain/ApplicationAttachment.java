@@ -40,6 +40,12 @@ public class ApplicationAttachment {
     @Column(name = "storage_path", nullable = false, columnDefinition = "text")
     private String storagePath;
 
+    @Column(nullable = false, length = 64)
+    private String sha256;
+
+    @Column(name = "validation_status", nullable = false, length = 30)
+    private String validationStatus;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -47,13 +53,16 @@ public class ApplicationAttachment {
     }
 
     public ApplicationAttachment(Application application, String fileName, String originalName,
-                                  String contentType, long fileSize, String storagePath) {
+                                  String contentType, long fileSize, String storagePath,
+                                  String sha256, String validationStatus) {
         this.application = application;
         this.fileName = fileName;
         this.originalName = originalName;
         this.contentType = contentType;
         this.fileSize = fileSize;
         this.storagePath = storagePath;
+        this.sha256 = sha256;
+        this.validationStatus = validationStatus;
     }
 
     @PrePersist
@@ -91,5 +100,13 @@ public class ApplicationAttachment {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getSha256() {
+        return sha256;
+    }
+
+    public String getValidationStatus() {
+        return validationStatus;
     }
 }

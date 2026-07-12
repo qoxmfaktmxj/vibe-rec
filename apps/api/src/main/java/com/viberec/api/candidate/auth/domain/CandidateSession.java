@@ -34,6 +34,9 @@ public class CandidateSession {
     @Column(name = "last_seen_at")
     private OffsetDateTime lastSeenAt;
 
+    @Column(name = "user_agent", length = 512)
+    private String userAgent;
+
     @Column(name = "invalidated_at")
     private OffsetDateTime invalidatedAt;
 
@@ -46,10 +49,11 @@ public class CandidateSession {
     protected CandidateSession() {
     }
 
-    public CandidateSession(CandidateAccount candidateAccount, String tokenHash, OffsetDateTime expiresAt) {
+    public CandidateSession(CandidateAccount candidateAccount, String tokenHash, OffsetDateTime expiresAt, String userAgent) {
         this.candidateAccount = candidateAccount;
         this.tokenHash = tokenHash;
         this.expiresAt = expiresAt;
+        this.userAgent = userAgent;
     }
 
     @PrePersist
@@ -77,5 +81,17 @@ public class CandidateSession {
 
     public OffsetDateTime getExpiresAt() {
         return expiresAt;
+    }
+
+    public OffsetDateTime getLastSeenAt() {
+        return lastSeenAt;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
     }
 }

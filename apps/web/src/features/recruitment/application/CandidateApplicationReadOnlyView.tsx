@@ -4,12 +4,17 @@ import type { AttachmentSummary } from "@/entities/recruitment/attachment-model"
 import type {
   CandidateApplicationDetail,
   CandidateApplicationSummary,
+  InterviewStatus,
+  InterviewType,
   JobPostingQuestion,
 } from "@/entities/recruitment/model";
 import {
   formatDate,
   formatDateTime,
   formatFileSize,
+  getCandidateNextActionLabel,
+  getCandidateVisibleStageClassName,
+  getCandidateVisibleStageLabel,
   getApplicationReviewStatusClassName,
   getApplicationReviewStatusLabel,
   getApplicationStatusClassName,
@@ -19,6 +24,21 @@ import {
   getFinalStatusClassName,
   getFinalStatusLabel,
 } from "@/shared/lib/recruitment";
+import { CandidateApplicationWithdrawal } from "./CandidateApplicationWithdrawal";
+
+const candidateInterviewTypeLabels: Record<InterviewType, string> = {
+  PHONE: "전화 면접",
+  VIDEO: "화상 면접",
+  ONSITE: "대면 면접",
+  TECHNICAL: "기술 면접",
+};
+
+const candidateInterviewStatusLabels: Record<InterviewStatus, string> = {
+  SCHEDULED: "예정",
+  COMPLETED: "완료",
+  CANCELLED: "취소",
+  NO_SHOW: "미참석",
+};
 
 interface CandidateApplicationReadOnlyViewProps {
   application: CandidateApplicationDetail;
@@ -164,6 +184,22 @@ export function CandidateApplicationReadOnlyView({
           </div>
         </div>
 
+        <div className="mt-6 flex flex-wrap items-center gap-3 rounded-sm bg-surface-container-low px-4 py-4">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${getCandidateVisibleStageClassName(
+              application.candidateVisibleStage,
+            )}`}
+          >
+            현재 단계: {getCandidateVisibleStageLabel(application.candidateVisibleStage)}
+          </span>
+          <p className="text-sm text-on-surface-variant">
+            {getCandidateNextActionLabel(application.nextAction)}
+          </p>
+          <p className="ml-auto text-xs text-on-surface-variant">
+            최근 변경 {formatDateTime(application.lastChangedAt)}
+          </p>
+        </div>
+
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-sm bg-surface-container-low px-4 py-4">
             <p className="text-xs text-on-surface-variant">임시 저장</p>
@@ -205,7 +241,86 @@ export function CandidateApplicationReadOnlyView({
             다른 공고 보기
           </Link>
         </div>
+        <CandidateApplicationWithdrawal
+          applicationId={application.applicationId}
+          canWithdraw={
+            application.status === "SUBMITTED" &&
+            application.candidateVisibleStage !== "CLOSED"
+          }
+          withdrawnAt={application.withdrawnAt}
+          withdrawalReason={application.withdrawalReason}
+        />
       </section>
+
+      {application.interviews.length > 0 ? (
+        <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <SectionTitle
+            eyebrow="면접 일정"
+            title="예정된 면접"
+            description="일정과 참여 방법을 확인하고 개인 캘린더에 추가할 수 있습니다."
+          />
+          <ol className="mt-6 space-y-4">
+            {application.interviews.map((interview) => (
+              <li key={interview.id} className="rounded-sm border border-outline-variant bg-surface-container-low p-5">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-medium text-on-surface">{interview.stepTitle}</h3>
+                      <span className="rounded-full bg-card px-2.5 py-1 text-xs text-on-surface-variant">
+                        {candidateInterviewTypeLabels[interview.interviewType]}
+                      </span>
+                      <span className="rounded-full bg-card px-2.5 py-1 text-xs text-on-surface-variant">
+                        {candidateInterviewStatusLabels[interview.status]}
+                      </span>
+                    </div>
+                    <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                      <div>
+                        <dt className="text-on-surface-variant">일시</dt>
+                        <dd className="mt-1 font-medium text-on-surface">
+                          {interview.scheduledAt ? formatDateTime(interview.scheduledAt) : "일정 조율 중"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-on-surface-variant">예상 소요 시간</dt>
+                        <dd className="mt-1 font-medium text-on-surface">{interview.durationMinutes}분</dd>
+                      </div>
+                      {interview.location ? (
+                        <div>
+                          <dt className="text-on-surface-variant">장소</dt>
+                          <dd className="mt-1 font-medium text-on-surface">{interview.location}</dd>
+                        </div>
+                      ) : null}
+                      {interview.onlineLink ? (
+                        <div>
+                          <dt className="text-on-surface-variant">참여 링크</dt>
+                          <dd className="mt-1">
+                            <a
+                              href={interview.onlineLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="font-medium text-primary underline-offset-4 hover:underline"
+                            >
+                              면접 링크 열기
+                            </a>
+                          </dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  </div>
+                  {interview.scheduledAt ? (
+                    <a
+                      href={`/api/candidate/applications/${application.applicationId}/interviews/${interview.id}/calendar`}
+                      className="shrink-0 rounded-sm border border-outline-variant bg-card px-4 py-2.5 text-xs font-medium text-on-surface transition-colors hover:border-primary hover:text-primary"
+                    >
+                      캘린더에 추가
+                    </a>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">

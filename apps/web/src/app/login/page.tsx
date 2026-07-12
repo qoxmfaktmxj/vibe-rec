@@ -2,20 +2,13 @@ import { redirect } from "next/navigation";
 
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 import { getCurrentCandidateSession } from "@/shared/api/candidate-auth";
+import { resolveInternalPath } from "@/shared/lib/internal-path";
 
 interface LoginRedirectPageProps {
   searchParams: Promise<{
     mode?: string;
     next?: string;
   }>;
-}
-
-function resolveNextPath(rawNext?: string) {
-  if (!rawNext || !rawNext.startsWith("/") || rawNext.startsWith("//")) {
-    return "/job-postings";
-  }
-
-  return rawNext;
 }
 
 export default async function LoginRedirectPage({
@@ -26,7 +19,7 @@ export default async function LoginRedirectPage({
     getCurrentAdminSession().catch(() => null),
     searchParams,
   ]);
-  const nextPath = resolveNextPath(params.next);
+  const nextPath = resolveInternalPath(params.next, "/job-postings");
 
   if (adminSession) {
     redirect("/admin");

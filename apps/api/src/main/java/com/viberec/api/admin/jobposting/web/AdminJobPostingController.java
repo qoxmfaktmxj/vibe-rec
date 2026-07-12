@@ -8,6 +8,7 @@ import com.viberec.api.recruitment.jobposting.repository.JobPostingRepository;
 import com.viberec.api.recruitment.jobposting.repository.JobPostingStepRepository;
 import com.viberec.api.recruitment.jobposting.service.JobPostingService;
 import com.viberec.api.recruitment.jobposting.web.JobPostingStepResponse;
+import com.viberec.api.recruitment.jobposting.web.JobPostingQuestionResponse;
 import com.viberec.api.recruitment.jobposting.web.SaveJobPostingQuestionRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -46,7 +47,7 @@ public class AdminJobPostingController {
     }
 
     @PostMapping("/admin/job-postings")
-    @RequiresPermission("APPLICANT_VIEW")
+    @RequiresPermission("JOB_POSTING_MANAGE")
     @ResponseStatus(HttpStatus.CREATED)
     public AdminJobPostingResponse createJobPosting(
             @RequestHeader("X-Admin-Session") String sessionToken,
@@ -57,7 +58,7 @@ public class AdminJobPostingController {
     }
 
     @GetMapping("/admin/job-postings")
-    @RequiresPermission("APPLICANT_VIEW")
+    @RequiresPermission("JOB_POSTING_VIEW")
     public List<AdminJobPostingResponse> getJobPostings(
             @RequestHeader("X-Admin-Session") String sessionToken
     ) {
@@ -66,7 +67,7 @@ public class AdminJobPostingController {
     }
 
     @GetMapping("/admin/job-postings/{id}")
-    @RequiresPermission("APPLICANT_VIEW")
+    @RequiresPermission("JOB_POSTING_VIEW")
     public AdminJobPostingResponse getJobPosting(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id
@@ -76,7 +77,7 @@ public class AdminJobPostingController {
     }
 
     @PutMapping("/admin/job-postings/{id}")
-    @RequiresPermission("APPLICANT_VIEW")
+    @RequiresPermission("JOB_POSTING_MANAGE")
     public AdminJobPostingResponse updateJobPosting(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id,
@@ -86,8 +87,40 @@ public class AdminJobPostingController {
         return adminJobPostingService.updateJobPosting(id, request);
     }
 
+    @GetMapping("/admin/job-postings/{id}/preview")
+    @RequiresPermission("JOB_POSTING_VIEW")
+    public AdminJobPostingPreviewResponse getPreview(
+            @RequestHeader("X-Admin-Session") String sessionToken,
+            @PathVariable Long id
+    ) {
+        authorize(sessionToken);
+        return adminJobPostingService.getPreview(id);
+    }
+
+    @PostMapping("/admin/job-postings/{id}/clone")
+    @RequiresPermission("JOB_POSTING_MANAGE")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AdminJobPostingResponse cloneJobPosting(
+            @RequestHeader("X-Admin-Session") String sessionToken,
+            @PathVariable Long id
+    ) {
+        authorize(sessionToken);
+        return adminJobPostingService.cloneJobPosting(id);
+    }
+
+    @PutMapping("/admin/job-postings/{id}/publication")
+    @RequiresPermission("JOB_POSTING_MANAGE")
+    public AdminJobPostingResponse schedulePublication(
+            @RequestHeader("X-Admin-Session") String sessionToken,
+            @PathVariable Long id,
+            @Valid @RequestBody ScheduleJobPostingPublicationRequest request
+    ) {
+        authorize(sessionToken);
+        return adminJobPostingService.schedulePublication(id, request);
+    }
+
     @GetMapping("/admin/job-postings/{id}/steps")
-    @RequiresPermission("APPLICANT_VIEW")
+    @RequiresPermission("JOB_POSTING_VIEW")
     public List<JobPostingStepResponse> getJobPostingSteps(
             @RequestHeader("X-Admin-Session") String sessionToken,
             @PathVariable Long id
@@ -101,8 +134,18 @@ public class AdminJobPostingController {
                 .toList();
     }
 
+    @GetMapping("/admin/job-postings/{id}/questions")
+    @RequiresPermission("JOB_POSTING_VIEW")
+    public List<JobPostingQuestionResponse> getJobPostingQuestions(
+            @RequestHeader("X-Admin-Session") String sessionToken,
+            @PathVariable Long id
+    ) {
+        authorize(sessionToken);
+        return jobPostingService.getQuestionsForAdmin(id);
+    }
+
     @PutMapping("/admin/job-postings/{id}/questions")
-    @RequiresPermission("APPLICANT_VIEW")
+    @RequiresPermission("JOB_POSTING_MANAGE")
     @ResponseStatus(HttpStatus.OK)
     public void saveJobPostingQuestions(
             @RequestHeader("X-Admin-Session") String sessionToken,

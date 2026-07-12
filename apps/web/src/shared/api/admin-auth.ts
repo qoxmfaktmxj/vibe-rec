@@ -6,10 +6,10 @@ import type {
   AdminLoginPayload,
   AdminLoginResponse,
   AdminSession,
-  AdminSignupPayload,
 } from "@/entities/admin/model";
 import { ADMIN_SESSION_COOKIE } from "@/shared/lib/admin-auth";
 import { getApiBaseUrl } from "@/shared/lib/api-config";
+import { clientNetworkHeaders } from "@/shared/lib/client-network";
 
 export { getApiBaseUrl };
 
@@ -17,6 +17,7 @@ export class AdminApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly retryAfter?: string,
   ) {
     super(message);
     this.name = "AdminApiError";
@@ -38,33 +39,24 @@ async function parseAdminResponse<T>(response: Response) {
       // Keep default message.
     }
 
-    throw new AdminApiError(message, response.status);
+    throw new AdminApiError(
+      message,
+      response.status,
+      response.headers.get("retry-after") ?? undefined,
+    );
   }
 
   return (await response.json()) as T;
 }
 
-export async function signupAdmin(payload: AdminSignupPayload) {
-  const response = await fetch(`${getApiBaseUrl()}/admin/auth/signup`, {
-    method: "POST",
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  return parseAdminResponse<AdminLoginResponse>(response);
-}
-
-export async function loginAdmin(payload: AdminLoginPayload) {
+export async function loginAdmin(payload: AdminLoginPayload, clientNetwork?: string | null) {
   const response = await fetch(`${getApiBaseUrl()}/admin/auth/login`, {
     method: "POST",
     cache: "no-store",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...clientNetworkHeaders(clientNetwork),
     },
     body: JSON.stringify(payload),
   });

@@ -19,6 +19,7 @@ public record AdminJobPostingResponse(
         JobPostingStatus status,
         boolean published,
         OffsetDateTime opensAt,
-        OffsetDateTime closesAt
+        OffsetDateTime closesAt,
+        JobPostingPublicationState publicationState
 ) {
 }

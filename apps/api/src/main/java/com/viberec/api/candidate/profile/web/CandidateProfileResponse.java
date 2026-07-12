@@ -3,6 +3,7 @@ package com.viberec.api.candidate.profile.web;
 import java.util.List;
 
 public record CandidateProfileResponse(
+        long revision,
         String introductionTemplate,
         String coreStrengthTemplate,
         Integer careerYears,

@@ -2,9 +2,10 @@
 
 import type {
   AdminJobPosting,
+  AdminJobPostingPreview,
   UpdateAdminJobPostingPayload,
 } from "@/entities/admin/model";
-import type { JobPostingStep } from "@/entities/recruitment/model";
+import type { JobPostingStep, ScorecardCriterion } from "@/entities/recruitment/model";
 import {
   AdminApiError,
   getApiBaseUrl,
@@ -60,6 +61,58 @@ export async function getAdminJobPosting(jobPostingId: number) {
   return parseResponse<AdminJobPosting>(response);
 }
 
+export async function getAdminJobPostingPreview(jobPostingId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}/preview`,
+    {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+    },
+  );
+  return parseResponse<AdminJobPostingPreview>(response);
+}
+
+export async function cloneAdminJobPosting(jobPostingId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}/clone`,
+    {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+    },
+  );
+  return parseResponse<AdminJobPosting>(response);
+}
+
+export async function scheduleAdminJobPostingPublication(
+  jobPostingId: number,
+  publishAt: string,
+) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}/publication`,
+    {
+      method: "PUT",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+      body: JSON.stringify({ publishAt }),
+    },
+  );
+  return parseResponse<AdminJobPosting>(response);
+}
+
 export async function updateAdminJobPosting(
   jobPostingId: number,
   payload: UpdateAdminJobPostingPayload,
@@ -96,4 +149,43 @@ export async function getAdminJobPostingSteps(jobPostingId: number) {
   );
 
   return parseResponse<JobPostingStep[]>(response);
+}
+
+export async function getAdminScorecardCriteria(jobPostingId: number, stepId: number) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}/steps/${stepId}/scorecard`,
+    {
+      cache: "no-store",
+      headers: { Accept: "application/json", "X-Admin-Session": sessionToken },
+    },
+  );
+  return parseResponse<ScorecardCriterion[]>(response);
+}
+
+export async function replaceAdminScorecardCriteria(
+  jobPostingId: number,
+  stepId: number,
+  criteria: Array<{
+    name: string;
+    description?: string | null;
+    weight: number;
+    required: boolean;
+  }>,
+) {
+  const sessionToken = await getRequiredAdminSessionToken();
+  const response = await fetch(
+    `${getApiBaseUrl()}/admin/job-postings/${jobPostingId}/steps/${stepId}/scorecard`,
+    {
+      method: "PUT",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Admin-Session": sessionToken,
+      },
+      body: JSON.stringify({ criteria }),
+    },
+  );
+  return parseResponse<ScorecardCriterion[]>(response);
 }

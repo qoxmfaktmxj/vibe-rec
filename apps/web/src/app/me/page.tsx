@@ -3,11 +3,19 @@ import { redirect } from "next/navigation";
 
 import { CandidateLogoutButton } from "@/features/recruitment/application/CandidateLogoutButton";
 import { CandidateApplicationsPanel } from "@/features/recruitment/application/CandidateApplicationsPanel";
+import { CandidateNotificationPanel } from "@/features/recruitment/application/CandidateNotificationPanel";
+import { CandidateDataRequestPanel } from "@/features/candidate/privacy/CandidateDataRequestPanel";
+import { CandidateSecurityPanel } from "@/features/candidate/security/CandidateSecurityPanel";
 import {
+  getCandidateAccountSessions,
   getCurrentCandidateSession,
   getRequiredCandidateSessionToken,
 } from "@/shared/api/candidate-auth";
-import { getCandidateApplications } from "@/shared/api/recruitment";
+import {
+  getCandidateApplications,
+  getCandidateNotifications,
+} from "@/shared/api/recruitment";
+import { getCandidateDataRequests } from "@/shared/api/candidate-privacy";
 
 interface MyPageProps {
   searchParams: Promise<{ submitted?: string }>;
@@ -23,15 +31,20 @@ export default async function MyPage({ searchParams }: MyPageProps) {
   }
 
   const sessionToken = await getRequiredCandidateSessionToken();
-  const applicationsResult = await getCandidateApplications(sessionToken)
-    .then((applications) => ({
-      applications,
-      applicationsError: false,
-    }))
-    .catch(() => ({
-      applications: [],
-      applicationsError: true,
-    }));
+  const [applicationsResult, notifications, dataRequests, accountSessions] = await Promise.all([
+    getCandidateApplications(sessionToken)
+      .then((applications) => ({
+        applications,
+        applicationsError: false,
+      }))
+      .catch(() => ({
+        applications: [],
+        applicationsError: true,
+      })),
+    getCandidateNotifications(sessionToken).catch(() => []),
+    getCandidateDataRequests(sessionToken).catch(() => []),
+    getCandidateAccountSessions(sessionToken).catch(() => []),
+  ]);
   const { applications, applicationsError } = applicationsResult;
   const submittedCount = applications.filter(
     (application) => application.status === "SUBMITTED",
@@ -112,6 +125,10 @@ export default async function MyPage({ searchParams }: MyPageProps) {
             </Link>
           </div>
         </section>
+
+        <CandidateNotificationPanel initialNotifications={notifications} />
+        <CandidateSecurityPanel initialSessions={accountSessions} />
+        <CandidateDataRequestPanel initialRequests={dataRequests} />
 
         <section className="space-y-5">
           <div className="flex items-end justify-between gap-4">

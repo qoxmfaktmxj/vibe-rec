@@ -5,6 +5,7 @@ export interface CandidateSession {
   phone: string;
   authenticatedAt: string;
   expiresAt: string;
+  emailVerified: boolean;
 }
 
 export interface CandidateLoginPayload {
@@ -19,4 +20,22 @@ export interface CandidateSignupPayload extends CandidateLoginPayload {
 
 export interface CandidateLoginResponse extends CandidateSession {
   sessionToken: string;
+}
+
+export interface CandidateAccountSession {
+  id: number;
+  current: boolean;
+  userAgent: string;
+  lastSeenAt: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface CandidatePasswordChangePayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface CandidateSessionRevocationResponse {
+  currentSessionRevoked: boolean;
 }

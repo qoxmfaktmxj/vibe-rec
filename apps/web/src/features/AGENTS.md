@@ -29,9 +29,7 @@ Feature components organized by domain. Each subdirectory groups related UI comp
 
 | Component | Purpose |
 |-----------|---------|
-| `auth/AdminAuthForm.tsx` | Admin signup/login form wrapper |
 | `auth/AdminLoginForm.tsx` | Admin login form |
-| `auth/AdminSignupForm.tsx` | Admin signup form |
 | `auth/AdminLogoutButton.tsx` | Logout button |
 | `navigation/AdminRailNav.tsx` | Sidebar rail navigation for admin workspace |
 | `layout/AdminMobileGuard.tsx` | Blocks admin access on small screens |

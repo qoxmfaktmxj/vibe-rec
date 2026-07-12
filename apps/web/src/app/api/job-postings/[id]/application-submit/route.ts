@@ -24,11 +24,19 @@ export async function POST(
     );
   }
 
+  const idempotencyKey = request.headers.get("Idempotency-Key");
+  if (!idempotencyKey) {
+    return NextResponse.json(
+      { message: "Idempotency-Key header is required." },
+      { status: 400 },
+    );
+  }
+
   const payload = (await request.json()) as SaveApplicationDraftPayload;
 
   try {
     const sessionToken = await getRequiredCandidateSessionToken();
-    const response = await submitApplication(jobPostingId, payload, sessionToken);
+    const response = await submitApplication(jobPostingId, payload, sessionToken, idempotencyKey);
     return NextResponse.json(response);
   } catch (error) {
     if (error instanceof CandidateApiError) {

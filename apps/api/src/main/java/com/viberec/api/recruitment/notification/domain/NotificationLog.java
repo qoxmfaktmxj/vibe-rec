@@ -4,12 +4,15 @@ import com.viberec.api.recruitment.application.domain.Application;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
@@ -37,23 +40,125 @@ public class NotificationLog {
     @Column(name = "sent_by")
     private Long sentBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "template_id")
+    private NotificationTemplate template;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private NotificationChannel channel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_status", nullable = false, length = 20)
+    private NotificationDeliveryStatus deliveryStatus;
+
+    @Column(name = "delivery_attempts", nullable = false)
+    private int deliveryAttempts;
+
+    @Column(name = "manual_retry_count", nullable = false)
+    private int manualRetryCount;
+
+    @Column(name = "next_attempt_at")
+    private OffsetDateTime nextAttemptAt;
+
+    @Column(name = "delivered_at")
+    private OffsetDateTime deliveredAt;
+
+    @Column(name = "read_at")
+    private OffsetDateTime readAt;
+
+    @Column(name = "last_error", columnDefinition = "text")
+    private String lastError;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
 
     protected NotificationLog() {
     }
 
     public NotificationLog(Application application, String type, String title, String content, Long sentBy) {
+        this(application, type, title, content, sentBy, null);
+    }
+
+    public NotificationLog(
+            Application application,
+            String type,
+            String title,
+            String content,
+            Long sentBy,
+            NotificationTemplate template
+    ) {
         this.application = application;
         this.type = type;
         this.title = title;
         this.content = content;
         this.sentBy = sentBy;
+        this.template = template;
+        this.channel = NotificationChannel.IN_APP;
+        this.deliveryStatus = NotificationDeliveryStatus.PENDING;
+        this.deliveryAttempts = 0;
+        this.manualRetryCount = 0;
+        this.nextAttemptAt = OffsetDateTime.now();
     }
 
     @PrePersist
     void onCreate() {
-        createdAt = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
+        createdAt = now;
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
+
+    public void markDelivered() {
+        deliveryAttempts++;
+        deliveryStatus = NotificationDeliveryStatus.DELIVERED;
+        deliveredAt = OffsetDateTime.now();
+        nextAttemptAt = null;
+        lastError = null;
+    }
+
+    public void markDeliveryFailed(String errorMessage) {
+        deliveryAttempts++;
+        deliveryStatus = NotificationDeliveryStatus.FAILED;
+        lastError = truncate(errorMessage, 2000);
+        if (deliveryAttempts < 5) {
+            long retryDelaySeconds = Math.min(300, 5L << Math.min(deliveryAttempts - 1, 5));
+            nextAttemptAt = OffsetDateTime.now().plusSeconds(retryDelaySeconds);
+        } else {
+            nextAttemptAt = null;
+        }
+    }
+
+    public void markRead() {
+        if (deliveryStatus != NotificationDeliveryStatus.DELIVERED) {
+            throw new IllegalStateException("Only delivered notifications can be marked as read.");
+        }
+        if (readAt == null) {
+            readAt = OffsetDateTime.now();
+        }
+    }
+
+    public void scheduleManualRetry() {
+        if (deliveryStatus != NotificationDeliveryStatus.FAILED) {
+            throw new IllegalStateException("Only failed notifications can be retried.");
+        }
+        deliveryStatus = NotificationDeliveryStatus.PENDING;
+        nextAttemptAt = OffsetDateTime.now();
+        manualRetryCount++;
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 
     public Long getId() {
@@ -80,7 +185,19 @@ public class NotificationLog {
         return sentBy;
     }
 
+    public NotificationTemplate getTemplate() { return template; }
+
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public NotificationChannel getChannel() { return channel; }
+    public NotificationDeliveryStatus getDeliveryStatus() { return deliveryStatus; }
+    public int getDeliveryAttempts() { return deliveryAttempts; }
+    public int getManualRetryCount() { return manualRetryCount; }
+    public OffsetDateTime getNextAttemptAt() { return nextAttemptAt; }
+    public OffsetDateTime getDeliveredAt() { return deliveredAt; }
+    public OffsetDateTime getReadAt() { return readAt; }
+    public String getLastError() { return lastError; }
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
 }

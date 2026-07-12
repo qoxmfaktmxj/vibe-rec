@@ -39,8 +39,8 @@ public class AdminHiringDecisionController {
             @PathVariable Long id,
             @Valid @RequestBody FinalDecisionRequest request
     ) {
-        authorize(sessionToken);
-        return adminHiringDecisionService.makeFinalDecision(id, request);
+        AdminSessionResponse session = authorize(sessionToken);
+        return adminHiringDecisionService.makeFinalDecision(id, request, "ADMIN", session.adminAccountId());
     }
 
     @PostMapping("/notifications")
@@ -63,6 +63,27 @@ public class AdminHiringDecisionController {
     ) {
         authorize(sessionToken);
         return adminHiringDecisionService.getNotifications(id);
+    }
+
+    @GetMapping("/notification-templates")
+    @RequiresPermission("APPLICANT_VIEW")
+    public List<NotificationTemplatePreviewResponse> getNotificationTemplates(
+            @RequestHeader("X-Admin-Session") String sessionToken,
+            @PathVariable Long id
+    ) {
+        authorize(sessionToken);
+        return adminHiringDecisionService.getNotificationTemplates(id);
+    }
+
+    @PostMapping("/notifications/{notificationId}/retry")
+    @RequiresPermission("NOTIFICATION_SEND")
+    public NotificationResponse retryNotification(
+            @RequestHeader("X-Admin-Session") String sessionToken,
+            @PathVariable Long id,
+            @PathVariable Long notificationId
+    ) {
+        AdminSessionResponse session = authorize(sessionToken);
+        return adminHiringDecisionService.retryNotification(id, notificationId, session.adminAccountId());
     }
 
     private AdminSessionResponse authorize(String sessionToken) {

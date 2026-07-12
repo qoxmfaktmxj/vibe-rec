@@ -8,6 +8,8 @@ public record AttachmentResponse(
         String originalFilename,
         String contentType,
         long fileSizeBytes,
+        String sha256,
+        String validationStatus,
         OffsetDateTime uploadedAt
 ) {
 }

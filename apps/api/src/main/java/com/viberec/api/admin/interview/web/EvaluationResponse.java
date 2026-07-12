@@ -2,6 +2,7 @@ package com.viberec.api.admin.interview.web;
 
 import com.viberec.api.recruitment.evaluation.domain.EvaluationResult;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public record EvaluationResponse(
         Long id,
@@ -11,6 +12,7 @@ public record EvaluationResponse(
         Short score,
         String comment,
         EvaluationResult result,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        List<EvaluationCriterionScoreResponse> criterionScores
 ) {
 }

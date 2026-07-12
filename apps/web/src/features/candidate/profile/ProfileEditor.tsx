@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import type {
   ResumeCertification,
   ResumeEducation,
@@ -21,13 +21,16 @@ const inputClassName =
 
 export function ProfileEditor() {
   const [isPending, startTransition] = useTransition();
-  const [loading, setLoading] = useState(true);
+  const [loadState, setLoadState] = useState<"loading" | "loaded" | "failed" | "conflict">(
+    "loading",
+  );
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   const [introductionTemplate, setIntroductionTemplate] = useState("");
   const [coreStrengthTemplate, setCoreStrengthTemplate] = useState("");
   const [careerYears, setCareerYears] = useState<number | null>(null);
+  const [revision, setRevision] = useState(0);
   const [educations, setEducations] = useState<ResumeEducation[]>([]);
   const [experiences, setExperiences] = useState<ResumeExperience[]>([]);
   const [skills, setSkills] = useState<ResumeSkill[]>([]);
@@ -36,35 +39,51 @@ export function ProfileEditor() {
   );
   const [languages, setLanguages] = useState<ResumeLanguage[]>([]);
 
-  useEffect(() => {
-    fetch("/api/candidate/profile")
-      .then(async (res) => {
-        if (res.ok) {
-          const data = (await res.json()) as {
-            introductionTemplate?: string | null;
-            coreStrengthTemplate?: string | null;
-            careerYears?: number | null;
-            educations?: ResumeEducation[];
-            experiences?: ResumeExperience[];
-            skills?: ResumeSkill[];
-            certifications?: ResumeCertification[];
-            languages?: ResumeLanguage[];
-          };
-          setIntroductionTemplate(data.introductionTemplate ?? "");
-          setCoreStrengthTemplate(data.coreStrengthTemplate ?? "");
-          setCareerYears(data.careerYears ?? null);
-          setEducations(data.educations ?? []);
-          setExperiences(data.experiences ?? []);
-          setSkills(data.skills ?? []);
-          setCertifications(data.certifications ?? []);
-          setLanguages(data.languages ?? []);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const loadProfile = useCallback(async () => {
+    setLoadState("loading");
+    setError(null);
+
+    try {
+      const response = await fetch("/api/candidate/profile");
+      if (!response.ok) {
+        throw new Error("프로필을 불러오지 못했습니다.");
+      }
+
+      const data = (await response.json()) as {
+        revision?: number;
+        introductionTemplate?: string | null;
+        coreStrengthTemplate?: string | null;
+        careerYears?: number | null;
+        educations?: ResumeEducation[];
+        experiences?: ResumeExperience[];
+        skills?: ResumeSkill[];
+        certifications?: ResumeCertification[];
+        languages?: ResumeLanguage[];
+      };
+      setRevision(data.revision ?? 0);
+      setIntroductionTemplate(data.introductionTemplate ?? "");
+      setCoreStrengthTemplate(data.coreStrengthTemplate ?? "");
+      setCareerYears(data.careerYears ?? null);
+      setEducations(data.educations ?? []);
+      setExperiences(data.experiences ?? []);
+      setSkills(data.skills ?? []);
+      setCertifications(data.certifications ?? []);
+      setLanguages(data.languages ?? []);
+      setLoadState("loaded");
+    } catch {
+      setLoadState("failed");
+    }
   }, []);
 
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
+
   function handleSave() {
+    if (loadState !== "loaded") {
+      return;
+    }
+
     startTransition(async () => {
       setError(null);
       setSaveStatus("저장 중...");
@@ -73,6 +92,7 @@ export function ProfileEditor() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            revision,
             introductionTemplate,
             coreStrengthTemplate,
             careerYears,
@@ -83,7 +103,17 @@ export function ProfileEditor() {
             languages,
           }),
         });
-        if (!response.ok) throw new Error("저장에 실패했습니다.");
+        if (!response.ok) {
+          const errorBody = (await response.json().catch(() => ({}))) as {
+            message?: string;
+          };
+          if (response.status === 409) {
+            setLoadState("conflict");
+          }
+          throw new Error(errorBody.message ?? "저장에 실패했습니다.");
+        }
+        const savedProfile = (await response.json()) as { revision?: number };
+        setRevision(savedProfile.revision ?? revision + 1);
         setSaveStatus("저장 완료!");
         setTimeout(() => setSaveStatus(null), 3000);
       } catch (e) {
@@ -93,8 +123,28 @@ export function ProfileEditor() {
     });
   }
 
-  if (loading) {
+  if (loadState === "loading") {
     return <div className="py-8 text-center text-sm text-on-surface-variant">프로필 불러오는 중...</div>;
+  }
+
+  if (loadState === "failed" || loadState === "conflict") {
+    const isConflict = loadState === "conflict";
+    return (
+      <div className="space-y-4 rounded-lg bg-error-container p-6 text-sm text-destructive" role="alert">
+        <p>
+          {isConflict
+            ? error ?? "다른 화면에서 프로필이 변경되었습니다. 최신 내용을 다시 불러와 주세요."
+            : "프로필을 불러오지 못해 편집을 중단했습니다. 기존 데이터 보호를 위해 다시 불러온 뒤 저장해 주세요."}
+        </p>
+        <button
+          type="button"
+          onClick={() => void loadProfile()}
+          className="rounded-sm bg-primary px-5 py-3 text-xs font-medium text-primary-foreground"
+        >
+          다시 불러오기
+        </button>
+      </div>
+    );
   }
 
   return (

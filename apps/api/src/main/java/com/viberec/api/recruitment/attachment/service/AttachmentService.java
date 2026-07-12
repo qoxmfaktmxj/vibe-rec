@@ -2,6 +2,7 @@ package com.viberec.api.recruitment.attachment.service;
 
 import com.viberec.api.candidate.auth.domain.CandidateAccount;
 import com.viberec.api.recruitment.application.domain.Application;
+import com.viberec.api.recruitment.application.domain.ApplicationStatus;
 import com.viberec.api.recruitment.application.repository.ApplicationRepository;
 import com.viberec.api.recruitment.attachment.domain.ApplicationAttachment;
 import com.viberec.api.recruitment.attachment.repository.ApplicationAttachmentRepository;
@@ -36,14 +37,16 @@ public class AttachmentService {
 
     @Transactional
     public AttachmentResponse uploadDraftAttachment(Long jobPostingId, CandidateAccount candidateAccount, MultipartFile file) {
-        Application application = applicationRepository.findByJobPostingIdAndCandidateAccountId(jobPostingId, candidateAccount.getId())
+        Application application = applicationRepository.findOwnedByJobPostingForAttachmentUpdate(jobPostingId, candidateAccount.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Create an application draft before uploading attachments."));
         return createAttachment(application, file);
     }
 
     @Transactional
     public AttachmentResponse upload(Long applicationId, CandidateAccount candidateAccount, MultipartFile file) {
-        Application application = loadOwnedApplication(applicationId, candidateAccount.getId());
+        Application application = applicationRepository
+                .findOwnedForAttachmentUpdate(applicationId, candidateAccount.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found."));
         return createAttachment(application, file);
     }
 
@@ -60,7 +63,7 @@ public class AttachmentService {
     @Transactional
     public void deleteAttachment(Long attachmentId, CandidateAccount candidateAccount) {
         ApplicationAttachment attachment = loadOwnedAttachment(attachmentId, candidateAccount.getId());
-        if (attachment.getApplication().isSubmitted()) {
+        if (attachment.getApplication().getStatus() != ApplicationStatus.DRAFT) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Submitted applications cannot change attachments.");
         }
 
@@ -77,7 +80,7 @@ public class AttachmentService {
     }
 
     private AttachmentResponse createAttachment(Application application, MultipartFile file) {
-        if (application.isSubmitted()) {
+        if (application.getStatus() != ApplicationStatus.DRAFT) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Submitted applications cannot change attachments.");
         }
 
@@ -96,10 +99,17 @@ public class AttachmentService {
                 stored.originalName(),
                 stored.contentType(),
                 stored.fileSize(),
-                stored.storagePath()
+                stored.storagePath(),
+                stored.sha256(),
+                "SIGNATURE_VALIDATED"
         );
 
-        return toResponse(attachmentRepository.save(attachment));
+        try {
+            return toResponse(attachmentRepository.save(attachment));
+        } catch (RuntimeException exception) {
+            fileStorageService.delete(stored.storagePath());
+            throw exception;
+        }
     }
 
     private List<AttachmentResponse> listAttachments(Long applicationId) {
@@ -137,6 +147,8 @@ public class AttachmentService {
                 attachment.getOriginalName(),
                 attachment.getContentType(),
                 attachment.getFileSize(),
+                attachment.getSha256(),
+                attachment.getValidationStatus(),
                 attachment.getCreatedAt()
         );
     }

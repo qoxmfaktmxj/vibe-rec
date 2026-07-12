@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
 
+    boolean existsByInterviewJobPostingStepId(Long jobPostingStepId);
+
     List<Evaluation> findByInterviewIdOrderByCreatedAt(Long interviewId);
 
     Optional<Evaluation> findByInterviewIdAndEvaluatorId(Long interviewId, Long evaluatorId);

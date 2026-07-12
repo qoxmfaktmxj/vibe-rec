@@ -50,6 +50,10 @@ export default async function AdminQuestionPage({ params }: QuestionPageProps) {
     redirect("/admin/login");
   }
 
+  if (!adminSession.permissions.includes("JOB_POSTING_MANAGE")) {
+    redirect("/admin");
+  }
+
   const rawQuestions = await getAdminJobPostingQuestions(jobPostingId);
 
   const initialQuestions = rawQuestions.map((q, i) => ({

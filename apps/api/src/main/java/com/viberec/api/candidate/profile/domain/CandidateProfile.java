@@ -26,6 +26,10 @@ public class CandidateProfile {
     @Column(name = "career_years")
     private Integer careerYears;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
@@ -47,6 +51,7 @@ public class CandidateProfile {
     public String getIntroductionTemplate() { return introductionTemplate; }
     public String getCoreStrengthTemplate() { return coreStrengthTemplate; }
     public Integer getCareerYears() { return careerYears; }
+    public Long getVersion() { return version; }
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
 
     public void update(String introductionTemplate, String coreStrengthTemplate, Integer careerYears) {

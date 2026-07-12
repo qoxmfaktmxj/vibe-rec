@@ -1,5 +1,6 @@
 package com.viberec.api.recruitment.application.domain;
 
+import com.viberec.api.admin.auth.domain.AdminAccount;
 import com.viberec.api.candidate.auth.domain.CandidateAccount;
 import com.viberec.api.recruitment.jobposting.domain.JobPosting;
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -32,6 +34,10 @@ public class Application {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "candidate_account_id")
     private CandidateAccount candidateAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_admin_id")
+    private AdminAccount assignedAdmin;
 
     @Column(name = "applicant_name", nullable = false, length = 120)
     private String applicantName;
@@ -87,11 +93,21 @@ public class Application {
     @Column(name = "submitted_at")
     private OffsetDateTime submittedAt;
 
+    @Column(name = "withdrawn_at")
+    private OffsetDateTime withdrawnAt;
+
+    @Column(name = "withdrawal_reason", columnDefinition = "text")
+    private String withdrawalReason;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     protected Application() {
     }
@@ -155,9 +171,14 @@ public class Application {
         this.reviewedAt = reviewStatus == ApplicationReviewStatus.NEW ? null : OffsetDateTime.now();
     }
 
+    public void assignTo(AdminAccount adminAccount) {
+        this.assignedAdmin = adminAccount;
+    }
+
     public Long getId() { return id; }
     public JobPosting getJobPosting() { return jobPosting; }
     public CandidateAccount getCandidateAccount() { return candidateAccount; }
+    public AdminAccount getAssignedAdmin() { return assignedAdmin; }
     public String getApplicantName() { return applicantName; }
     public String getApplicantEmail() { return applicantEmail; }
     public String getApplicantPhone() { return applicantPhone; }
@@ -175,6 +196,7 @@ public class Application {
     }
 
     public boolean isSubmitted() { return status == ApplicationStatus.SUBMITTED; }
+    public boolean isWithdrawn() { return status == ApplicationStatus.WITHDRAWN; }
     public ApplicationFinalStatus getFinalStatus() { return finalStatus; }
     public OffsetDateTime getFinalDecidedAt() { return finalDecidedAt; }
     public String getFinalNote() { return finalNote; }
@@ -199,6 +221,20 @@ public class Application {
     public Integer getCareerYears() { return careerYears; }
     public Short getCurrentStep() { return currentStep; }
     public String getMotivationFit() { return motivationFit; }
+    public Long getVersion() { return version; }
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
+    public OffsetDateTime getWithdrawnAt() { return withdrawnAt; }
+    public String getWithdrawalReason() { return withdrawalReason; }
+
+    public void withdraw(String reason) {
+        OffsetDateTime now = OffsetDateTime.now();
+        status = ApplicationStatus.WITHDRAWN;
+        withdrawnAt = now;
+        withdrawalReason = reason;
+        finalStatus = ApplicationFinalStatus.WITHDRAWN;
+        finalDecidedAt = now;
+        finalNote = reason;
+    }
 
     public boolean belongsToCandidate(Long candidateAccountId) {
         return candidateAccount != null && candidateAccount.getId() != null && candidateAccount.getId().equals(candidateAccountId);

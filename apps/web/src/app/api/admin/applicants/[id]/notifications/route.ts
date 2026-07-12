@@ -57,6 +57,7 @@ export async function POST(request: Request, { params }: RouteProps) {
   try {
     await getRequiredAdminSessionToken();
     const payload = (await request.json()) as {
+      templateId?: number | null;
       type: string;
       title: string;
       content: string;

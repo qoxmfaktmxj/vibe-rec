@@ -2,6 +2,7 @@ package com.viberec.api.candidate.auth.repository;
 
 import com.viberec.api.candidate.auth.domain.CandidateSession;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -39,4 +40,59 @@ public interface CandidateSessionRepository extends JpaRepository<CandidateSessi
               and candidateSession.invalidatedAt is null
             """)
     void invalidateByTokenHash(@Param("tokenHash") String tokenHash, @Param("now") OffsetDateTime now);
+
+    @Query("""
+            select candidateSession
+            from CandidateSession candidateSession
+            where candidateSession.candidateAccount.id = :candidateAccountId
+              and candidateSession.invalidatedAt is null
+              and candidateSession.expiresAt > :now
+            order by candidateSession.lastSeenAt desc, candidateSession.id desc
+            """)
+    List<CandidateSession> findActiveSessions(
+            @Param("candidateAccountId") Long candidateAccountId,
+            @Param("now") OffsetDateTime now
+    );
+
+    @Modifying
+    @Query("""
+            update CandidateSession candidateSession
+            set candidateSession.invalidatedAt = :now,
+                candidateSession.updatedAt = :now
+            where candidateSession.id = :sessionId
+              and candidateSession.candidateAccount.id = :candidateAccountId
+              and candidateSession.invalidatedAt is null
+              and candidateSession.expiresAt > :now
+            """)
+    int invalidateOwnedSession(
+            @Param("candidateAccountId") Long candidateAccountId,
+            @Param("sessionId") Long sessionId,
+            @Param("now") OffsetDateTime now
+    );
+
+    @Modifying
+    @Query("""
+            update CandidateSession candidateSession
+            set candidateSession.invalidatedAt = :now,
+                candidateSession.updatedAt = :now
+            where candidateSession.candidateAccount.id = :candidateAccountId
+              and candidateSession.id <> :currentSessionId
+              and candidateSession.invalidatedAt is null
+              and candidateSession.expiresAt > :now
+            """)
+    int invalidateOtherSessions(
+            @Param("candidateAccountId") Long candidateAccountId,
+            @Param("currentSessionId") Long currentSessionId,
+            @Param("now") OffsetDateTime now
+    );
+
+    @Modifying
+    @Query("""
+            update CandidateSession candidateSession
+            set candidateSession.invalidatedAt = :now,
+                candidateSession.updatedAt = :now
+            where candidateSession.candidateAccount.id = :candidateAccountId
+              and candidateSession.invalidatedAt is null
+            """)
+    void invalidateAllSessions(@Param("candidateAccountId") Long candidateAccountId, @Param("now") OffsetDateTime now);
 }

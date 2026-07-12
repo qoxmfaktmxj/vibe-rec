@@ -9,6 +9,7 @@ public record CandidateLoginResponse(
         String phone,
         OffsetDateTime authenticatedAt,
         OffsetDateTime expiresAt,
-        String sessionToken
+        String sessionToken,
+        boolean emailVerified
 ) {
 }

@@ -1,26 +1,15 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { AdminAuthForm } from "@/features/admin/auth/AdminAuthForm";
+import { AdminLoginForm } from "@/features/admin/auth/AdminLoginForm";
 import { getCurrentAdminSession } from "@/shared/api/admin-auth";
 
-interface AdminLoginPageProps {
-  searchParams: Promise<{
-    mode?: string;
-  }>;
-}
-
-export default async function AdminLoginPage({
-  searchParams,
-}: AdminLoginPageProps) {
+export default async function AdminLoginPage() {
   const session = await getCurrentAdminSession();
-  const { mode } = await searchParams;
 
   if (session) {
     redirect("/admin");
   }
-
-  const defaultMode = mode === "signup" ? "signup" : "login";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
@@ -34,13 +23,13 @@ export default async function AdminLoginPage({
               관리자 로그인
             </h1>
             <p className="text-sm leading-7 text-on-surface-variant">
-              채용 운영 워크스페이스에 로그인하거나 관리자 계정을 새로 만들어 주세요.
+              기존 관리자 계정으로 채용 운영 워크스페이스에 로그인해 주세요.
             </p>
           </div>
         </div>
 
         <div className="pt-8">
-          <AdminAuthForm defaultMode={defaultMode} />
+          <AdminLoginForm />
         </div>
 
         <div className="mt-8 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-on-surface-variant">

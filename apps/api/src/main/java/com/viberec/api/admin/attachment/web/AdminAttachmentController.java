@@ -6,7 +6,9 @@ import com.viberec.api.recruitment.attachment.service.AttachmentService;
 import com.viberec.api.recruitment.attachment.service.FileStorageService;
 import com.viberec.api.recruitment.attachment.web.AttachmentResponse;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +66,10 @@ public class AdminAttachmentController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + attachment.getOriginalName() + "\"")
+                        ContentDisposition.attachment()
+                                .filename(attachment.getOriginalName(), StandardCharsets.UTF_8)
+                                .build()
+                                .toString())
                 .body(resource);
     }
 

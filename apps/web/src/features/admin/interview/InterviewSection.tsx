@@ -7,7 +7,9 @@ import type {
   EvaluationResult,
   InterviewResponse,
   InterviewStatus,
+  InterviewType,
   JobPostingStep,
+  ScorecardCriterion,
 } from "@/entities/recruitment/model";
 import {
   formatDateTime,
@@ -22,6 +24,7 @@ interface InterviewSectionProps {
   applicationId: number;
   interviews: InterviewResponse[];
   steps: JobPostingStep[];
+  scorecardsByStepId: Record<number, ScorecardCriterion[]>;
 }
 
 const inputClassName =
@@ -36,10 +39,18 @@ const evaluationResultOptions: Array<{
   { value: "HOLD", label: "보류" },
 ];
 
+const interviewTypeLabels: Record<InterviewType, string> = {
+  PHONE: "전화",
+  VIDEO: "화상",
+  ONSITE: "대면",
+  TECHNICAL: "기술 면접",
+};
+
 export function InterviewSection({
   applicationId,
   interviews,
   steps,
+  scorecardsByStepId,
 }: InterviewSectionProps) {
   const router = useRouter();
   const [showAddForm, setShowAddForm] = useState(false);
@@ -47,12 +58,17 @@ export function InterviewSection({
   const [isError, setIsError] = useState(false);
 
   const [newJobPostingStepId, setNewJobPostingStepId] = useState<number | "">("");
+  const [newInterviewType, setNewInterviewType] = useState<InterviewType>("VIDEO");
   const [newScheduledAt, setNewScheduledAt] = useState("");
+  const [newDurationMinutes, setNewDurationMinutes] = useState(60);
+  const [newLocation, setNewLocation] = useState("");
+  const [newOnlineLink, setNewOnlineLink] = useState("");
   const [newNote, setNewNote] = useState("");
   const [isAddingInterview, setIsAddingInterview] = useState(false);
 
   const [evalFormOpen, setEvalFormOpen] = useState<number | null>(null);
-  const [evalScore, setEvalScore] = useState<number>(3);
+  const [evalScores, setEvalScores] = useState<Record<number, number>>({});
+  const [evalCriterionComments, setEvalCriterionComments] = useState<Record<number, string>>({});
   const [evalResult, setEvalResult] = useState<EvaluationResult>("PASS");
   const [evalComment, setEvalComment] = useState("");
   const [isAddingEval, setIsAddingEval] = useState(false);
@@ -64,7 +80,7 @@ export function InterviewSection({
 
   function handleAddInterview(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (newJobPostingStepId === "") {
+    if (newJobPostingStepId === "" || !newScheduledAt) {
       return;
     }
 
@@ -81,9 +97,11 @@ export function InterviewSection({
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 jobPostingStepId: newJobPostingStepId,
-                scheduledAt: newScheduledAt
-                  ? new Date(newScheduledAt).toISOString()
-                  : null,
+                interviewType: newInterviewType,
+                scheduledAt: new Date(newScheduledAt).toISOString(),
+                durationMinutes: newDurationMinutes,
+                location: newLocation || null,
+                onlineLink: newOnlineLink || null,
                 note: newNote || null,
               }),
             },
@@ -98,7 +116,11 @@ export function InterviewSection({
           showMessage("Interview scheduled.", false);
           setShowAddForm(false);
           setNewJobPostingStepId("");
+          setNewInterviewType("VIDEO");
           setNewScheduledAt("");
+          setNewDurationMinutes(60);
+          setNewLocation("");
+          setNewOnlineLink("");
           setNewNote("");
           router.refresh();
         } catch {
@@ -143,6 +165,7 @@ export function InterviewSection({
   function handleAddEvaluation(
     event: React.FormEvent<HTMLFormElement>,
     interviewId: number,
+    stepId: number,
   ) {
     event.preventDefault();
     setIsAddingEval(true);
@@ -157,7 +180,11 @@ export function InterviewSection({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                score: evalScore,
+                criterionScores: (scorecardsByStepId[stepId] ?? []).map((criterion) => ({
+                  criterionId: criterion.id,
+                  score: evalScores[criterion.id],
+                  comment: evalCriterionComments[criterion.id] || null,
+                })),
                 result: evalResult,
                 comment: evalComment || null,
               }),
@@ -172,7 +199,8 @@ export function InterviewSection({
 
           showMessage("Evaluation saved.", false);
           setEvalFormOpen(null);
-          setEvalScore(3);
+          setEvalScores({});
+          setEvalCriterionComments({});
           setEvalResult("PASS");
           setEvalComment("");
           router.refresh();
@@ -240,7 +268,7 @@ export function InterviewSection({
       {showAddForm ? (
         <form
           onSubmit={handleAddInterview}
-          className="mt-6 grid gap-4 rounded-2xl border border-outline-variant/70 bg-surface-container-low p-6 xl:grid-cols-[1.1fr_1fr_1.3fr]"
+          className="mt-6 grid gap-4 rounded-2xl border border-outline-variant/70 bg-surface-container-low p-6 md:grid-cols-2"
         >
           <label className="block text-sm font-semibold text-on-surface-variant">
             면접 단계
@@ -264,11 +292,65 @@ export function InterviewSection({
           </label>
 
           <label className="block text-sm font-semibold text-on-surface-variant">
+            면접 방식
+            <select
+              value={newInterviewType}
+              onChange={(event) => setNewInterviewType(event.target.value as InterviewType)}
+              required
+              className={inputClassName}
+            >
+              {Object.entries(interviewTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block text-sm font-semibold text-on-surface-variant">
             일시
             <input
               type="datetime-local"
               value={newScheduledAt}
               onChange={(event) => setNewScheduledAt(event.target.value)}
+              required
+              className={inputClassName}
+            />
+          </label>
+
+          <label className="block text-sm font-semibold text-on-surface-variant">
+            소요 시간(분)
+            <input
+              type="number"
+              min={15}
+              max={480}
+              step={15}
+              value={newDurationMinutes}
+              onChange={(event) => setNewDurationMinutes(Number(event.target.value))}
+              required
+              className={inputClassName}
+            />
+          </label>
+
+          <label className="block text-sm font-semibold text-on-surface-variant">
+            장소
+            <input
+              value={newLocation}
+              onChange={(event) => setNewLocation(event.target.value)}
+              maxLength={300}
+              required={newInterviewType === "ONSITE"}
+              placeholder="예: 서울 오피스 3층"
+              className={inputClassName}
+            />
+          </label>
+
+          <label className="block text-sm font-semibold text-on-surface-variant">
+            온라인 링크
+            <input
+              type="url"
+              value={newOnlineLink}
+              onChange={(event) => setNewOnlineLink(event.target.value)}
+              maxLength={1000}
+              required={newInterviewType === "VIDEO"}
+              placeholder="https://..."
               className={inputClassName}
             />
           </label>
@@ -287,7 +369,7 @@ export function InterviewSection({
           <button
             type="submit"
             disabled={isAddingInterview}
-            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 xl:col-span-3 xl:w-fit"
+            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 md:col-span-2 md:w-fit"
           >
             {isAddingInterview ? "저장 중..." : "면접 등록"}
           </button>
@@ -304,7 +386,8 @@ export function InterviewSection({
       ) : (
         <div className="mt-8 space-y-6">
           {interviews.map((interview, index) => {
-            const canAddEvaluation = interview.status === "COMPLETED";
+            const scorecardCriteria = scorecardsByStepId[interview.jobPostingStepId] ?? [];
+            const canAddEvaluation = interview.status === "COMPLETED" && scorecardCriteria.length > 0;
 
             return (
               <div key={interview.id} className="rounded-[24px] border border-outline-variant/70 bg-surface-container-low p-6">
@@ -330,9 +413,31 @@ export function InterviewSection({
 
                     <div className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-3">
                       <div>
+                        <span className="font-semibold text-on-surface-variant">방식</span>
+                        <p className="mt-1 text-on-surface">{interviewTypeLabels[interview.interviewType]}</p>
+                      </div>
+                      <div>
                         <span className="font-semibold text-on-surface-variant">일시</span>
                         <p className="mt-1 text-on-surface">
                           {interview.scheduledAt ? formatDateTime(interview.scheduledAt) : "미정"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-on-surface-variant">소요 시간</span>
+                        <p className="mt-1 text-on-surface">{interview.durationMinutes}분</p>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-on-surface-variant">장소</span>
+                        <p className="mt-1 text-on-surface">{interview.location ?? "해당 없음"}</p>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-on-surface-variant">온라인 링크</span>
+                        <p className="mt-1 break-all text-on-surface">
+                          {interview.onlineLink ? (
+                            <a href={interview.onlineLink} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">
+                              링크 열기
+                            </a>
+                          ) : "해당 없음"}
                         </p>
                       </div>
                       <div>
@@ -414,6 +519,21 @@ export function InterviewSection({
                               {evaluation.comment}
                             </p>
                           ) : null}
+                          {evaluation.criterionScores.length > 0 ? (
+                            <dl className="mt-3 grid gap-2 border-t border-outline-variant pt-3 sm:grid-cols-2">
+                              {evaluation.criterionScores.map((criterionScore) => (
+                                <div key={criterionScore.criterionId}>
+                                  <dt className="text-xs text-on-surface-variant">
+                                    {criterionScore.criterionName} · 가중치 {criterionScore.weight}
+                                  </dt>
+                                  <dd className="mt-1 text-sm font-semibold text-on-surface">
+                                    {criterionScore.score}/5
+                                    {criterionScore.comment ? ` · ${criterionScore.comment}` : ""}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          ) : null}
                         </div>
                       ))}
                     </div>
@@ -421,30 +541,47 @@ export function InterviewSection({
                 ) : null}
 
                 {evalFormOpen === interview.id ? (
-                  <form onSubmit={(event) => handleAddEvaluation(event, interview.id)} className="mt-6 space-y-4 rounded-2xl border border-outline-variant/70 bg-surface-container-lowest p-5">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <label className="block text-sm font-semibold text-on-surface-variant">
-                        점수
-                        <select value={evalScore} onChange={(event) => setEvalScore(Number(event.target.value))} className={inputClassName}>
-                          {[1, 2, 3, 4, 5].map((score) => (
-                            <option key={score} value={score}>
-                              {score} / 5
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                  <form onSubmit={(event) => handleAddEvaluation(event, interview.id, interview.jobPostingStepId)} className="mt-6 space-y-4 rounded-2xl border border-outline-variant/70 bg-surface-container-lowest p-5">
+                    <fieldset className="space-y-3">
+                      <legend className="text-sm font-semibold text-on-surface">구조화 평가 기준</legend>
+                      {(scorecardsByStepId[interview.jobPostingStepId] ?? []).map((criterion) => (
+                        <div key={criterion.id} className="grid gap-3 rounded-xl border border-outline-variant bg-card p-4 md:grid-cols-[1fr_150px]">
+                          <div>
+                            <label htmlFor={`criterion-${interview.id}-${criterion.id}`} className="text-sm font-semibold text-on-surface">
+                              {criterion.name}{criterion.required ? " *" : ""}
+                            </label>
+                            {criterion.description ? <p className="mt-1 text-xs text-on-surface-variant">{criterion.description}</p> : null}
+                            <input
+                              value={evalCriterionComments[criterion.id] ?? ""}
+                              onChange={(event) => setEvalCriterionComments((current) => ({ ...current, [criterion.id]: event.target.value }))}
+                              maxLength={1000}
+                              placeholder="항목별 근거 메모"
+                              className="mt-3 w-full border border-outline-variant px-3 py-2 text-sm"
+                            />
+                          </div>
+                          <label className="text-xs font-semibold text-on-surface-variant">
+                            점수 · 가중치 {criterion.weight}
+                            <select
+                              id={`criterion-${interview.id}-${criterion.id}`}
+                              value={evalScores[criterion.id] ?? 3}
+                              onChange={(event) => setEvalScores((current) => ({ ...current, [criterion.id]: Number(event.target.value) }))}
+                              className={inputClassName}
+                            >
+                              {[1, 2, 3, 4, 5].map((score) => <option key={score} value={score}>{score} / 5</option>)}
+                            </select>
+                          </label>
+                        </div>
+                      ))}
+                    </fieldset>
 
-                      <label className="block text-sm font-semibold text-on-surface-variant">
-                        결과
-                        <select value={evalResult} onChange={(event) => setEvalResult(event.target.value as EvaluationResult)} className={inputClassName}>
-                          {evaluationResultOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {getEvaluationResultLabel(option.value)}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    </div>
+                    <label className="block text-sm font-semibold text-on-surface-variant">
+                      결과
+                      <select value={evalResult} onChange={(event) => setEvalResult(event.target.value as EvaluationResult)} className={inputClassName}>
+                        {evaluationResultOptions.map((option) => (
+                          <option key={option.value} value={option.value}>{getEvaluationResultLabel(option.value)}</option>
+                        ))}
+                      </select>
+                    </label>
 
                     <label className="block text-sm font-semibold text-on-surface-variant">
                       코멘트
@@ -465,14 +602,17 @@ export function InterviewSection({
                     <p className="text-sm text-on-surface-variant">
                       {canAddEvaluation
                         ? "면접이 완료되었습니다. 필요한 경우 평가를 추가하세요."
-                        : "면접이 완료 처리된 후 평가를 추가할 수 있습니다."}
+                        : interview.status !== "COMPLETED"
+                          ? "면접이 완료 처리된 후 평가를 추가할 수 있습니다."
+                          : "공고 설정에서 이 면접 단계의 평가 기준을 먼저 구성하세요."}
                     </p>
                     <button
                       type="button"
                       disabled={!canAddEvaluation}
                       onClick={() => {
                         setEvalFormOpen(interview.id);
-                        setEvalScore(3);
+                        setEvalScores(Object.fromEntries(scorecardCriteria.map((criterion) => [criterion.id, 3])));
+                        setEvalCriterionComments({});
                         setEvalResult("PASS");
                         setEvalComment("");
                       }}

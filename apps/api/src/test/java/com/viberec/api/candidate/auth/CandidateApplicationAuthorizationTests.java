@@ -1,6 +1,8 @@
 package com.viberec.api.candidate.auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,6 +88,28 @@ class CandidateApplicationAuthorizationTests extends IntegrationTestBase {
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(
+                        get("/api/candidate/notifications")
+                                .contextPath("/api")
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(
+                        get("/api/candidate/data-requests")
+                                .contextPath("/api")
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(
+                        patch("/api/candidate/applications/1/withdraw")
+                                .contextPath("/api")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"reason\":\"No longer available.\"}")
+                )
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -112,11 +136,13 @@ class CandidateApplicationAuthorizationTests extends IntegrationTestBase {
                 draftResponse.getContentAsString(StandardCharsets.UTF_8)
         ).get("applicationId").asLong();
 
-        attachmentService.uploadDraftAttachment(
+        var attachment = attachmentService.uploadDraftAttachment(
                 1001L,
                 candidateAuthService.requireActiveAccount(ownerSession),
                 new MockMultipartFile("file", "resume.pdf", "application/pdf", "%PDF-1.4 sample".getBytes(StandardCharsets.UTF_8))
         );
+        assertThat(attachment.validationStatus()).isEqualTo("SIGNATURE_VALIDATED");
+        assertThat(attachment.sha256()).matches("[0-9a-f]{64}");
 
         mockMvc.perform(
                         get("/api/applications/" + applicationId + "/attachments")

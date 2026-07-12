@@ -5,6 +5,7 @@ import type {
   EvaluationResult,
   InterviewResponse,
   InterviewStatus,
+  InterviewType,
 } from "@/entities/recruitment/model";
 import {
   AdminApiError,
@@ -52,7 +53,11 @@ export async function createInterview(
   applicationId: number,
   payload: {
     jobPostingStepId: number;
-    scheduledAt?: string;
+    interviewType: InterviewType;
+    scheduledAt: string;
+    durationMinutes: number;
+    location?: string;
+    onlineLink?: string;
     note?: string;
   },
 ) {
@@ -102,7 +107,11 @@ export async function updateInterview(
 export async function createEvaluation(
   interviewId: number,
   payload: {
-    score: number | null;
+    criterionScores: Array<{
+      criterionId: number;
+      score: number;
+      comment?: string | null;
+    }>;
     comment: string | null;
     result: EvaluationResult;
   },
@@ -129,13 +138,21 @@ export async function scheduleInterview(
   applicationId: number,
   payload: {
     jobPostingStepId: number;
-    scheduledAt?: string | null;
+    interviewType: InterviewType;
+    scheduledAt: string;
+    durationMinutes: number;
+    location?: string | null;
+    onlineLink?: string | null;
     note?: string | null;
   },
 ) {
   return createInterview(applicationId, {
     jobPostingStepId: payload.jobPostingStepId,
-    scheduledAt: payload.scheduledAt ?? undefined,
+    interviewType: payload.interviewType,
+    scheduledAt: payload.scheduledAt,
+    durationMinutes: payload.durationMinutes,
+    location: payload.location ?? undefined,
+    onlineLink: payload.onlineLink ?? undefined,
     note: payload.note ?? undefined,
   });
 }

@@ -2,6 +2,8 @@
   ApplicationFinalStatus,
   ApplicationReviewStatus,
   ApplicationStatus,
+  CandidateNextAction,
+  CandidateVisibleStage,
   EvaluationResult,
   InterviewStatus,
   JobPostingStatus,
@@ -9,6 +11,57 @@
   RecruitmentCategory,
   RecruitmentMode,
 } from "@/entities/recruitment/model";
+
+export function getCandidateVisibleStageLabel(stage: CandidateVisibleStage) {
+  switch (stage) {
+    case "DRAFT":
+      return "작성 중";
+    case "SCREENING":
+      return "서류 검토";
+    case "INTERVIEW":
+      return "면접 전형";
+    case "OFFER":
+      return "처우 협의";
+    case "CLOSED":
+      return "전형 종료";
+  }
+}
+
+export function getCandidateVisibleStageClassName(stage: CandidateVisibleStage) {
+  switch (stage) {
+    case "DRAFT":
+      return "bg-amber-100 text-amber-900";
+    case "SCREENING":
+      return "bg-sky-100 text-sky-900";
+    case "INTERVIEW":
+      return "bg-violet-100 text-violet-900";
+    case "OFFER":
+      return "bg-emerald-100 text-emerald-900";
+    case "CLOSED":
+      return "bg-stone-200 text-stone-700";
+  }
+}
+
+export function getCandidateNextActionLabel(action: CandidateNextAction) {
+  switch (action) {
+    case "COMPLETE_APPLICATION":
+      return "지원서 작성을 완료해 주세요.";
+    case "WAIT_FOR_REVIEW":
+      return "채용팀의 서류 검토를 기다려 주세요.";
+    case "WAIT_FOR_INTERVIEW":
+      return "면접 일정 안내를 기다려 주세요.";
+    case "PREPARE_FOR_INTERVIEW":
+      return "예정된 면접을 준비해 주세요.";
+    case "WAIT_FOR_DECISION":
+      return "면접 결과 안내를 기다려 주세요.";
+    case "REVIEW_OFFER":
+      return "채용 제안 내용을 확인해 주세요.";
+    case "CONTACT_RECRUITING":
+      return "채용 담당자에게 문의해 주세요.";
+    case "NONE":
+      return "현재 필요한 추가 행동이 없습니다.";
+  }
+}
 
 const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
@@ -221,6 +274,8 @@ export function getApplicationStatusLabel(status: ApplicationStatus) {
       return "임시 저장";
     case "SUBMITTED":
       return "제출 완료";
+    case "WITHDRAWN":
+      return "지원 철회";
     default:
       return status;
   }
@@ -232,6 +287,8 @@ export function getApplicationStatusClassName(status: ApplicationStatus) {
       return "bg-emerald-50 text-emerald-800 ring-emerald-200";
     case "DRAFT":
       return "bg-amber-50 text-amber-800 ring-amber-200";
+    case "WITHDRAWN":
+      return "bg-stone-100 text-stone-700 ring-stone-200";
     default:
       return "bg-stone-100 text-stone-700 ring-stone-200";
   }

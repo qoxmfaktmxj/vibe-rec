@@ -13,7 +13,7 @@ export async function GET(
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   if (!sessionToken) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const response = await fetch(`${getApiBaseUrl()}/job-postings/${id}/questions`, {
+  const response = await fetch(`${getApiBaseUrl()}/admin/job-postings/${id}/questions`, {
     headers: { Accept: "application/json", "X-Admin-Session": sessionToken },
   });
 

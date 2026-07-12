@@ -77,9 +77,10 @@ public class JobPostingController {
     public ApplicationDraftResponse submitApplication(
             @PathVariable Long id,
             @RequestHeader(value = "X-Candidate-Session", required = false) String sessionToken,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody SaveApplicationDraftRequest request
     ) {
         CandidateAccount candidateAccount = candidateAuthService.requireActiveAccount(sessionToken);
-        return applicationDraftService.submit(id, candidateAccount, request);
+        return applicationDraftService.submit(id, candidateAccount, request, idempotencyKey);
     }
 }

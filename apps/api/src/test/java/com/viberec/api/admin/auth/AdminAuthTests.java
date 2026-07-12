@@ -33,7 +33,7 @@ class AdminAuthTests extends IntegrationTestBase {
     }
 
     @Test
-    void signsUpPublicAdminAccountAsAdminRole() {
+    void createsAdminAccountForInternalTestSetup() {
         String username = "recruit-ops-" + System.nanoTime();
         var response = adminAuthService.signup(new AdminSignupRequest(username, "Recruit Ops", "password123"));
         assertThat(response.username()).isEqualTo(username);
