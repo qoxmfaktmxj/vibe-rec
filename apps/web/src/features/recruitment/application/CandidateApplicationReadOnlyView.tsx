@@ -6,10 +6,12 @@ import type {
   CandidateApplicationSummary,
   JobPostingQuestion,
 } from "@/entities/recruitment/model";
+import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import {
   formatDate,
   formatDateTime,
   formatFileSize,
+  getApplicationFlowProgress,
   getApplicationReviewStatusClassName,
   getApplicationReviewStatusLabel,
   getApplicationStatusClassName,
@@ -115,17 +117,19 @@ export function CandidateApplicationReadOnlyView({
     application.motivationFit ??
     readResumeText(application.resumePayload, "motivationFit");
   const careerYears = readResumeNumber(application.resumePayload, "careerYears");
+  const flowProgress = getApplicationFlowProgress(application);
+  const stepperSteps = flowProgress.labels.map((label) => ({ label }));
 
   return (
     <div className="space-y-6">
-      <section className="rounded-sm border border-outline-variant bg-card p-7 shadow-[0_16px_40px_-28px_rgba(31,41,55,0.25)]">
+      <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div className="space-y-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-on-surface-variant">
               지원서 상세
             </p>
             <div className="space-y-2">
-              <h1 className="font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
+              <h1 className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
                 {summary.jobPostingTitle}
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -139,53 +143,79 @@ export function CandidateApplicationReadOnlyView({
 
           <div className="flex flex-wrap gap-2">
             <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getApplicationStatusClassName(
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(
                 application.status,
               )}`}
             >
+              <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
               {getApplicationStatusLabel(application.status)}
             </span>
             <span
-              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(
                 application.reviewStatus,
               )}`}
             >
+              <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
               {getApplicationReviewStatusLabel(application.reviewStatus)}
             </span>
             {application.finalStatus ? (
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getFinalStatusClassName(
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getFinalStatusClassName(
                   application.finalStatus,
                 )}`}
               >
+                <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
                 {getFinalStatusLabel(application.finalStatus)}
               </span>
             ) : null}
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-sm bg-surface-container-low px-4 py-4">
-            <p className="text-xs text-on-surface-variant">임시 저장</p>
-            <p className="mt-2 text-sm font-medium text-on-surface">
+        <div className="mt-7">
+          {flowProgress.isRejected ? (
+            <div className="rounded-lg bg-rose-50 px-4 py-3 ring-1 ring-inset ring-rose-200">
+              <p className="text-sm font-medium text-rose-900">
+                아쉽게도 이번 채용에서는 함께하지 못하게 되었습니다.
+              </p>
+              <p className="mt-1 text-sm leading-6 text-rose-800">
+                관심을 가지고 지원해 주셔서 감사합니다. 다른 공고에서 다시 만나뵙기를 기대합니다.
+              </p>
+            </div>
+          ) : (
+            <RecruitmentStepper steps={stepperSteps} currentIndex={flowProgress.currentIndex} />
+          )}
+        </div>
+
+        <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-lg bg-surface-container-low px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-on-surface-variant">
+              임시 저장
+            </p>
+            <p className="mt-2 font-mono text-sm tabular-nums text-on-surface">
               {formatDateTime(application.draftSavedAt)}
             </p>
           </div>
-          <div className="rounded-sm bg-surface-container-low px-4 py-4">
-            <p className="text-xs text-on-surface-variant">제출 시각</p>
-            <p className="mt-2 text-sm font-medium text-on-surface">
+          <div className="rounded-lg bg-surface-container-low px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-on-surface-variant">
+              제출 시각
+            </p>
+            <p className="mt-2 font-mono text-sm tabular-nums text-on-surface">
               {formatDateTime(application.submittedAt)}
             </p>
           </div>
-          <div className="rounded-sm bg-surface-container-low px-4 py-4">
-            <p className="text-xs text-on-surface-variant">검토 갱신</p>
-            <p className="mt-2 text-sm font-medium text-on-surface">
+          <div className="rounded-lg bg-surface-container-low px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-on-surface-variant">
+              검토 갱신
+            </p>
+            <p className="mt-2 font-mono text-sm tabular-nums text-on-surface">
               {formatDateTime(application.reviewedAt)}
             </p>
           </div>
-          <div className="rounded-sm bg-surface-container-low px-4 py-4">
-            <p className="text-xs text-on-surface-variant">최종 결정</p>
-            <p className="mt-2 text-sm font-medium text-on-surface">
+          <div className="rounded-lg bg-surface-container-low px-4 py-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-on-surface-variant">
+              최종 결정
+            </p>
+            <p className="mt-2 font-mono text-sm tabular-nums text-on-surface">
               {formatDateTime(application.finalDecidedAt)}
             </p>
           </div>
@@ -194,13 +224,13 @@ export function CandidateApplicationReadOnlyView({
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href={`/job-postings/${summary.jobPostingId}`}
-            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium tracking-[0.08em] text-on-surface transition-colors hover:border-brand hover:text-brand"
+            className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
           >
             원문 공고 보기
           </Link>
           <Link
             href="/job-postings"
-            className="rounded-sm bg-primary px-5 py-3 text-xs font-medium tracking-[0.08em] text-primary-foreground transition-colors hover:bg-primary-hover"
+            className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             다른 공고 보기
           </Link>
@@ -209,7 +239,7 @@ export function CandidateApplicationReadOnlyView({
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
-          <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
             <SectionTitle
               eyebrow="지원자"
               title="기본 정보"
@@ -243,7 +273,7 @@ export function CandidateApplicationReadOnlyView({
             </dl>
           </section>
 
-          <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
             <SectionTitle eyebrow="지원 동기" title="지원 소개와 자기소개" />
             <div className="mt-6 space-y-5">
               <div>
@@ -273,7 +303,7 @@ export function CandidateApplicationReadOnlyView({
             </div>
           </section>
 
-          <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
             <SectionTitle eyebrow="이력" title="학력과 경력" />
             <div className="mt-6 space-y-6">
               <div>
@@ -287,7 +317,7 @@ export function CandidateApplicationReadOnlyView({
                     {application.educations.map((education, index) => (
                       <div
                         key={`education-${education.id ?? index}`}
-                        className="rounded-sm bg-surface-container-low px-4 py-4"
+                        className="rounded-lg bg-surface-container-low px-4 py-4"
                       >
                         <p className="font-medium text-on-surface">
                           {education.institution}
@@ -319,7 +349,7 @@ export function CandidateApplicationReadOnlyView({
                     {application.experiences.map((experience, index) => (
                       <div
                         key={`experience-${experience.id ?? index}`}
-                        className="rounded-sm bg-surface-container-low px-4 py-4"
+                        className="rounded-lg bg-surface-container-low px-4 py-4"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
@@ -348,7 +378,7 @@ export function CandidateApplicationReadOnlyView({
             </div>
           </section>
 
-          <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
             <SectionTitle eyebrow="공고 질문" title="제출한 답변" />
             {questions.length === 0 ? (
               <p className="mt-6 text-sm text-on-surface-variant">
@@ -359,7 +389,7 @@ export function CandidateApplicationReadOnlyView({
                 {questions.map((question, index) => (
                   <div
                     key={question.id}
-                    className="rounded-sm bg-surface-container-low px-4 py-4"
+                    className="rounded-lg bg-surface-container-low px-4 py-4"
                   >
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
                       질문 {index + 1}
@@ -378,7 +408,7 @@ export function CandidateApplicationReadOnlyView({
         </div>
 
         <div className="space-y-6">
-          <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
             <SectionTitle eyebrow="기술 정보" title="보유 역량" />
             <div className="mt-6 space-y-5">
               <div>
@@ -415,7 +445,7 @@ export function CandidateApplicationReadOnlyView({
                     {application.certifications.map((certification, index) => (
                       <div
                         key={`cert-${certification.id ?? index}`}
-                        className="rounded-sm bg-surface-container-low px-4 py-3"
+                        className="rounded-lg bg-surface-container-low px-4 py-3"
                       >
                         <p className="text-sm font-medium text-on-surface">
                           {certification.certificationName}
@@ -440,7 +470,7 @@ export function CandidateApplicationReadOnlyView({
                     {application.languages.map((language, index) => (
                       <div
                         key={`language-${language.id ?? index}`}
-                        className="rounded-sm bg-surface-container-low px-4 py-3"
+                        className="rounded-lg bg-surface-container-low px-4 py-3"
                       >
                         <p className="text-sm font-medium text-on-surface">
                           {language.languageName}
@@ -458,7 +488,7 @@ export function CandidateApplicationReadOnlyView({
             </div>
           </section>
 
-          <section className="rounded-sm border border-outline-variant bg-card p-7">
+          <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-1">
             <SectionTitle eyebrow="첨부 파일" title="제출 자료" />
             {attachments.length === 0 ? (
               <p className="mt-6 text-sm text-on-surface-variant">
@@ -470,7 +500,7 @@ export function CandidateApplicationReadOnlyView({
                   <a
                     key={attachment.id}
                     href={`/api/attachments/${attachment.id}/download`}
-                    className="block rounded-sm border border-outline-variant px-4 py-3 transition-colors hover:border-brand hover:bg-surface-container-low"
+                    className="block rounded-lg border border-outline-variant px-4 py-3 transition-colors hover:border-brand hover:bg-surface-container-low"
                   >
                     <p className="truncate text-sm font-medium text-on-surface">
                       {attachment.originalFilename}

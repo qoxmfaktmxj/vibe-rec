@@ -437,7 +437,7 @@ export function ApplicationDraftForm({
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-lg font-semibold text-on-surface">학력</h3>
-            <button type="button" disabled={formDisabled} onClick={() => setEducations((current) => [...current, { institution: "", degree: "", fieldOfStudy: "", endDate: "" }])} className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-on-surface">학력 추가</button>
+            <button type="button" disabled={formDisabled} onClick={() => setEducations((current) => [...current, { institution: "", degree: "", fieldOfStudy: "", endDate: "" }])} className="min-h-[44px] rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">학력 추가</button>
           </div>
           <div className="space-y-4">
             {educations.map((education, index) => (
@@ -456,7 +456,7 @@ export function ApplicationDraftForm({
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-lg font-semibold text-on-surface">경력</h3>
-            <button type="button" disabled={formDisabled} onClick={() => setCareers((current) => [...current, { company: "", position: "", startDate: "", endDate: "", description: "" }])} className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-on-surface">경력 추가</button>
+            <button type="button" disabled={formDisabled} onClick={() => setCareers((current) => [...current, { company: "", position: "", startDate: "", endDate: "", description: "" }])} className="min-h-[44px] rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">경력 추가</button>
           </div>
           <div className="space-y-4">
             {careers.map((career, index) => (
@@ -489,7 +489,7 @@ export function ApplicationDraftForm({
                   <div key={question.id} className="rounded-lg bg-surface-container-low p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">질문 {index + 1}</p>
+                        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-on-surface-variant">질문 {index + 1}</p>
                         <h4 className="mt-2 text-base font-semibold text-on-surface">{question.questionText}</h4>
                       </div>
                       {question.required ? <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand">필수</span> : null}
@@ -536,7 +536,7 @@ export function ApplicationDraftForm({
                     <a href={`/api/attachments/${attachment.id}/download`} className="truncate text-sm font-medium text-brand hover:underline">{attachment.originalName}</a>
                     <p className="mt-1 text-xs text-on-surface-variant">{formatFileSize(attachment.fileSize)}</p>
                   </div>
-                  <button type="button" disabled={formDisabled} onClick={() => void handleDeleteAttachment(attachment.id)} className="rounded-sm border border-outline-variant px-3 py-2 text-xs font-medium text-on-surface">삭제</button>
+                  <button type="button" disabled={formDisabled} onClick={() => void handleDeleteAttachment(attachment.id)} className="rounded-lg border border-outline-variant px-3 py-2 text-xs font-medium text-on-surface transition-colors hover:bg-surface-container-low">삭제</button>
                 </li>
               ))}
             </ul>
@@ -546,8 +546,8 @@ export function ApplicationDraftForm({
         {isSubmitted ? <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">이미 제출된 지원서입니다.</div> : null}
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface">{pendingAction === "draft" ? "저장 중.." : "임시 저장"}</button>
-          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("submit"); }); }} className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">{pendingAction === "submit" ? "제출 중.." : "최종 제출"}</button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">{pendingAction === "draft" ? "저장 중.." : "임시 저장"}</button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("submit"); }); }} className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover">{pendingAction === "submit" ? "제출 중.." : "최종 제출"}</button>
         </div>
       </form>
     </section>

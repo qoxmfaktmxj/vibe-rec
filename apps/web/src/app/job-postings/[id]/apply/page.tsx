@@ -65,13 +65,13 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
             <div className="mt-8 flex justify-center gap-4">
               <Link
                 href={`/job-postings/${jobPostingId}/apply`}
-                className="rounded-sm bg-primary px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground"
+                className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
               >
                 다시 시도
               </Link>
               <Link
                 href={`/job-postings/${jobPostingId}`}
-                className="rounded-sm border border-outline-variant px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-on-surface"
+                className="rounded-lg border border-outline-variant px-6 py-2.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low"
               >
                 공고로 돌아가기
               </Link>

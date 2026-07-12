@@ -13,7 +13,7 @@ export default function MyPageLoading() {
         </div>
 
         {/* Account info card */}
-        <div className="rounded-sm border border-outline-variant bg-card p-6">
+        <div className="rounded-xl border border-outline-variant bg-card p-6 elevation-1">
           <div className="grid gap-4 md:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="space-y-2">
@@ -35,7 +35,7 @@ export default function MyPageLoading() {
             <div className="h-9 w-28 animate-pulse rounded-sm bg-surface-container-high" />
           </div>
 
-          <div className="rounded-sm border border-outline-variant bg-card p-6">
+          <div className="rounded-xl border border-outline-variant bg-card p-6 elevation-1">
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div

@@ -18,6 +18,7 @@ import {
 } from "@/shared/api/recruitment";
 import {
   formatDateTime,
+  getApplicationFlowProgress,
   getApplicationStatusClassName,
   getDraftAvailability,
 } from "@/shared/lib/recruitment";
@@ -90,33 +91,6 @@ function getProgressLabel(application: CandidateApplicationDetail | null) {
   return "임시 저장";
 }
 
-const applicationFlowLabels = ["작성", "제출", "검토", "결과"] as const;
-
-/** Index into applicationFlowLabels for the candidate's current step (RecruitmentStepper currentIndex). */
-function getFlowCurrentIndex(application: CandidateApplicationDetail | null): number {
-  const isSubmitted = application?.status === "SUBMITTED";
-  const isInReview = application?.reviewStatus === "IN_REVIEW";
-  const isResolved =
-    application?.reviewStatus === "PASSED" ||
-    application?.reviewStatus === "REJECTED" ||
-    application?.finalStatus === "ACCEPTED" ||
-    application?.finalStatus === "DECLINED";
-
-  if (isResolved) {
-    return 3;
-  }
-
-  if (isInReview) {
-    return 2;
-  }
-
-  if (isSubmitted) {
-    return 1;
-  }
-
-  return 0;
-}
-
 function CandidateApplicationStatusCard({
   application,
   jobPostingId,
@@ -128,8 +102,8 @@ function CandidateApplicationStatusCard({
   canSave?: boolean;
   unavailableReason?: string;
 }) {
-  const flowCurrentIndex = getFlowCurrentIndex(application);
-  const stepperSteps = applicationFlowLabels.map((label) => ({ label }));
+  const flowProgress = getApplicationFlowProgress(application);
+  const stepperSteps = flowProgress.labels.map((label) => ({ label }));
 
   const primaryAction = (() => {
     if (!application) {
@@ -186,7 +160,7 @@ function CandidateApplicationStatusCard({
       </p>
 
       <div className="mt-6">
-        <RecruitmentStepper steps={stepperSteps} currentIndex={flowCurrentIndex} />
+        <RecruitmentStepper steps={stepperSteps} currentIndex={flowProgress.currentIndex} />
       </div>
 
       <div className="mt-6 grid gap-3 rounded-lg bg-surface-container-low p-4 text-sm text-on-surface-variant">
@@ -220,12 +194,12 @@ function CandidateApplicationStatusCard({
         {primaryAction ? (
           <Link
             href={primaryAction.href}
-            className="inline-flex rounded-lg bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary-hover"
+            className="inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             {primaryAction.label}
           </Link>
         ) : (
-          <span className="inline-flex cursor-not-allowed rounded-lg bg-primary/50 px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">
+          <span className="inline-flex cursor-not-allowed rounded-lg bg-primary/50 px-5 py-3 text-sm font-semibold text-primary-foreground">
             모집 마감
           </span>
         )}
@@ -265,13 +239,13 @@ function CandidateLoginGate({
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={loginHref}
-          className="rounded-lg bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary-hover"
+          className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           로그인하고 지원
         </Link>
         <Link
           href={signupHref}
-          className="rounded-lg border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition-colors hover:bg-surface-container-low"
+          className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low"
         >
           회원가입
         </Link>
@@ -290,7 +264,7 @@ function CandidateApplicationLoadErrorCard({ message }: { message: string }) {
       <div className="mt-6">
         <Link
           href="/me"
-          className="inline-flex rounded-lg bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition-colors hover:bg-primary-hover"
+          className="inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           내 지원 내역 보기
         </Link>

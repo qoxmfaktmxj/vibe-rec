@@ -2,6 +2,8 @@
   ApplicationFinalStatus,
   ApplicationReviewStatus,
   ApplicationStatus,
+  CandidateApplicationDetail,
+  CandidateApplicationSummary,
   EvaluationResult,
   InterviewStatus,
   JobPostingStatus,
@@ -358,6 +360,48 @@ export function getDraftAvailability(posting: JobPostingAvailability) {
   return {
     canSave: true,
     reason: "지금부터 마감 전까지 지원서를 저장하고 제출할 수 있습니다.",
+  };
+}
+
+export const applicationFlowLabels = ["작성", "제출", "검토", "결과"] as const;
+
+type ApplicationFlowState = Pick<
+  CandidateApplicationDetail | CandidateApplicationSummary,
+  "status" | "reviewStatus" | "finalStatus"
+>;
+
+export interface ApplicationFlowProgress {
+  labels: typeof applicationFlowLabels;
+  /** Index into `labels` for the candidate's current step (RecruitmentStepper currentIndex). */
+  currentIndex: number;
+  /** True when the review ended in rejection or the final offer was declined/withdrawn. */
+  isRejected: boolean;
+}
+
+/**
+ * Derives the candidate-facing flow progress (작성→제출→검토→결과) for an application.
+ * Shared by the job posting detail page and the /me dashboard so the stepper logic
+ * stays consistent everywhere it's rendered.
+ */
+export function getApplicationFlowProgress(
+  application: ApplicationFlowState | null,
+): ApplicationFlowProgress {
+  const isSubmitted = application?.status === "SUBMITTED";
+  const isInReview = application?.reviewStatus === "IN_REVIEW";
+  const isRejected =
+    application?.reviewStatus === "REJECTED" ||
+    application?.finalStatus === "DECLINED";
+  const isResolved =
+    isRejected ||
+    application?.reviewStatus === "PASSED" ||
+    application?.finalStatus === "ACCEPTED";
+
+  const currentIndex = isResolved ? 3 : isInReview ? 2 : isSubmitted ? 1 : 0;
+
+  return {
+    labels: applicationFlowLabels,
+    currentIndex,
+    isRejected,
   };
 }
 

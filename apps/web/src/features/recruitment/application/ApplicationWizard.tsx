@@ -254,7 +254,7 @@ export function ApplicationWizard({
               type="button"
               disabled={isPending}
               onClick={handlePrev}
-              className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition hover:bg-surface-container-low disabled:opacity-50"
+              className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-50"
             >
               이전
             </button>
@@ -265,7 +265,7 @@ export function ApplicationWizard({
             type="button"
             disabled={isPending}
             onClick={handleSaveDraft}
-            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition hover:bg-surface-container-low disabled:opacity-50"
+            className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-50"
           >
             임시저장
           </button>
@@ -274,7 +274,7 @@ export function ApplicationWizard({
               type="button"
               disabled={isPending}
               onClick={handleNext}
-              className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
               다음
             </button>
@@ -283,7 +283,7 @@ export function ApplicationWizard({
               type="button"
               disabled={isPending}
               onClick={handleSubmit}
-              className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
               최종 제출
             </button>
