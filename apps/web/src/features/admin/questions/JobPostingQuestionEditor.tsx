@@ -125,7 +125,7 @@ export function JobPostingQuestionEditor({
       )}
 
       {questions.map((q, qIdx) => (
-        <div key={qIdx} className="space-y-4 rounded-sm border border-outline-variant bg-card p-5">
+        <div key={qIdx} className="space-y-4 rounded-xl border border-outline-variant bg-card p-5">
           <div className="flex items-start justify-between gap-2">
             <span className="text-xs font-medium text-outline">문항 {qIdx + 1}</span>
             <button
@@ -221,7 +221,7 @@ export function JobPostingQuestionEditor({
           type="button"
           disabled={isPending}
           onClick={handleSave}
-          className="rounded-sm bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
         >
           문항 저장
         </button>

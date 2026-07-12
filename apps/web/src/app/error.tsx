@@ -43,13 +43,13 @@ export default function Error({
           <button
             type="button"
             onClick={() => reset()}
-            className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+            className="rounded-lg bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
           >
             다시 시도
           </button>
           <Link
             href="/"
-            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
+            className="rounded-lg border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
           >
             홈으로 이동
           </Link>

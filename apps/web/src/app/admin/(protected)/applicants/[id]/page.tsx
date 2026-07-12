@@ -199,7 +199,7 @@ export default async function AdminApplicantDetailPage({
                     </p>
                     <a
                       href={`/api/admin/attachments/${attachment.id}/download`}
-                      className="mt-3 inline-flex rounded-sm border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface"
+                      className="mt-3 inline-flex rounded-lg border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface"
                     >
                       다운로드
                     </a>

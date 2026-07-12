@@ -34,7 +34,7 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
   if (isMobile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-8 text-center text-on-surface">
-        <div className="max-w-sm rounded-sm border border-outline-variant bg-card px-8 py-10">
+        <div className="max-w-sm rounded-xl border border-outline-variant bg-card px-8 py-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -65,7 +65,7 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
 
           <Link
             href="/"
-            className="mt-6 inline-flex rounded-sm border border-outline-variant px-5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
+            className="mt-6 inline-flex rounded-lg border border-outline-variant px-5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
           >
             공개 사이트로 이동
           </Link>

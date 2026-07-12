@@ -196,7 +196,7 @@ export function ApplicationWizard({
       <WizardStepIndicator currentStep={currentStep} />
 
       {/* Step Content */}
-      <div className="rounded-sm border border-outline-variant bg-card p-6 sm:p-8">
+      <div className="rounded-xl border border-outline-variant bg-card p-6 sm:p-8">
         <h2 className="mb-6 font-headline text-lg font-medium text-on-surface">
           {currentStep === 1 && "인적사항"}
           {currentStep === 2 && "자기소개 / 핵심역량"}
@@ -240,10 +240,10 @@ export function ApplicationWizard({
 
       {/* Error/Status */}
       {error && (
-        <div className="rounded-sm bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-xl bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
       )}
       {saveStatus && !error && (
-        <div className="rounded-sm bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
+        <div className="rounded-xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
       )}
 
       {/* Navigation Buttons */}

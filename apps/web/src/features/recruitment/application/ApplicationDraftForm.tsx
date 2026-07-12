@@ -369,7 +369,7 @@ export function ApplicationDraftForm({
   }
 
   return (
-    <section className="rounded-sm border border-outline-variant bg-card p-7">
+    <section className="rounded-xl border border-outline-variant bg-card p-7">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">지원서 작성</h2>

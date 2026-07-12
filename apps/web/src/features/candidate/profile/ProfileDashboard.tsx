@@ -33,7 +33,7 @@ export function ProfileDashboard({
 
   return (
     <div className="space-y-8">
-      <section className="rounded-sm border border-outline-variant bg-card p-6">
+      <section className="rounded-xl border border-outline-variant bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <span className="text-[11px] font-medium text-outline">이름</span>

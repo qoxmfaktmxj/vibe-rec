@@ -111,7 +111,7 @@ export function LegalLayerLinks({
           onClick={closeModal}
         >
           <div
-            className="max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-sm border border-outline-variant bg-background p-6 shadow-2xl md:p-8"
+            className="max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-outline-variant bg-background p-6 shadow-2xl md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between gap-4 border-b border-outline-variant pb-4">
@@ -124,7 +124,7 @@ export function LegalLayerLinks({
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-sm border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-brand hover:text-brand"
+                className="rounded-lg border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-brand hover:text-brand"
               >
                 닫기
               </button>

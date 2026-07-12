@@ -33,13 +33,13 @@ export default function NotFound() {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/"
-            className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+            className="rounded-lg bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
           >
             홈으로 이동
           </Link>
           <Link
             href="/job-postings"
-            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
+            className="rounded-lg border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
           >
             공고 보기
           </Link>

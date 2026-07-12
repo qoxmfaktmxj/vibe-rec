@@ -31,7 +31,7 @@ export function AdminRailNav({ items }: { items: NavItem[] }) {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               aria-label={item.label}
-              className={`relative flex h-10 w-10 items-center justify-center rounded-sm border transition-colors ${
+              className={`relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${
                 isActive
                   ? "border-sidebar-border bg-sidebar-accent text-sidebar-foreground"
                   : "border-transparent text-sidebar-foreground/80 hover:border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-foreground"

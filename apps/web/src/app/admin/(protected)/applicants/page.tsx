@@ -71,13 +71,13 @@ function PaginationLinks({
       <p className="text-sm text-on-surface-variant">{summary}</p>
       <div className="flex items-center gap-3">
         {currentPage <= 1 ? (
-          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-sm border border-outline-variant px-3.5 py-2 text-xs font-semibold text-on-surface-variant/50">
+          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-outline-variant px-3.5 py-2 text-xs font-semibold text-on-surface-variant/50">
             이전
           </span>
         ) : (
           <Link
             href={buildApplicantsHref(filters, currentPage - 1)}
-            className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            className="inline-flex items-center justify-center rounded-lg border border-outline px-3.5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
             이전
           </Link>
@@ -86,13 +86,13 @@ function PaginationLinks({
           {currentPage} / {totalPages}
         </span>
         {currentPage >= totalPages ? (
-          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-sm border border-outline-variant px-3.5 py-2 text-xs font-semibold text-on-surface-variant/50">
+          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-outline-variant px-3.5 py-2 text-xs font-semibold text-on-surface-variant/50">
             다음
           </span>
         ) : (
           <Link
             href={buildApplicantsHref(filters, currentPage + 1)}
-            className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            className="inline-flex items-center justify-center rounded-lg border border-outline px-3.5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
             다음
           </Link>
@@ -162,7 +162,7 @@ export default async function AdminApplicantsPage({
 
   return (
     <div className="space-y-6">
-      <form className="border border-outline-variant bg-card px-5 py-5 shadow-[0_18px_40px_-30px_rgba(31,41,55,0.25)]">
+      <form className="border border-outline-variant bg-card px-5 py-5 elevation-2">
         <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_auto]">
           <label className={`${fieldLabelClassName} xl:col-span-2`}>
             통합 검색
