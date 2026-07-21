@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
@@ -47,15 +45,8 @@ export default async function JobPostingListPage() {
               현재 모집 중인 포지션이 없습니다
             </p>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-on-surface-variant">
-              새로운 채용 공고가 열리면 이 페이지에서 확인할 수 있습니다. 그동안 채용 절차를 미리 확인해 보세요.
+              새로운 채용 공고가 열리면 이 페이지에서 확인할 수 있습니다.
             </p>
-            <Link
-              href="/#process"
-              className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-colors hover:text-brand-strong"
-            >
-              채용 절차 알아보기
-              <span aria-hidden="true">→</span>
-            </Link>
           </div>
         ) : (
           <JobPostingBrowser

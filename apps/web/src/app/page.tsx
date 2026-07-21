@@ -1,20 +1,13 @@
 import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
-import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import { ScrollReveal } from "@/features/recruitment/shared/ScrollReveal";
+import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import { getJobPostings } from "@/shared/api/recruitment";
 import {
   getApplicationStatusClassName,
   isJobPostingOpenForApplications,
 } from "@/shared/lib/recruitment";
-
-const heroProcessSteps = [
-  { label: "서류", description: "지원서와 이력서를 검토합니다." },
-  { label: "과제", description: "직무 관련 과제를 수행합니다." },
-  { label: "면접", description: "실무진·임원 면접을 진행합니다." },
-  { label: "최종", description: "처우 협의 후 합류를 확정합니다." },
-];
 
 const demoApplicationRows = [
   { name: "김지수", jobTitle: "백엔드 엔지니어", status: "SUBMITTED" as const },
@@ -102,14 +95,13 @@ export default async function Home() {
               </span>
 
               <h1 className="animate-fade-in-up-delay-1 font-headline text-[clamp(2.5rem,5vw,4rem)] font-bold leading-[1.12] tracking-[-0.02em] text-on-surface">
-                지금 어디까지 왔는지
+                지원 현황을
                 <br />
-                보이는 채용
+                한눈에 확인하세요
               </h1>
 
               <p className="animate-fade-in-up-delay-2 max-w-xl text-sm leading-7 text-on-surface-variant md:text-base md:leading-8">
-                지원서를 내고 나면 상태는 늘 궁금하죠. HireFlow는 서류부터 최종 합류까지
-                지금 어느 단계인지, 다음엔 무엇을 해야 하는지를 화면 하나로 보여줍니다.
+                제출한 지원서와 공고별 진행 상태를 확인하고, 필요한 다음 안내를 놓치지 마세요.
               </p>
 
               <div className="animate-fade-in-up-delay-3 flex flex-wrap gap-3">
@@ -119,12 +111,6 @@ export default async function Home() {
                 >
                   채용 공고 보기
                 </a>
-                <a
-                  href="#process"
-                  className="rounded-lg border border-outline-variant bg-card px-6 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low"
-                >
-                  채용 절차 알아보기
-                </a>
               </div>
             </div>
 
@@ -132,28 +118,6 @@ export default async function Home() {
               <ProductFragment />
             </div>
           </div>
-        </section>
-
-        <section id="process" className="border-b border-outline-variant px-6 py-20 md:px-16 md:py-24">
-          <ScrollReveal>
-            <div className="mx-auto max-w-7xl">
-              <div className="max-w-2xl">
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-brand">
-                  채용 절차
-                </p>
-                <h2 className="mt-3 font-headline text-2xl font-semibold tracking-[-0.015em] text-on-surface md:text-3xl">
-                  4단계로 진행되는 채용 프로세스
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-on-surface-variant">
-                  모든 공고는 아래 순서를 기본으로 진행되며, 공고별 세부 일정은 각 상세 페이지에서 확인할 수 있습니다.
-                </p>
-              </div>
-
-              <div className="mt-12 rounded-xl border border-outline-variant bg-card p-8 elevation-1 md:p-10">
-                <RecruitmentStepper steps={heroProcessSteps} />
-              </div>
-            </div>
-          </ScrollReveal>
         </section>
 
         <section id="positions" className="mx-auto max-w-7xl px-6 py-16 md:px-16">

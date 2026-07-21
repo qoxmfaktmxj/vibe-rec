@@ -4,7 +4,6 @@ import { LegalLayerLinks } from "@/features/recruitment/legal/LegalLayerLinks";
 
 const hiringLinks = [
   { href: "/job-postings", label: "채용 공고 보기" },
-  { href: "/#process", label: "채용 절차" },
   { href: "https://www.minseok91.cloud", label: "문의", external: true },
 ] as const;
 
