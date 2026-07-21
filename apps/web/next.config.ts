@@ -30,6 +30,9 @@ const securityHeaders = [
 // Forward everything below /backend-api to the backend unchanged.
 const nextConfig: NextConfig = {
   devIndicators: false,
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
   async headers() {
     return [
       {
