@@ -63,20 +63,21 @@ export default async function CandidateApplicationDetailPage({
 
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-on-surface md:px-16">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-6xl space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-3">
             <Link
               href="/me"
-              className="text-sm font-medium text-on-surface-variant transition-colors hover:text-primary"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:text-brand"
             >
+              <span aria-hidden="true">&larr;</span>
               내 지원 내역으로 돌아가기
             </Link>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+              <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-on-surface-variant">
                 지원서 문서
               </p>
-              <h1 className="mt-2 font-headline text-4xl font-medium tracking-[-0.05em] text-on-surface">
+              <h1 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
                 제출한 지원 내용을 다시 확인합니다
               </h1>
             </div>

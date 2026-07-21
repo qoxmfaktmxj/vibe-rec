@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 
 import type { CandidateApplicationDetail } from "@/entities/recruitment/model";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
+import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { JobPostingDetailView } from "@/features/recruitment/job-postings/JobPostingDetailView";
+import { RecruitmentStepper } from "@/features/shared/RecruitmentStepper";
 import {
   CandidateApiError,
   getCurrentCandidateSession,
@@ -16,6 +18,7 @@ import {
 } from "@/shared/api/recruitment";
 import {
   formatDateTime,
+  getApplicationFlowProgress,
   getApplicationStatusClassName,
   getDraftAvailability,
 } from "@/shared/lib/recruitment";
@@ -25,11 +28,6 @@ interface JobPostingDetailPageProps {
     id: string;
   }>;
 }
-
-type FlowStep = {
-  label: string;
-  state: "done" | "current" | "upcoming";
-};
 
 function getApplicationStatusText(application: CandidateApplicationDetail | null) {
   if (!application) {
@@ -104,49 +102,6 @@ function getProgressLabel(application: CandidateApplicationDetail | null) {
   return "임시 저장";
 }
 
-function getFlowSteps(application: CandidateApplicationDetail | null): FlowStep[] {
-  const hasDraft = Boolean(application);
-  const isSubmitted = application?.status === "SUBMITTED";
-  const isWithdrawn = application?.status === "WITHDRAWN";
-  const isInReview = application?.reviewStatus === "IN_REVIEW";
-  const isResolved =
-    application?.reviewStatus === "PASSED" ||
-    application?.reviewStatus === "REJECTED" ||
-    isWithdrawn ||
-    application?.finalStatus === "ACCEPTED" ||
-    application?.finalStatus === "DECLINED";
-
-  return [
-    {
-      label: "작성",
-      state: hasDraft && !isSubmitted && !isWithdrawn ? "current" : hasDraft ? "done" : "current",
-    },
-    {
-      label: "제출",
-      state: isSubmitted || isWithdrawn ? "done" : "upcoming",
-    },
-    {
-      label: "검토",
-      state: isInReview ? "current" : isResolved ? "done" : "upcoming",
-    },
-    {
-      label: "결과",
-      state: isResolved ? "current" : "upcoming",
-    },
-  ];
-}
-
-function getFlowStepClassName(step: FlowStep["state"]) {
-  switch (step) {
-    case "done":
-      return "border-transparent bg-primary text-primary-foreground";
-    case "current":
-      return "border-primary bg-primary/10 text-primary";
-    default:
-      return "border-outline-variant bg-surface-container-low text-on-surface-variant";
-  }
-}
-
 function CandidateApplicationStatusCard({
   application,
   jobPostingId,
@@ -158,7 +113,8 @@ function CandidateApplicationStatusCard({
   canSave?: boolean;
   unavailableReason?: string;
 }) {
-  const flowSteps = getFlowSteps(application);
+  const flowProgress = getApplicationFlowProgress(application);
+  const stepperSteps = flowProgress.labels.map((label) => ({ label }));
 
   const primaryAction = (() => {
     if (!application) {
@@ -189,21 +145,21 @@ function CandidateApplicationStatusCard({
   })();
 
   return (
-    <section className="rounded-sm border border-outline-variant bg-card p-7">
+    <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-2">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
             지원 현황
           </p>
-          <h2 className="mt-3 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+          <h2 className="mt-3 font-headline text-2xl font-semibold tracking-[-0.015em] text-on-surface">
             내 현재 상태
           </h2>
         </div>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
+          className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${
             application
               ? getApplicationStatusClassName(application.status)
-              : "bg-stone-200 text-stone-700"
+              : "bg-surface-container text-on-surface-variant ring-outline-variant"
           }`}
         >
           {getApplicationStatusText(application)}
@@ -214,25 +170,11 @@ function CandidateApplicationStatusCard({
         {getFlowDescription(application)}
       </p>
 
-      <div className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
-        {flowSteps.map((step, index) => (
-          <div
-            key={step.label}
-            className="rounded-lg border border-outline-variant bg-surface-container-low px-3 py-3 text-center"
-          >
-            <span
-              className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold ${getFlowStepClassName(
-                step.state,
-              )}`}
-            >
-              {index + 1}
-            </span>
-            <p className="mt-2 text-sm font-semibold text-on-surface">{step.label}</p>
-          </div>
-        ))}
+      <div className="mt-6">
+        <RecruitmentStepper steps={stepperSteps} currentIndex={flowProgress.currentIndex} />
       </div>
 
-      <div className="mt-5 grid gap-3 rounded-lg bg-surface-container-low p-4 text-sm text-on-surface-variant">
+      <div className="mt-6 grid gap-3 rounded-lg bg-surface-container-low p-4 text-sm text-on-surface-variant">
         <div className="flex items-center justify-between gap-4">
           <span>현재 상태</span>
           <span className="font-medium text-on-surface">
@@ -263,12 +205,12 @@ function CandidateApplicationStatusCard({
         {primaryAction ? (
           <Link
             href={primaryAction.href}
-            className="inline-flex rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+            className="inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
           >
             {primaryAction.label}
           </Link>
         ) : (
-          <span className="inline-flex cursor-not-allowed rounded-sm bg-primary/50 px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">
+          <span className="inline-flex cursor-not-allowed rounded-lg bg-primary/50 px-5 py-3 text-sm font-semibold text-primary-foreground">
             모집 마감
           </span>
         )}
@@ -276,7 +218,7 @@ function CandidateApplicationStatusCard({
         {application ? (
           <Link
             href="/me"
-            className="block text-sm text-on-surface-variant transition-colors hover:text-primary"
+            className="block text-sm text-on-surface-variant transition-colors hover:text-brand"
           >
             내 지원 내역으로 이동
           </Link>
@@ -298,8 +240,8 @@ function CandidateLoginGate({
   signupHref: string;
 }) {
   return (
-    <section className="rounded-sm border border-outline-variant bg-card p-7">
-      <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+    <section className="rounded-xl border border-outline-variant bg-card p-7 elevation-2">
+      <h2 className="font-headline text-2xl font-semibold tracking-[-0.015em] text-on-surface">
         로그인 후 지원할 수 있습니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -308,13 +250,13 @@ function CandidateLoginGate({
       <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={loginHref}
-          className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+          className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           로그인하고 지원
         </Link>
         <Link
           href={signupHref}
-          className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface"
+          className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low"
         >
           회원가입
         </Link>
@@ -325,15 +267,15 @@ function CandidateLoginGate({
 
 function CandidateApplicationLoadErrorCard({ message }: { message: string }) {
   return (
-    <section className="rounded-sm border border-error/30 bg-card p-7">
-      <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+    <section className="rounded-xl border border-error/30 bg-card p-7 elevation-2">
+      <h2 className="font-headline text-2xl font-semibold tracking-[-0.015em] text-on-surface">
         지원 정보를 불러오지 못했습니다
       </h2>
       <p className="mt-3 text-sm leading-7 text-on-surface-variant">{message}</p>
       <div className="mt-6">
         <Link
           href="/me"
-          className="inline-flex rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground"
+          className="inline-flex rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
         >
           내 지원 내역 보기
         </Link>
@@ -420,6 +362,8 @@ export default async function JobPostingDetailPage({
           }
         />
       </main>
+
+      <PublicSiteFooter />
     </div>
   );
 }

@@ -23,7 +23,7 @@ interface NotificationSectionProps {
 const notificationTypeOptions = ["OFFER", "REJECTION", "INTERVIEW_INVITE", "GENERAL"];
 
 const inputClassName =
-  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-ring/25";
 
 function getDeliveryStatusLabel(status: NotificationResponse["deliveryStatus"]) {
   switch (status) {
@@ -186,8 +186,10 @@ export function NotificationSection({
           role={isError ? "alert" : "status"}
           aria-live="polite"
           aria-atomic="true"
-          className={`mt-5 rounded-lg px-4 py-3 text-sm ${
-            isError ? "bg-error-container text-destructive" : "bg-primary-container text-on-surface"
+          className={`mt-5 rounded-xl px-4 py-3 text-sm ${
+            isError
+              ? "bg-error-container text-destructive"
+              : "bg-secondary-container text-emerald-900"
           }`}
         >
           {message}
@@ -195,7 +197,10 @@ export function NotificationSection({
       ) : null}
 
       {showForm && canSend ? (
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-lg border border-outline-variant bg-surface-container-low p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-6 space-y-4 rounded-xl border border-outline-variant/70 bg-surface-container-low p-6"
+        >
           <label className="block text-sm font-semibold text-on-surface-variant">
             메시지 템플릿
             <select
@@ -262,7 +267,7 @@ export function NotificationSection({
           <button
             type="submit"
             disabled={isPending}
-            className="min-h-[44px] rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:shadow-black/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? "등록 중…" : "전송 대기열에 등록"}
           </button>
@@ -270,7 +275,7 @@ export function NotificationSection({
       ) : null}
 
       {notifications.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-dashed border-outline-variant bg-surface-container-low px-6 py-10 text-center">
+        <div className="mt-6 rounded-xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
           <p className="text-sm font-semibold text-on-surface">통지 이력이 없습니다.</p>
           <p className="mt-2 text-sm leading-7 text-on-surface-variant">
             작성 권한이 있는 관리자는 템플릿으로 첫 통지를 등록할 수 있습니다.
@@ -279,9 +284,14 @@ export function NotificationSection({
       ) : (
         <div className="mt-6 space-y-3">
           {notifications.map((notification) => (
-            <article key={notification.id} className="rounded-lg border border-outline-variant bg-surface-container-low p-5">
+            <article
+              key={notification.id}
+              className="rounded-xl border border-outline-variant/70 bg-surface-container-low px-6 py-4"
+            >
               <div className="flex flex-wrap items-center gap-3">
-                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getNotificationTypeClassName(notification.type)}`}>
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getNotificationTypeClassName(notification.type)}`}
+                >
                   {getNotificationTypeLabel(notification.type)}
                 </span>
                 <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getDeliveryStatusClassName(notification.deliveryStatus)}`}>

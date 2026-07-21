@@ -23,14 +23,14 @@ export default async function ProfilePage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-6">
           <Link
             href="/"
-            className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface"
+            className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface"
           >
             HireFlow
           </Link>
           <div className="flex items-center gap-4">
             <Link
               href="/job-postings"
-              className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
+              className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-brand"
             >
               공고 보기
             </Link>
@@ -43,7 +43,7 @@ export default async function ProfilePage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
             프로필
           </p>
-          <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+          <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
             내 프로필
           </h1>
           <p className="mt-2 text-sm text-on-surface-variant">

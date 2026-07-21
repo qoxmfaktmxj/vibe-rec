@@ -11,7 +11,7 @@ import {
 } from "@/shared/lib/recruitment";
 
 const fieldClassName =
-  "w-full rounded-sm border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25";
 
 interface JobPostingEditorFormProps {
   mode: "create" | "edit";
@@ -164,7 +164,7 @@ export function JobPostingEditorForm({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-sm border border-outline-variant bg-card p-6">
+      <section className="rounded-xl border border-outline-variant bg-card p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
             <span className="text-sm font-medium text-on-surface">공개 키</span>
@@ -237,7 +237,7 @@ export function JobPostingEditorForm({
         </div>
       </section>
 
-      <section className="rounded-sm border border-outline-variant bg-card p-6">
+      <section className="rounded-xl border border-outline-variant bg-card p-6">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <label className="space-y-2">
             <span className="text-sm font-medium text-on-surface">채용 분류</span>
@@ -334,12 +334,12 @@ export function JobPostingEditorForm({
       </section>
 
       {error ? (
-        <div className="rounded-sm border border-error/40 bg-error-container px-4 py-3 text-sm text-destructive">
+        <div className="rounded-xl border border-error/40 bg-error-container px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
       {saveMessage ? (
-        <div className="rounded-sm border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+        <div className="rounded-xl border border-outline-variant bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
           {saveMessage}
         </div>
       ) : null}
@@ -350,14 +350,14 @@ export function JobPostingEditorForm({
             type="button"
             onClick={handleSubmit}
             disabled={isPending}
-            className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+            className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
           >
             {submitLabel}
           </button>
           {questionEditorHref ? (
             <a
               href={questionEditorHref}
-              className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+              className="rounded-lg border border-outline-variant px-6 py-3 text-xs font-medium text-on-surface"
             >
               질문 관리
             </a>
@@ -366,7 +366,7 @@ export function JobPostingEditorForm({
         <button
           type="button"
           onClick={() => router.push("/admin")}
-          className="rounded-sm border border-outline-variant px-6 py-3 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+          className="rounded-lg border border-outline-variant px-6 py-3 text-xs font-medium text-on-surface"
         >
           대시보드로
         </button>

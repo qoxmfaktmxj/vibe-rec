@@ -1,22 +1,17 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Sora } from "next/font/google";
+import { Sora, Spline_Sans_Mono } from "next/font/google";
 
+import "wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.css";
 import "./globals.css";
 
-const body = Sora({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-});
-
 const headline = Sora({
-  variable: "--font-headline",
+  variable: "--font-headline-sora",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const mono = IBM_Plex_Mono({
-  variable: "--font-mono",
+const mono = Spline_Sans_Mono({
+  variable: "--font-mono-spline",
   subsets: ["latin"],
   weight: ["400", "500"],
 });
@@ -33,9 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body
-        className={`${headline.variable} ${body.variable} ${mono.variable} antialiased`}
-      >
+      <body className={`${headline.variable} ${mono.variable} antialiased`}>
         {children}
       </body>
     </html>

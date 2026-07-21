@@ -19,10 +19,10 @@ import { getJobPostings } from "@/shared/api/recruitment";
 
 const PAGE_SIZE = 30;
 const selectClassName =
-  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors focus:border-brand focus:bg-card focus:ring-2 focus:ring-ring/25";
 
 const inputClassName =
-  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:bg-card focus:ring-2 focus:ring-ring/25";
 
 const fieldLabelClassName =
   "text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant";
@@ -91,13 +91,13 @@ function PaginationLinks({
       <p className="text-sm text-on-surface-variant">{summary}</p>
       <div className="flex items-center gap-3">
         {currentPage <= 1 ? (
-          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-sm border border-outline-variant px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant/50">
+          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-outline-variant px-3.5 py-2 text-xs font-semibold text-on-surface-variant/50">
             이전
           </span>
         ) : (
           <Link
             href={buildApplicantsHref(filters, currentPage - 1)}
-            className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            className="inline-flex items-center justify-center rounded-lg border border-outline px-3.5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
             이전
           </Link>
@@ -106,13 +106,13 @@ function PaginationLinks({
           {currentPage} / {totalPages}
         </span>
         {currentPage >= totalPages ? (
-          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-sm border border-outline-variant px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant/50">
+          <span className="inline-flex cursor-not-allowed items-center justify-center rounded-lg border border-outline-variant px-3.5 py-2 text-xs font-semibold text-on-surface-variant/50">
             다음
           </span>
         ) : (
           <Link
             href={buildApplicantsHref(filters, currentPage + 1)}
-            className="inline-flex items-center justify-center rounded-sm border border-outline px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
+            className="inline-flex items-center justify-center rounded-lg border border-outline px-3.5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground"
           >
             다음
           </Link>
@@ -217,7 +217,7 @@ export default async function AdminApplicantsPage({
         currentFilters={currentSavedFilters}
       />
 
-      <form className="border border-outline-variant bg-card px-5 py-5 shadow-[0_18px_40px_-30px_rgba(31,41,55,0.25)]">
+      <form className="border border-outline-variant bg-card px-5 py-5 elevation-2">
         <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_auto]">
           <label className={`${fieldLabelClassName} xl:col-span-2`}>
             통합 검색
@@ -287,7 +287,7 @@ export default async function AdminApplicantsPage({
           <div className="flex items-end">
             <button
               type="submit"
-              className="w-full border border-primary bg-primary px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:-translate-y-0.5"
+              className="w-full border border-primary bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
               필터 적용
             </button>
@@ -369,7 +369,7 @@ export default async function AdminApplicantsPage({
             <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
               지원자 목록
             </p>
-            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
               지원자 현황
             </h2>
           </div>
@@ -422,7 +422,7 @@ function StatCard({
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
         {label}
       </p>
-      <p className="mt-3 font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface">
+      <p className="mt-3 font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface">
         {value}
       </p>
     </div>

@@ -59,7 +59,7 @@ export default async function AdminEditJobPostingPage({
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
             새 공고 #{jobPostingId}
           </p>
-          <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+          <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
             공고 수정
           </h1>
           <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -69,13 +69,13 @@ export default async function AdminEditJobPostingPage({
         <div className="flex gap-3">
           <Link
             href={`/admin/job-postings/${jobPostingId}/questions`}
-            className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface"
+            className="rounded-lg border border-outline-variant px-4 py-2 text-xs font-medium text-on-surface"
           >
             질문 관리
           </Link>
           <Link
             href="/admin"
-            className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
+            className="text-xs font-medium text-on-surface-variant transition-colors hover:text-brand"
           >
             대시보드로
           </Link>

@@ -61,7 +61,7 @@ const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
 const MIN_INTRODUCTION_LENGTH = 20;
 const MIN_CORE_STRENGTH_LENGTH = 10;
 const inputClassName =
-  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/30";
+  "mt-2 w-full rounded-lg border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-outline focus:border-brand focus:bg-card focus:ring-2 focus:ring-ring/25";
 const textareaClassName = `${inputClassName} min-h-[128px] resize-y`;
 const initialFormValues: DraftFormValues = {
   applicantName: "",
@@ -163,7 +163,7 @@ function parseQuestionChoices(raw: string | null) {
 
 function getStepClassName(step: StepState, currentStep: StepState) {
   if (step === currentStep) return "border-primary bg-primary text-primary-foreground";
-  if (step < currentStep) return "border-primary bg-primary/10 text-primary";
+  if (step < currentStep) return "border-brand bg-brand/10 text-brand";
   return "border-outline-variant bg-surface-container-low text-on-surface-variant";
 }
 
@@ -376,14 +376,14 @@ export function ApplicationDraftForm({
   }
 
   return (
-    <section className="rounded-sm border border-outline-variant bg-card p-7">
+    <section className="rounded-xl border border-outline-variant bg-card p-7">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">지원서 작성</h2>
+          <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">지원서 작성</h2>
           <p className="mt-2 text-sm leading-7 text-on-surface-variant">{helperText}</p>
         </div>
         {statusLabel ? (
-          <span className={`rounded-full px-3 py-1 text-xs font-medium ${getApplicationStatusClassName(application!.status)}`}>
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset ${getApplicationStatusClassName(application!.status)}`}>
             {statusLabel}
           </span>
         ) : null}
@@ -407,7 +407,7 @@ export function ApplicationDraftForm({
         {formSteps.find((step) => step.value === currentStep)?.description}
       </p>
 
-      {message ? <div role="status" aria-live="polite" className="mt-5 rounded-lg bg-secondary-container px-4 py-3 text-sm text-[#00731e]">{message}</div> : null}
+      {message ? <div role="status" aria-live="polite" className="mt-5 rounded-lg bg-secondary-container px-4 py-3 text-sm text-emerald-900">{message}</div> : null}
       {errorMessage ? <div role="alert" aria-live="assertive" className="mt-5 rounded-lg bg-error-container px-4 py-3 text-sm text-destructive">{errorMessage}</div> : null}
 
       {application ? (
@@ -444,7 +444,7 @@ export function ApplicationDraftForm({
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-lg font-semibold text-on-surface">학력</h3>
-            <button type="button" disabled={formDisabled} onClick={() => setEducations((current) => [...current, { institution: "", degree: "", fieldOfStudy: "", endDate: "" }])} className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-on-surface">학력 추가</button>
+            <button type="button" disabled={formDisabled} onClick={() => setEducations((current) => [...current, { institution: "", degree: "", fieldOfStudy: "", endDate: "" }])} className="min-h-[44px] rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">학력 추가</button>
           </div>
           <div className="space-y-4">
             {educations.map((education, index) => (
@@ -463,7 +463,7 @@ export function ApplicationDraftForm({
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-lg font-semibold text-on-surface">경력</h3>
-            <button type="button" disabled={formDisabled} onClick={() => setCareers((current) => [...current, { company: "", position: "", startDate: "", endDate: "", description: "" }])} className="rounded-sm border border-outline-variant px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-on-surface">경력 추가</button>
+            <button type="button" disabled={formDisabled} onClick={() => setCareers((current) => [...current, { company: "", position: "", startDate: "", endDate: "", description: "" }])} className="min-h-[44px] rounded-lg border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">경력 추가</button>
           </div>
           <div className="space-y-4">
             {careers.map((career, index) => (
@@ -496,10 +496,10 @@ export function ApplicationDraftForm({
                   <div key={question.id} className="rounded-lg bg-surface-container-low p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant">질문 {index + 1}</p>
+                        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-on-surface-variant">질문 {index + 1}</p>
                         <h4 className="mt-2 text-base font-semibold text-on-surface">{question.questionText}</h4>
                       </div>
-                      {question.required ? <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">필수</span> : null}
+                      {question.required ? <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand">필수</span> : null}
                     </div>
                     {question.questionType === "TEXT" ? (
                       <textarea className={textareaClassName} value={answer.answerText ?? ""} disabled={formDisabled} onChange={(event) => updateAnswer(question.id, { answerText: event.target.value, answerChoice: null, answerScale: null })} placeholder="답변을 입력해 주세요." />
@@ -540,10 +540,10 @@ export function ApplicationDraftForm({
               {attachments.map((attachment) => (
                 <li key={attachment.id} className="flex items-center justify-between gap-3 rounded-lg bg-surface-container-low px-4 py-3">
                   <div className="min-w-0">
-                    <a href={`/api/attachments/${attachment.id}/download`} className="truncate text-sm font-medium text-primary hover:underline">{attachment.originalName}</a>
+                    <a href={`/api/attachments/${attachment.id}/download`} className="truncate text-sm font-medium text-brand hover:underline">{attachment.originalName}</a>
                     <p className="mt-1 text-xs text-on-surface-variant">{formatFileSize(attachment.fileSize)}</p>
                   </div>
-                  <button type="button" disabled={formDisabled} onClick={() => void handleDeleteAttachment(attachment.id)} className="rounded-sm border border-outline-variant px-3 py-2 text-xs font-medium text-on-surface">삭제</button>
+                  <button type="button" disabled={formDisabled} onClick={() => void handleDeleteAttachment(attachment.id)} className="rounded-lg border border-outline-variant px-3 py-2 text-xs font-medium text-on-surface transition-colors hover:bg-surface-container-low">삭제</button>
                 </li>
               ))}
             </ul>
@@ -553,8 +553,8 @@ export function ApplicationDraftForm({
         {isSubmitted ? <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">이미 제출된 지원서입니다.</div> : null}
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface">{pendingAction === "draft" ? "저장 중.." : "임시 저장"}</button>
-          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("submit"); }); }} className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground">{pendingAction === "submit" ? "제출 중.." : "최종 제출"}</button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("draft"); }); }} className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low">{pendingAction === "draft" ? "저장 중.." : "임시 저장"}</button>
+          <button type="button" disabled={formDisabled} onClick={() => { startTransition(() => { void handleSubmit("submit"); }); }} className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover">{pendingAction === "submit" ? "제출 중.." : "최종 제출"}</button>
         </div>
       </form>
     </section>

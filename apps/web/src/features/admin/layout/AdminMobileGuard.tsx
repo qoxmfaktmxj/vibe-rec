@@ -34,7 +34,7 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
   if (isMobile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-8 text-center text-on-surface">
-        <div className="max-w-sm rounded-sm border border-outline-variant bg-card px-8 py-10">
+        <div className="max-w-sm rounded-xl border border-outline-variant bg-card px-8 py-10">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -54,7 +54,7 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
             관리자 워크스페이스
           </p>
-          <h1 className="mt-3 font-headline text-xl font-medium tracking-[-0.04em] text-on-surface">
+          <h1 className="mt-3 font-headline text-xl font-medium tracking-[-0.02em] text-on-surface">
             데스크톱에서 이용해 주세요
           </h1>
           <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -65,7 +65,7 @@ export function AdminMobileGuard({ children }: { children: React.ReactNode }) {
 
           <Link
             href="/"
-            className="mt-6 inline-flex rounded-sm border border-outline-variant px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+            className="mt-6 inline-flex rounded-lg border border-outline-variant px-5 py-2 text-xs font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand"
           >
             공개 사이트로 이동
           </Link>

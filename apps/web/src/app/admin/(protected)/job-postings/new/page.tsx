@@ -37,7 +37,7 @@ export default async function AdminNewJobPostingPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
             새 공고
           </p>
-          <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+          <h1 className="mt-2 font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
             공고 등록
           </h1>
           <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -47,7 +47,7 @@ export default async function AdminNewJobPostingPage() {
 
         <Link
           href="/admin"
-          className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant transition-colors hover:text-primary"
+          className="text-xs font-medium text-on-surface-variant transition-colors hover:text-brand"
         >
           대시보드로
         </Link>

@@ -75,18 +75,18 @@ export default async function AdminApplicantDetailPage({
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getApplicationStatusClassName(applicant.applicationStatus)}`}
+                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getApplicationStatusClassName(applicant.applicationStatus)}`}
               >
                 {getApplicationStatusLabel(applicant.applicationStatus)}
               </span>
               <span
-                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getApplicationReviewStatusClassName(applicant.reviewStatus)}`}
+                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getApplicationReviewStatusClassName(applicant.reviewStatus)}`}
               >
                 {getApplicationReviewStatusLabel(applicant.reviewStatus)}
               </span>
               {applicant.finalStatus ? (
                 <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getFinalStatusClassName(applicant.finalStatus)}`}
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getFinalStatusClassName(applicant.finalStatus)}`}
                 >
                   {getFinalStatusLabel(applicant.finalStatus)}
                 </span>
@@ -151,7 +151,7 @@ export default async function AdminApplicantDetailPage({
           </p>
           <h2
             id="applicant-operations-heading"
-            className="font-headline text-3xl font-semibold tracking-[-0.05em] text-on-surface"
+            className="font-headline text-3xl font-semibold tracking-[-0.02em] text-on-surface"
           >
             상태 변경 → 면접 → 최종 결정을 한 흐름으로 처리합니다
           </h2>
@@ -233,7 +233,7 @@ export default async function AdminApplicantDetailPage({
           </Panel>
 
           <Panel title="원본 데이터" eyebrow="디버그">
-            <pre className="max-h-[420px] overflow-auto rounded-2xl bg-[#1e2022] p-5 text-xs leading-6 text-[#e1e3e4]">
+            <pre className="max-h-[420px] overflow-auto rounded-xl bg-surface-dark p-5 text-xs leading-6 text-on-dark">
               {JSON.stringify(applicant.resumePayload, null, 2)}
             </pre>
           </Panel>
@@ -246,14 +246,14 @@ export default async function AdminApplicantDetailPage({
             ) : (
               <ul className="space-y-3">
                 {attachments.map((attachment) => (
-                  <li key={attachment.id} className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-3">
+                  <li key={attachment.id} className="rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-3">
                     <p className="truncate text-sm font-medium text-on-surface">{attachment.originalFilename}</p>
                     <p className="mt-1 text-xs text-on-surface-variant">
                       {formatFileSize(attachment.fileSizeBytes)} / {formatDateTime(attachment.uploadedAt)}
                     </p>
                     <a
                       href={`/api/admin/attachments/${attachment.id}/download`}
-                      className="mt-3 inline-flex rounded-sm border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface"
+                      className="mt-3 inline-flex rounded-lg border border-outline-variant px-3 py-2 text-xs font-semibold text-on-surface"
                     >
                       다운로드
                     </a>
@@ -280,7 +280,7 @@ function Panel({
   return (
     <section className="rounded-[28px] border border-outline-variant/70 bg-surface-container-lowest p-8">
       <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">{eyebrow}</p>
-      <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">{title}</h2>
+      <h2 className="mt-2 font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">{title}</h2>
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -288,7 +288,7 @@ function Panel({
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
+    <div className="rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">{label}</p>
       <p className="mt-3 text-sm font-semibold text-on-surface">{value}</p>
     </div>
@@ -297,7 +297,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
+    <div className="rounded-xl border border-outline-variant/70 bg-surface-container-low px-4 py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">{label}</p>
       <p className="mt-2 whitespace-pre-line text-sm text-on-surface">{value}</p>
     </div>
@@ -320,7 +320,7 @@ function ResumeList({
       <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{title}</h3>
       <div className="mt-3 space-y-3">
         {items.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-outline-variant/70 bg-surface-container-low p-4 text-sm">
+          <div key={item.id} className="rounded-xl border border-outline-variant/70 bg-surface-container-low p-4 text-sm">
             <p className="font-semibold text-on-surface">{item.title}</p>
             {item.subtitle ? <p className="text-on-surface-variant">{item.subtitle}</p> : null}
             {item.meta ? <p className="mt-1 text-xs text-outline">{item.meta}</p> : null}
@@ -342,7 +342,7 @@ function ResumeTagList({ title, items }: { title: string; items: string[] }) {
       <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">{title}</h3>
       <div className="mt-3 flex flex-wrap gap-2">
         {items.map((item) => (
-          <span key={item} className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+          <span key={item} className="inline-flex items-center rounded-full bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand">
             {item}
           </span>
         ))}

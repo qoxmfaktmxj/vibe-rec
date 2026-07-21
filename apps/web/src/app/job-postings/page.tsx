@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
+import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
 import { getJobPostings } from "@/shared/api/recruitment";
 
@@ -19,7 +22,7 @@ export default async function JobPostingListPage() {
 
       <main className="mx-auto max-w-7xl px-6 py-16 md:px-16">
         {fetchError ? (
-          <div className="mb-8 rounded-sm border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
+          <div className="mb-8 rounded-lg border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
             채용 공고를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
           </div>
         ) : null}
@@ -29,7 +32,7 @@ export default async function JobPostingListPage() {
             <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-on-surface-variant">
               채용 공고
             </p>
-            <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.04em] text-on-surface">
+            <h1 className="mt-3 font-headline text-3xl font-medium tracking-[-0.02em] text-on-surface">
               지원 가능한 채용 공고
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -39,13 +42,20 @@ export default async function JobPostingListPage() {
         </div>
 
         {!fetchError && jobPostings.length === 0 ? (
-          <div className="rounded-sm border border-outline-variant bg-card px-8 py-16 text-center">
-            <p className="font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+          <div className="rounded-xl border border-outline-variant bg-card px-8 py-16 text-center elevation-1">
+            <p className="font-headline text-2xl font-semibold tracking-[-0.015em] text-on-surface">
               현재 모집 중인 포지션이 없습니다
             </p>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-on-surface-variant">
-              새로운 채용 공고가 열리면 이 페이지에서 확인할 수 있습니다.
+              새로운 채용 공고가 열리면 이 페이지에서 확인할 수 있습니다. 그동안 채용 절차를 미리 확인해 보세요.
             </p>
+            <Link
+              href="/#process"
+              className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-colors hover:text-brand-strong"
+            >
+              채용 절차 알아보기
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
         ) : (
           <JobPostingBrowser
@@ -59,6 +69,8 @@ export default async function JobPostingListPage() {
           />
         )}
       </main>
+
+      <PublicSiteFooter />
     </div>
   );
 }

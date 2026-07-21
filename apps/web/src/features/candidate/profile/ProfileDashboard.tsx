@@ -27,13 +27,13 @@ export function ProfileDashboard({
   const tabClassName = (tab: string) =>
     `px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
       activeTab === tab
-        ? "border-primary text-primary"
+        ? "border-brand text-brand"
         : "border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant"
     }`;
 
   return (
     <div className="space-y-8">
-      <section className="rounded-sm border border-outline-variant bg-card p-6">
+      <section className="rounded-xl border border-outline-variant bg-card p-6">
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <span className="text-[11px] font-medium text-outline">이름</span>

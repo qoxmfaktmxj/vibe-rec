@@ -73,7 +73,14 @@ const legalContent = {
   },
 } as const;
 
-export function LegalLayerLinks() {
+interface LegalLayerLinksProps {
+  /** Override the trigger link styling — used when embedding in the dark footer. */
+  linkClassName?: string;
+}
+
+export function LegalLayerLinks({
+  linkClassName = "transition-colors hover:text-brand",
+}: LegalLayerLinksProps = {}) {
   const [activeModal, setActiveModal] = useState<LegalType>(null);
 
   const content = useMemo(() => {
@@ -89,18 +96,10 @@ export function LegalLayerLinks() {
 
   return (
     <>
-      <button
-        type="button"
-        className="transition-colors hover:text-primary"
-        onClick={() => setActiveModal("privacy")}
-      >
+      <button type="button" className={linkClassName} onClick={() => setActiveModal("privacy")}>
         개인정보처리방침
       </button>
-      <button
-        type="button"
-        className="transition-colors hover:text-primary"
-        onClick={() => setActiveModal("terms")}
-      >
+      <button type="button" className={linkClassName} onClick={() => setActiveModal("terms")}>
         이용약관
       </button>
       {content ? (
@@ -112,20 +111,20 @@ export function LegalLayerLinks() {
           onClick={closeModal}
         >
           <div
-            className="max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-sm border border-outline-variant bg-background p-6 shadow-2xl md:p-8"
+            className="max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-outline-variant bg-background p-6 shadow-2xl md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between gap-4 border-b border-outline-variant pb-4">
               <h3
                 id="legal-modal-title"
-                className="font-headline text-2xl font-medium tracking-[-0.03em] text-on-surface"
+                className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface"
               >
                 {content.title}
               </h3>
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-sm border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-primary hover:text-primary"
+                className="rounded-lg border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-brand hover:text-brand"
               >
                 닫기
               </button>

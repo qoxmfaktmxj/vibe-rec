@@ -22,7 +22,7 @@ export function WizardStepIndicator({ currentStep }: WizardStepIndicatorProps) {
                 step.number < currentStep
                   ? "bg-primary text-primary-foreground"
                   : step.number === currentStep
-                    ? "bg-primary text-primary-foreground ring-2 ring-primary/30 ring-offset-2"
+                    ? "bg-primary text-primary-foreground ring-2 ring-brand/30 ring-offset-2"
                     : "bg-surface-container-high text-on-surface-variant"
               }`}
             >

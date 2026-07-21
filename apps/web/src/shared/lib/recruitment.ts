@@ -2,6 +2,8 @@
   ApplicationFinalStatus,
   ApplicationReviewStatus,
   ApplicationStatus,
+  CandidateApplicationDetail,
+  CandidateApplicationSummary,
   CandidateNextAction,
   CandidateVisibleStage,
   EvaluationResult,
@@ -34,11 +36,11 @@ export function getCandidateVisibleStageClassName(stage: CandidateVisibleStage) 
     case "SCREENING":
       return "bg-sky-100 text-sky-900";
     case "INTERVIEW":
-      return "bg-violet-100 text-violet-900";
+      return "bg-sky-100 text-sky-900";
     case "OFFER":
       return "bg-emerald-100 text-emerald-900";
     case "CLOSED":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant";
   }
 }
 
@@ -135,6 +137,50 @@ export function formatRecruitmentPeriod(posting: {
   return formatDateRange(posting.opensAt, posting.closesAt);
 }
 
+export type JobPostingDdayInfo =
+  | { kind: "rolling" }
+  | { kind: "closed" }
+  | { kind: "dday"; days: number; label: string; urgent: boolean };
+
+/**
+ * D-day metadata for a job posting card. Rolling postings never expire (live dot),
+ * fixed-term postings without a close date fall back to "closed" once past open.
+ */
+export function getJobPostingDdayInfo(posting: {
+  closesAt: string | null;
+  recruitmentMode: RecruitmentMode;
+}): JobPostingDdayInfo {
+  if (posting.recruitmentMode === "ROLLING") {
+    return { kind: "rolling" };
+  }
+
+  if (!posting.closesAt) {
+    return { kind: "closed" };
+  }
+
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const closesAt = new Date(posting.closesAt);
+  const startOfCloseDay = new Date(
+    closesAt.getFullYear(),
+    closesAt.getMonth(),
+    closesAt.getDate(),
+  ).getTime();
+
+  const days = Math.round((startOfCloseDay - startOfToday) / (1000 * 60 * 60 * 24));
+
+  if (days < 0) {
+    return { kind: "closed" };
+  }
+
+  return {
+    kind: "dday",
+    days,
+    label: days === 0 ? "D-DAY" : `D-${days}`,
+    urgent: days <= 7,
+  };
+}
+
 export function isJobPostingOpenForApplications(posting: JobPostingAvailability) {
   const now = Date.now();
   const opensAt = new Date(posting.opensAt).getTime();
@@ -171,13 +217,13 @@ export function getJobPostingStatusLabel(status: JobPostingStatus) {
 export function getJobPostingStatusClassName(status: JobPostingStatus) {
   switch (status) {
     case "OPEN":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "CLOSED":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     case "DRAFT":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -284,13 +330,11 @@ export function getApplicationStatusLabel(status: ApplicationStatus) {
 export function getApplicationStatusClassName(status: ApplicationStatus) {
   switch (status) {
     case "SUBMITTED":
-      return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "DRAFT":
-      return "bg-amber-50 text-amber-800 ring-amber-200";
-    case "WITHDRAWN":
-      return "bg-stone-100 text-stone-700 ring-stone-200";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     default:
-      return "bg-stone-100 text-stone-700 ring-stone-200";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -316,15 +360,15 @@ export function getApplicationReviewStatusClassName(
 ) {
   switch (reviewStatus) {
     case "NEW":
-      return "bg-primary-container text-primary ring-primary/10";
+      return "bg-primary-container text-brand ring-brand/20";
     case "IN_REVIEW":
-      return "bg-sky-50 text-sky-800 ring-sky-200";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "PASSED":
-      return "bg-emerald-50 text-emerald-800 ring-emerald-200";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "REJECTED":
-      return "bg-rose-50 text-rose-800 ring-rose-200";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     default:
-      return "bg-stone-100 text-stone-700 ring-stone-200";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -374,6 +418,55 @@ export function getDraftAvailability(posting: JobPostingAvailability) {
   };
 }
 
+export const applicationFlowLabels = ["작성", "제출", "검토", "결과"] as const;
+
+type ApplicationFlowState = Pick<
+  CandidateApplicationDetail | CandidateApplicationSummary,
+  "status" | "reviewStatus" | "finalStatus"
+>;
+
+export interface ApplicationFlowProgress {
+  labels: typeof applicationFlowLabels;
+  /** Index into `labels` for the candidate's current step (RecruitmentStepper currentIndex). */
+  currentIndex: number;
+  /** True when the review ended in rejection or the final offer was declined. */
+  isRejected: boolean;
+  /** True when the candidate withdrew the application or offer. */
+  isWithdrawn: boolean;
+}
+
+/**
+ * Derives the candidate-facing flow progress (작성→제출→검토→결과) for an application.
+ * Shared by the job posting detail page and the /me dashboard so the stepper logic
+ * stays consistent everywhere it's rendered.
+ */
+export function getApplicationFlowProgress(
+  application: ApplicationFlowState | null,
+): ApplicationFlowProgress {
+  const isSubmitted = application?.status === "SUBMITTED";
+  const isInReview = application?.reviewStatus === "IN_REVIEW";
+  const isRejected =
+    application?.reviewStatus === "REJECTED" ||
+    application?.finalStatus === "DECLINED";
+  const isWithdrawn =
+    application?.status === "WITHDRAWN" ||
+    application?.finalStatus === "WITHDRAWN";
+  const isResolved =
+    isRejected ||
+    isWithdrawn ||
+    application?.reviewStatus === "PASSED" ||
+    application?.finalStatus === "ACCEPTED";
+
+  const currentIndex = isResolved ? 3 : isInReview ? 2 : isSubmitted ? 1 : 0;
+
+  return {
+    labels: applicationFlowLabels,
+    currentIndex,
+    isRejected,
+    isWithdrawn,
+  };
+}
+
 export function getInterviewStatusLabel(status: InterviewStatus) {
   switch (status) {
     case "SCHEDULED":
@@ -392,15 +485,15 @@ export function getInterviewStatusLabel(status: InterviewStatus) {
 export function getInterviewStatusClassName(status: InterviewStatus) {
   switch (status) {
     case "SCHEDULED":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "COMPLETED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "CANCELLED":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     case "NO_SHOW":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -422,15 +515,15 @@ export function getEvaluationResultLabel(result: EvaluationResult) {
 export function getEvaluationResultClassName(result: EvaluationResult) {
   switch (result) {
     case "PENDING":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     case "PASS":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "FAIL":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     case "HOLD":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -452,15 +545,15 @@ export function getFinalStatusLabel(status: ApplicationFinalStatus) {
 export function getFinalStatusClassName(status: ApplicationFinalStatus) {
   switch (status) {
     case "OFFER_MADE":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "ACCEPTED":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "DECLINED":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     case "WITHDRAWN":
-      return "bg-amber-100 text-amber-900";
+      return "bg-amber-100 text-amber-900 ring-amber-200";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 
@@ -499,15 +592,15 @@ export function getNotificationTypeLabel(type: string) {
 export function getNotificationTypeClassName(type: string) {
   switch (type) {
     case "OFFER":
-      return "bg-emerald-100 text-emerald-900";
+      return "bg-emerald-100 text-emerald-900 ring-emerald-200";
     case "REJECTION":
-      return "bg-rose-100 text-rose-900";
+      return "bg-rose-100 text-rose-900 ring-rose-200";
     case "INTERVIEW_INVITE":
-      return "bg-sky-100 text-sky-900";
+      return "bg-sky-100 text-sky-900 ring-sky-200";
     case "GENERAL":
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
     default:
-      return "bg-stone-200 text-stone-700";
+      return "bg-surface-container text-on-surface-variant ring-outline-variant";
   }
 }
 

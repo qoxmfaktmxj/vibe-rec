@@ -213,7 +213,7 @@ export function ApplicationWizard({
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
           지원하기
         </p>
-        <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.04em] text-on-surface">
+        <h1 className="mt-2 font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
           {jobPostingTitle}
         </h1>
       </div>
@@ -237,7 +237,7 @@ export function ApplicationWizard({
       <WizardStepIndicator currentStep={currentStep} />
 
       {/* Step Content */}
-      <div className="rounded-sm border border-outline-variant bg-card p-6 sm:p-8">
+      <div className="rounded-xl border border-outline-variant bg-card p-6 sm:p-8">
         <h2 className="mb-6 font-headline text-lg font-medium text-on-surface">
           {currentStep === 1 && "인적사항"}
           {currentStep === 2 && "자기소개 / 핵심역량"}
@@ -281,10 +281,10 @@ export function ApplicationWizard({
 
       {/* Error/Status */}
       {error && (
-        <div className="rounded-sm bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-xl bg-error-container px-4 py-3 text-sm text-destructive">{error}</div>
       )}
       {saveStatus && !error && (
-        <div className="rounded-sm bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
+        <div className="rounded-xl bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">{saveStatus}</div>
       )}
 
       {/* Navigation Buttons */}
@@ -295,7 +295,7 @@ export function ApplicationWizard({
               type="button"
               disabled={isPending}
               onClick={handlePrev}
-              className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition hover:bg-surface-container-low disabled:opacity-50"
+              className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-50"
             >
               이전
             </button>
@@ -306,7 +306,7 @@ export function ApplicationWizard({
             type="button"
             disabled={isPending}
             onClick={handleSaveDraft}
-            className="rounded-sm border border-outline-variant px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-on-surface transition hover:bg-surface-container-low disabled:opacity-50"
+            className="rounded-lg border border-outline-variant px-5 py-3 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-50"
           >
             임시저장
           </button>
@@ -315,7 +315,7 @@ export function ApplicationWizard({
               type="button"
               disabled={isPending}
               onClick={handleNext}
-              className="rounded-sm bg-primary px-5 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
               다음
             </button>
@@ -324,7 +324,7 @@ export function ApplicationWizard({
               type="button"
               disabled={isPending || !candidateSession.emailVerified}
               onClick={handleSubmit}
-              className="rounded-sm bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
               최종 제출
             </button>

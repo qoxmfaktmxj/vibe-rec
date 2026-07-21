@@ -35,14 +35,14 @@ features/{domain}/{feature}/Component.tsx
 
 **반드시 `DESIGN.md` (프로젝트 루트) 참조.**
 
-- 색상: `globals.css` 토큰만 사용. `bg-card`(흰색), `bg-background`(연한 블루), `text-on-surface` 등
-- 폰트: `font-headline`/`font-sans`(Sora), `font-mono`(IBM Plex Mono)
-- Radius: `rounded-lg`(컨테이너/버튼), `rounded-full`(뱃지/아바타)
+- 색상: `globals.css` 토큰만 사용. `bg-card`(흰색), `bg-background`(블루 틴트 캔버스), `text-on-surface`(잉크), `text-brand`(신호 블루) 등
+- 폰트: `font-sans`(Wanted Sans Variable, 본문·UI 전부), `font-headline`(Sora, 라틴 디스플레이 전용·한글은 Wanted Sans fallback), `font-mono`(Spline Sans Mono)
+- Radius: `rounded-lg`(버튼/입력), `rounded-xl`(카드/패널), `rounded-full`(뱃지/아바타)
 - 뱃지 색상: `getApplicationStatusClassName()` from `shared/lib/recruitment.ts`
 
 ## 접근성 체크리스트
 
-- `outline-none` 사용 시 반드시 `focus:ring-2 focus:ring-primary/20` 동반
+- `outline-none` 사용 시 반드시 `focus:ring-2 focus:ring-ring/25` 동반
 - 터치 타깃 최소 44px (`min-h-[44px]` 또는 `py-2.5`)
 - 동적 메시지: `aria-live="polite" aria-atomic="true"`
 - 모달: `aria-modal="true"` + `aria-labelledby`

@@ -34,7 +34,7 @@ export function CandidateLogoutButton({
       type="button"
       onClick={handleLogout}
       disabled={isPending}
-      className="rounded-sm border border-outline-variant bg-card px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-on-surface transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+      className="min-h-[44px] rounded-lg border border-outline-variant bg-card px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50"
     >
       {isPending ? "로그아웃 중..." : "로그아웃"}
     </button>

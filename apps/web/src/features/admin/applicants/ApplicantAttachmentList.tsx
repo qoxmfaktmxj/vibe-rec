@@ -31,7 +31,7 @@ export function ApplicantAttachmentList({
         >
           <div className="flex items-center gap-3 overflow-hidden">
             <svg
-              className="h-5 w-5 shrink-0 text-primary"
+              className="h-5 w-5 shrink-0 text-brand"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

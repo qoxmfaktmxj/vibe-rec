@@ -1,254 +1,237 @@
-# DESIGN.md — HireFlow 디자인 시스템
+# DESIGN.md — HireFlow 디자인 시스템 v2 "차분한 확신"
 
-> 이 파일은 HireFlow의 디자인 결정을 문서화합니다.
-> 새 컴포넌트를 만들 때 이 파일을 먼저 읽고, shadcn 기본값(Inter, 큰 radius)을 그대로 사용하지 마세요.
-> 마지막 업데이트: 2026-03-28
-
----
-
-## 1. 브랜드 정체성
-
-**제품 유형:** HYBRID — 공개 채용 사이트(마케팅) + 관리 도구(앱 UI)
-**디자인 방향:** 신뢰감 있는 HR 도구. 차분한 블루 팔레트로 전문성과 안정감을 전달.
+> 새 컴포넌트를 만들기 전에 이 파일을 먼저 읽으세요. shadcn 기본값(Inter, 큰 radius)을 그대로 쓰지 마세요.
+> 방향·근거는 `docs/design-renewal/BRIEF.md`, 품질 기준은 `docs/design-renewal/RUBRIC.md` 참조.
+> 마지막 업데이트: 2026-07-12 (Cal.com 레퍼런스 기반 리뉴얼)
 
 ---
 
-## 2. 색상 팔레트
+## 0. 스펙 (기계 판독용)
 
-모든 색상은 `apps/web/src/app/globals.css`의 CSS 변수로 정의됩니다. **직접 Tailwind 색상을 사용하지 마세요.** 토큰을 사용하세요.
+```yaml
+concept: "잉크가 행동하고, 블루는 신호한다 — near-monochrome 신뢰 시스템 + 채용 파이프라인 시각화"
 
-### Primary (브랜드 색)
-| 토큰 | 값 | 용도 |
-|------|-----|------|
-| `--primary` | `#0369A1` | CTA 버튼, 링크, 액센트 |
-| `--primary-foreground` | `#ffffff` | primary 배경 위 텍스트 |
-| `--primary-container` | `#DBEEFE` | 연한 primary 배경 (히어로, 강조 섹션) |
-| `--primary-fixed` | `#BAE6FD` | 매우 연한 primary (뱃지 배경 등) |
+colors:
+  background: "#F7F9FB"        # 캔버스 (블루 틴트 근백색)
+  card: "#FFFFFF"              # 카드 표면 (유일한 순백)
+  surface-container-low: "#F2F5F8"   # 연회색 피처 카드·패널
+  surface-container: "#EAEEF3"
+  surface-container-high: "#DEE4EB"
+  surface-container-highest: "#CDD6E0"
+  on-surface: "#121C28"        # 잉크 텍스트
+  on-surface-variant: "rgba(18,28,40,0.62)"
+  outline: "rgba(18,28,40,0.28)"
+  outline-variant: "rgba(18,28,40,0.10)"
+  primary: "#16283C"           # 행동 잉크 — filled CTA 전용
+  primary-hover: "#22344A"
+  primary-foreground: "#FFFFFF"
+  primary-container: "#E3EDF6"
+  brand: "#0369A1"             # 신호 블루 — 링크·활성·포커스·라이브 dot
+  brand-strong: "#075985"
+  secondary: "#0EA5E9"
+  ring: "#0369A1"
+  surface-dark: "#0C1826"      # 다크 푸터 (시스템 유일의 다크 표면)
+  surface-dark-elevated: "#14243A"
+  on-dark: "#E9EFF6"
+  on-dark-soft: "#93A5B8"
+  success: "#16A34A"
+  destructive: "#DC2626"
 
-### Secondary
-| 토큰 | 값 | 용도 |
-|------|-----|------|
-| `--secondary` | `#0EA5E9` | 보조 액센트, 호버 상태 |
-| `--secondary-foreground` | `#ffffff` | secondary 배경 위 텍스트 |
+typography:
+  display:  { size: "clamp(2.5rem,5vw,4rem)", weight: 700, lineHeight: 1.12, tracking: "-0.02em", family: headline }
+  h1:       { size: "2rem",      weight: 700, lineHeight: 1.25, tracking: "-0.02em",  family: headline }
+  h2:       { size: "1.5rem",    weight: 600, lineHeight: 1.3,  tracking: "-0.015em", family: headline }
+  h3:       { size: "1.125rem",  weight: 600, lineHeight: 1.4,  tracking: "-0.01em",  family: headline }
+  body:     { size: "0.9375rem", weight: 400, lineHeight: 1.7,  tracking: "-0.005em", family: body }
+  caption:  { size: "0.8125rem", weight: 400, lineHeight: 1.5,  tracking: "0",        family: body }
+  meta:     { size: "11px",      weight: 500, lineHeight: 1.2,  tracking: "0.14em",   family: mono, transform: uppercase }
 
-### Surface 계층 (M3 인스파이어드)
-배경 레이어를 쌓을 때 이 순서를 따르세요:
+fonts:
+  body: "Wanted Sans Variable"     # npm wanted-sans, 한글 동적 서브셋, 본문·UI 전부
+  headline: "Sora"                 # 라틴 디스플레이·로고 전용, 한글 글리프는 Wanted Sans fallback
+  mono: "Spline Sans Mono"         # 메타 라벨·카운터·날짜·테이블 숫자
+
+rounded:
+  button: "rounded-lg"      # 8px — 버튼·입력
+  card: "rounded-xl"        # ≈11px — 카드·패널·모달
+  badge: "rounded-full"     # 뱃지·nav pill·아바타
+  banned: ["rounded-2xl", "rounded-3xl"]
+
+elevation:
+  shadow-1: "0 1px 2px rgba(18,28,40,0.05)"                                  # 정지 카드
+  shadow-2: "0 2px 8px rgba(18,28,40,0.07), 0 1px 2px rgba(18,28,40,0.04)"   # hover·드롭다운
+  shadow-3: "0 16px 40px -16px rgba(18,28,40,0.18)"                          # 모달·히어로 프레임
+
+spacing:
+  section: "py-20 md:py-24"        # 공개 사이트 밴드 간
+  page-x: "px-6 md:px-16"
+  card: "p-6"  # 대형 p-8
+  group-tight: "gap-2~3"           # 라벨↔값
+  group-loose: "gap-10~12"         # 그룹 간
 ```
-페이지 배경:         --background (#EDF5FB, 연한 블루)
-카드/패널:           --surface (#E8F4FC) -> --card (#ffffff)
-컨테이너 (낮음):    --surface-container-low (#E4EEF6)
-컨테이너:           --surface-container (#D8E6F0)
-컨테이너 (높음):    --surface-container-high (#CBDCE8)
-컨테이너 (최고):    --surface-container-highest (#BDD0DF)
-```
 
-**규칙:** 중첩된 카드는 부모보다 밝아야 합니다. `bg-card`(흰색)이 `bg-background`(연한 블루) 위에 올라가는 패턴. 배경과 카드 사이에 충분한 대비가 있어야 "미완성"처럼 보이지 않습니다.
+---
 
-### 텍스트 색상
+## 1. Overview
+
+HireFlow는 공개 채용 사이트(마케팅)와 어드민 도구(앱 UI)의 하이브리드다. 디자인 언어는 Cal.com을 주 레퍼런스로
+한 **근-단색(near-monochrome) 신뢰 시스템**: 블루 틴트 캔버스(`--background`) 위에 순백 카드, 행동은 잉크
+CTA(`--primary` #16283C) 하나, 브랜드 블루(`--brand` #0369A1)는 링크·활성 상태·포커스 링·라이브 신호에만 나타난다.
+모든 공개 페이지는 다크 네이비 푸터(`--surface-dark`)로 닫힌다 — 시스템에서 유일한 다크 표면.
+
+시그니처는 **채용 파이프라인 시각화**: `RecruitmentStepper`가 공고 상세·지원자 대시보드·어드민에서 동일한
+시각 언어(완료=잉크, 현재=블루, 예정=hairline)로 진행 상태를 답한다. 마케팅 일러스트 대신 실제 제품 UI의
+미니어처를 카드에 임베드한다(Cal 방식).
+
+## 2. 색상 사용 규칙
+
+- **filled CTA는 밴드당 1개.** `bg-primary`(잉크)는 섹션에서 가장 중요한 행동 하나에만. 보조 행동은 outline/ghost.
+- **`--brand` 블루는 신호 전용**: 텍스트 링크, 활성 탭/네비, 포커스 링, 라이브 dot, 인라인 강조. 대면적 배경 금지.
+- **뉴트럴 위계**: `bg-background`(캔버스) → `bg-card`(순백 카드) → `bg-surface-container-low`(연회색 패널).
+  중첩 카드 금지 — 카드 안 정보 그룹은 `surface-container-low` 틴트나 hairline(`border-outline-variant`)으로.
+- **시맨틱 상태 색 예외 (유지)**: emerald=합격/제출, rose=불합격, amber=대기/임시저장, sky=진행중.
+  상태 뱃지는 반드시 `shared/lib/recruitment.ts`의 `get*ClassName()` 사용.
+- **금지**: `bg-white`(→`bg-card`), `text-gray-*`, `bg-blue-*` 직접 사용, hex 하드코딩, 보라/인디고 그라디언트.
+
+## 3. 타이포그래피 — 한글 우선
+
+**한글이 1급 시민이다.** 본문·UI 폰트는 Wanted Sans Variable(원티드랩, OFL). Sora는 라틴 디스플레이·로고·
+숫자 헤드라인 전용이며 한글 글리프는 자동으로 Wanted Sans로 fallback된다. IBM Plex Mono는 폐기,
+mono 슬롯은 Spline Sans Mono.
+
+### 한글 조판 규칙 (base layer 적용, 위반 금지)
+- 제목·문단 `word-break: keep-all` — 단어 중간 줄바꿈 금지
+- `h1~h3`에 `text-wrap: balance`
+- 본문 행간 ≥1.7 (`leading-7` 이상). 한글은 라틴보다 시각 밀도가 높다 — 좁은 행간 금지
+- 헤드라인 트래킹 하한 **-0.02em** (기존 -0.04em은 한글에서 뭉개짐 — 회귀 금지)
+- 본문 최대 측정폭 `max-w-[65ch]` 수준 유지
+- 날짜·카운터·통계 숫자: `font-mono` 또는 `tabular-nums` — 열이 정렬되어야 한다
+
+### 슬롯
+| 클래스 | 폰트 | 사용처 |
+|--------|------|--------|
+| `font-headline` | Sora → Wanted Sans | 히어로, 페이지/섹션 제목, 로고 |
+| `font-sans` (기본) | Wanted Sans Variable | 본문, UI 라벨, 폼 |
+| `font-mono` | Spline Sans Mono | 메타 라벨(11px uppercase tracking-[0.14em]), D-day, 날짜, 테이블 숫자 |
+
+## 4. Layout
+
+- 공개 사이트 `max-w-7xl`, 지원 위저드 `max-w-4xl`, 인증 폼 `max-w-md`, 페이지 좌우 `px-6 md:px-16`
+- 섹션 밴드 간 `py-20 md:py-24`. **균일 padding 반복 금지** — 관련 요소는 tight(8~12px), 그룹 간은 generous(40px+)
+- 히어로는 비대칭 12-col 그리드(텍스트 7 : 제품 프래그먼트 5). 본문 섹션은 좌측 정렬 기본, 중앙 정렬은 히어로 배지 등 최소한만
+- 어드민: `AdminRailNav` 레일 + 전폭 메인. 데스크탑 전용(`min-width: 1024px`, `AdminMobileGuard`)
+
+## 5. Elevation & Depth
+
+3단계 잉크-틴트 그림자만 사용한다. 임의 `shadow-[...]` 금지.
+
 | 토큰 | 용도 |
 |------|------|
-| `text-on-surface` | 기본 본문 텍스트 (`#0C4A6E`) |
-| `text-on-surface-variant` | 보조 텍스트, 라벨, 캡션 |
-| `text-primary` | 강조 텍스트, 링크 |
-| `text-destructive` | 오류, 경고 |
+| `--shadow-1` (`.elevation-1`) | 정지 상태 카드 |
+| `--shadow-2` (`.elevation-2`) | hover 카드, 드롭다운, sticky 헤더 |
+| `--shadow-3` (`.elevation-3`) | 모달, 히어로 제품 프레임 |
 
-### 금지 사항
-- `text-gray-500`, `bg-blue-100` 등 직접 Tailwind 색상 사용 금지
-- 새 hex 값을 코드에 하드코딩 금지 (`bg-[#0369A1]` 대신 `bg-primary`)
-- `bg-white` 대신 `bg-card` 사용
-- 예외: 시맨틱 의미가 있는 상태 색상 (emerald=합격, rose=불합격, amber=임시저장)은 허용
+깊이는 그림자보다 **표면 틴트 대비**(캔버스↔카드)가 우선. 글래스모피즘(장식용 blur) 금지.
 
----
+## 6. Components
 
-## 3. 타이포그래피
-
-### 폰트 패밀리
-| 변수 | 폰트 | 사용처 |
-|------|-------|--------|
-| `font-headline` | Sora | 제목, 브랜드명, 공고 제목, 섹션 헤더 |
-| `font-sans` | Sora | 본문, 설명, UI 라벨 |
-| `font-mono` | IBM Plex Mono | 메타데이터, 카운터, 상태 라벨, 날짜 |
-
-**절대 사용하지 마세요:** `font-inter`, `font-roboto`, `font-system` 등 기본 스택.
-
-### 타입 스케일
-| 크기 | 클래스 | 용도 |
-|------|--------|------|
-| 72px / semibold | `text-7xl font-semibold tracking-[-0.04em]` | 메인 히어로 헤드라인 |
-| 48px / semibold | `text-5xl font-semibold tracking-[-0.04em]` | 모바일 히어로 |
-| 30px / medium | `text-3xl font-medium tracking-[-0.04em]` | 페이지 제목, 섹션 제목 |
-| 24px / medium | `text-2xl font-medium tracking-[-0.04em]` | 카드 제목, 모달 제목 |
-| 18px / medium | `text-lg font-medium tracking-[-0.03em]` | 카드 내 항목 제목 |
-| 14px / normal | `text-sm leading-7` | 본문, 설명 |
-| 13px / normal | `text-[13px]` | 네비게이션 링크 |
-| 11px / mono | `font-mono text-[11px] uppercase tracking-[0.18em~0.28em]` | 메타 라벨, 카운터 |
-| 11px / semibold | `text-[11px] font-semibold uppercase tracking-[0.14em]` | 뱃지, 버튼 (소형) |
-
----
-
-## 4. 간격 & 레이아웃
-
-### 최대 너비
-| 컨텍스트 | 클래스 |
-|----------|--------|
-| 공개 사이트 전체 | `max-w-7xl` |
-| 지원 위저드 / 좁은 폼 | `max-w-4xl` |
-| 히어로 텍스트 영역 | `max-w-5xl` |
-| 인증 폼 | `max-w-md` |
-
-### 패딩 시스템
-| 용도 | 클래스 |
-|------|--------|
-| 페이지 좌우 | `px-6 md:px-16` |
-| 카드/패널 내부 | `p-8` |
-| 소형 카드 | `p-6` |
-| 표 행 | `px-6 py-5` |
-| 버튼 (기본) | `px-5 py-2` 또는 `px-7 py-3.5` (히어로 CTA) |
-| 버튼 (소형) | `px-3.5 py-2` |
-
----
-
-## 5. Border Radius 규칙
-
-HireFlow는 `--radius: 0.5rem` (8px) 을 기준으로 합니다.
-
-### 사용 규칙 (계층별)
-
-| 계층 | 클래스 | 용도 | 예시 |
-|------|--------|------|------|
-| 최상위 컨테이너 | `rounded-lg` | 페이지 카드, 모달, 패널 | `<div className="rounded-lg border bg-card">` |
-| 서브 컨테이너 | `rounded-lg` | 카드 내 중첩 섹션 | info box, 코드 블럭 |
-| 버튼 / 입력창 | `rounded-lg` | CTA, 폼 필드 | `<button>`, `<input>` |
-| 뱃지 / 태그 | `rounded-full` | 상태 뱃지, 필터 태그 | `<span className="rounded-full">` |
-| 아바타 | `rounded-full` | 사용자 이니셜 원형 | `<div className="rounded-full">` |
-
-### 금지 및 예외
-
-**절대 금지:** `rounded-2xl`, `rounded-3xl` — 과도하게 bubbly한 미학.
-
-**허용:**
-- shadcn 기본 컴포넌트(Dialog, DropdownMenu, Popover, Tooltip 등): shadcn 기본값 유지.
-- CTA 버튼, 카드: `rounded-lg` 사용.
-
-### 빠른 체크리스트
-새 컴포넌트 작성 시:
-- [ ] 카드/패널: `rounded-lg border border-outline-variant`
-- [ ] 버튼: `rounded-lg`
-- [ ] 뱃지: `rounded-full px-4 py-1.5`
-- [ ] 아바타만: `rounded-full`
-
----
-
-## 6. 컴포넌트 가이드
-
-### 버튼
+### 버튼 (`components/ui/button.tsx` variants)
 ```tsx
-// Primary CTA (히어로)
-<button className="rounded-lg bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/15 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20">
-  버튼 텍스트
-</button>
+// Primary (잉크 CTA — 밴드당 1개)
+<Button>지원하기</Button>
+// → bg-primary text-primary-foreground hover:bg-primary-hover, rounded-lg, h-11+ (44px 터치 타깃)
 
-// Secondary / Outline
-<button className="rounded-lg border border-primary/30 bg-card px-7 py-3.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/5">
-  버튼 텍스트
-</button>
+// Outline (보조)
+<Button variant="outline">공고 보기</Button>
+// → border-outline-variant bg-card hover:bg-surface-container-low text-on-surface
 
-// 네비게이션 버튼
-<button className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-md">
-  로그인
-</button>
+// Ghost / Link — 3차 행동, 텍스트 링크는 text-brand
 ```
+press 상태: `active:translate-y-px`. hover 시 `-translate-y-0.5` 남용 금지(CTA 1곳 정도).
 
-### 입력 필드 (필수: focus ring 포함)
+### 입력
 ```tsx
-// 기본 입력
-<input className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20" />
+<input className="w-full rounded-lg border border-outline-variant bg-card px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25" />
 ```
-
-**중요:** `outline-none`을 사용할 때 반드시 `focus:ring-2 focus:ring-primary/20`을 함께 사용하세요. WCAG 2.1 AA 요건.
+`outline-none`에는 반드시 `focus:ring-2` 동반 (WCAG 2.1 AA).
 
 ### 카드
 ```tsx
-<div className="rounded-lg border border-outline-variant bg-card p-6 card-shadow">
-  {/* 카드 내용 */}
-</div>
+<div className="rounded-xl border border-outline-variant bg-card p-6 elevation-1">
 ```
+인터랙티브 카드: `.card-interactive` (hover: elevation-2 + border-brand/20, translateY(-2px)).
 
 ### 상태 뱃지
 ```tsx
-// 공유 유틸리티 사용 (shared/lib/recruitment.ts)
-import { getApplicationStatusClassName, getApplicationStatusLabel } from "@/shared/lib/recruitment";
-
-<span className={`inline-flex items-center rounded-full px-4 py-1.5 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(status)}`}>
+<span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(status)}`}>
+  <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
   {getApplicationStatusLabel(status)}
 </span>
 ```
+색 조합은 `recruitment.ts` 함수가 유일한 소스. 배경 100단계 + ring 200단계 + 텍스트 800/900.
 
-### 페이지네이션
-`PaginationBar` (클라이언트 측, `useState`) 또는 `PaginationLinks` (서버 측, URL 파라미터) 중 선택:
-- 클라이언트 상태 페이지네이션 -> `PaginationBar`
-- URL-based SSR 페이지네이션 -> `PaginationLinks` (admin/applicants 패턴)
+### RecruitmentStepper (`features/recruitment/shared/RecruitmentStepper.tsx`)
+채용 단계 시각화의 단일 소스. 완료=잉크 채움+체크, 현재=브랜드 블루 ring+dot, 예정=hairline 원.
+수평(`orientation="horizontal"`, 카드·대시보드)과 수직(`vertical`, 공고 상세) 지원. 텍스트 나열로 단계를 표현하지 말 것.
 
----
+### 다크 푸터 (`PublicSiteFooter`)
+`bg-[color:var(--surface-dark)]` + `text-[color:var(--on-dark-soft)]`, 링크 hover `text-[color:var(--on-dark)]`.
+회사 정보·법적 링크·문의를 갖춘 4열(모바일 1열). 모든 공개 페이지의 마지막 밴드.
 
-## 7. 공개 사이트 vs 어드민 구분
+### 테이블 (어드민)
+- `thead`: `sticky top-0 bg-surface-container-low` + `text-[11px] uppercase tracking-[0.14em] font-mono`
+- 행 hover: `hover:bg-surface-container-low/60`, 숫자·날짜 셀 `tabular-nums`
+- 행 높이는 콘텐츠 밀도 우선(`py-4`), 초대형 `py-5+` 금지
 
-| 항목 | 공개 사이트 | 어드민 |
-|------|------------|--------|
-| 레이아웃 | `PublicSiteHeader` + 자유형 | `AdminRailNav` 사이드바 + 메인 |
-| 최대 너비 | `max-w-7xl` | 전체 폭 (사이드바 포함) |
-| 타깃 사용자 | 지원자 (모바일 포함) | HR 담당자 (데스크탑 전용) |
-| 뷰포트 지원 | 모바일 ~ 데스크탑 | `min-width: 1024px` 이상 |
-| 주요 색조 | 연한 블루 배경 + 블루 액센트 | 동일 토큰, 더 조밀한 데이터 레이아웃 |
+## 7. Do's and Don'ts
 
----
+### Do
+- 잉크 CTA는 밴드당 하나 — 그래서 눈에 띈다
+- 진행 상태는 `RecruitmentStepper`로 시각화
+- 실제 제품 UI 미니어처를 마케팅 카드에 임베드 (장식 일러스트 대신)
+- 숫자 열은 mono/tabular로 정렬
+- 한글 제목에 `keep-all` + `balance`
+- 모든 공개 페이지를 다크 푸터로 닫기
 
-## 8. 공개 사이트 네비게이션
+### Don't
+- `border-l-4` 류 색상 side-stripe (1px hairline만 허용)
+- gradient text (`background-clip: text`)
+- 보라/인디고 그라디언트, 네온, 글래스모피즘
+- 카드 속 카드 중첩
+- 균일 아이콘 카드 3열 그리드, 히어로 전체 중앙 정렬 회귀
+- 헤드라인 트래킹 -0.02em 미만(한글 뭉개짐)
+- bounce/elastic easing, width/height 애니메이션
+- 이모지 장식, "한 곳에서 모두" 류 제네릭 카피
 
-모든 공개 페이지에서 `PublicSiteHeader`를 사용하세요. 인라인 `<nav>`를 직접 만들지 마세요.
+## 8. Responsive Behavior
 
-```tsx
-// activePath는 현재 경로 문자열. 어떤 경로든 받을 수 있습니다.
-<PublicSiteHeader activePath="/job-postings/123" />
-```
+| 구간 | 폭 | 주요 변화 |
+|------|-----|----------|
+| Desktop | ≥1280px | 히어로 7:5 비대칭, 공고 3열, 어드민 전체 |
+| Laptop | 1024–1279px | 공고 2~3열, 어드민 최소 지원 폭 |
+| Tablet | 768–1023px | 히어로 세로 스택(텍스트→프래그먼트), 공고 2열, 어드민 차단 |
+| Mobile | <768px | 공고 1열, 푸터 1열, display 폰트 clamp 하한(40px), nav 축약 |
 
-`startsWith()` 매칭으로 `/job-postings/*` 하위 경로에서 "채용 공고" 탭이 활성화됩니다.
+- 터치 타깃 ≥44px (`min-h-[44px]` 또는 `py-2.5`+)
+- 모바일에서 기능 숨김 금지 — 재배치할 것
+- 모션: `prefers-reduced-motion: reduce`에서 entrance/hover transform 전부 무효화(기존 블록 유지·확장)
 
-네비 바는 `flat-nav` 클래스를 사용하며, `backdrop-filter: blur(8px)`로 스크롤 시 배경 블러 효과가 적용됩니다.
+## 9. 접근성 체크리스트
 
----
+- [ ] `outline-none` → `focus:ring-2 focus:ring-ring/25` 동반
+- [ ] 본문 대비 4.5:1, 대형 텍스트 3:1 (on-dark-soft는 다크 푸터 본문에만)
+- [ ] 동적 메시지 `aria-live="polite" aria-atomic="true"`
+- [ ] 네비 활성 `aria-current="page"`, 모달 `aria-modal` + `aria-labelledby`
+- [ ] 스텝퍼는 `<ol>` + 상태를 텍스트로도 제공(`sr-only` 포함)
 
-## 9. 접근성 (a11y) 체크리스트
+## 10. Favicon
 
-새 컴포넌트 작성 시 확인하세요:
+`apps/web/src/app/icon.svg` — 잉크(`#16283C`) 배경 + 흰 "H". 토큰 변경 시 favicon 동기화 필수.
 
-- [ ] 입력 필드에 `focus:ring-2 focus:ring-primary/20` 포함 (`outline-none`만 사용 금지)
-- [ ] 버튼의 최소 높이 44px (터치 타깃, `min-h-[44px]` 또는 `py-2.5` 이상)
-- [ ] 동적 오류/성공 메시지에 `aria-live="polite" aria-atomic="true"`
-- [ ] 네비게이션 활성 상태에 `aria-current="page"`
-- [ ] 모달에 `aria-modal="true"` + `aria-labelledby`
-- [ ] 스크린 리더를 위한 시각적으로 숨겨진 텍스트: `<span className="sr-only">`
+## 11. Iteration Guide
 
----
-
-## 10. 금지 패턴 (AI Slop 방지)
-
-다음 패턴은 사용하지 마세요:
-
-| 패턴 | 대신 사용 |
-|------|---------|
-| 보라/인디고 그라디언트 | 블루 primary + 연한 블루 배경 |
-| 색상 원형 아이콘 + 3열 그리드 | 콘텐츠가 충분한 카드 |
-| 히어로에 카드 배치 | 히어로는 텍스트 + CTA만 |
-| `text-center` 모든 것 | 히어로만 중앙 정렬 |
-| 균일한 큰 `rounded-2xl` | `rounded-lg` (시스템 radius) |
-| 이모지 장식 | 텍스트 또는 SVG 아이콘 |
-| "한 곳에서 모두" 같은 제네릭 카피 | 구체적인 제품 언어 |
-| `bg-white` 하드코딩 | `bg-card` 토큰 사용 |
-
----
-
-## 11. Favicon
-
-`apps/web/src/app/icon.svg` — primary 블루(`#0369A1`) 배경에 흰색 "H" 로고.
-디자인 변경 시 favicon 색상도 반드시 맞춰서 업데이트하세요.
+1. 한 번에 한 컴포넌트만 수정하고, 토큰 이름으로 참조하라 (`--primary`, `elevation-2`)
+2. UI 변경 후 `/design-check`, 커밋 전 `npx tsc --noEmit && npm run lint`
+3. 새 색이 필요하면 globals.css에 토큰부터 등록 — 컴포넌트에 raw 값 금지
+4. 상태 색은 `recruitment.ts` 함수에만 추가
+5. 품질 게이트: `docs/design-renewal/RUBRIC.md` 평균 9.0 미만이면 머지 금지

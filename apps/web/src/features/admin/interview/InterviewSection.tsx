@@ -28,7 +28,7 @@ interface InterviewSectionProps {
 }
 
 const inputClassName =
-  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20";
+  "mt-2 w-full rounded-xl border border-outline-variant bg-surface-container-highest px-4 py-3 text-sm text-on-surface outline-none transition-all duration-200 focus:bg-surface-container-lowest focus:ring-2 focus:ring-ring/25";
 
 const evaluationResultOptions: Array<{
   value: EvaluationResult;
@@ -232,7 +232,7 @@ export function InterviewSection({
             면접 관리
           </p>
           <div className="space-y-2">
-            <h2 className="font-headline text-2xl font-semibold tracking-[-0.05em] text-on-surface">
+            <h2 className="font-headline text-2xl font-semibold tracking-[-0.02em] text-on-surface">
               면접 단계를 관리합니다
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-on-surface-variant">
@@ -258,7 +258,7 @@ export function InterviewSection({
           className={`mt-5 rounded-xl px-4 py-3 text-sm ${
             isError
               ? "bg-error-container text-destructive"
-              : "bg-secondary-container text-[#00731e]"
+              : "bg-secondary-container text-emerald-900"
           }`}
         >
           {message}
@@ -268,7 +268,7 @@ export function InterviewSection({
       {showAddForm ? (
         <form
           onSubmit={handleAddInterview}
-          className="mt-6 grid gap-4 rounded-2xl border border-outline-variant/70 bg-surface-container-low p-6 md:grid-cols-2"
+          className="mt-6 grid gap-4 rounded-xl border border-outline-variant/70 bg-surface-container-low p-6 xl:grid-cols-[1.1fr_1fr_1.3fr]"
         >
           <label className="block text-sm font-semibold text-on-surface-variant">
             면접 단계
@@ -369,7 +369,7 @@ export function InterviewSection({
           <button
             type="submit"
             disabled={isAddingInterview}
-            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 hover:shadow-primary/20 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 md:col-span-2 md:w-fit"
+            className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 hover:shadow-black/10 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 xl:col-span-3 xl:w-fit"
           >
             {isAddingInterview ? "저장 중..." : "면접 등록"}
           </button>
@@ -377,7 +377,7 @@ export function InterviewSection({
       ) : null}
 
       {interviews.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
+        <div className="mt-6 rounded-xl border border-dashed border-outline-variant/70 bg-surface-container-low px-6 py-10 text-center">
           <p className="text-sm font-semibold text-on-surface">등록된 면접이 없습니다.</p>
           <p className="mt-2 text-sm leading-7 text-on-surface-variant">
             첫 번째 면접 단계를 추가하세요.
@@ -403,7 +403,7 @@ export function InterviewSection({
                         )}
                       </span>
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getInterviewStatusClassName(
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset ${getInterviewStatusClassName(
                           interview.status,
                         )}`}
                       >
@@ -451,7 +451,7 @@ export function InterviewSection({
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-outline-variant/70 bg-surface-container-lowest px-4 py-4 xl:min-w-[240px]">
+                  <div className="rounded-xl border border-outline-variant/70 bg-surface-container-lowest px-4 py-4 xl:min-w-[240px]">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
                       상태 변경
                     </p>
@@ -498,7 +498,7 @@ export function InterviewSection({
                       {interview.evaluations.map((evaluation) => (
                         <div
                           key={evaluation.id}
-                          className="rounded-2xl border border-outline-variant/70 bg-surface-container-lowest px-4 py-3 text-sm"
+                          className="rounded-xl border border-outline-variant/70 bg-surface-container-lowest px-4 py-3 text-sm"
                         >
                           <div className="flex flex-wrap items-center gap-3">
                             <span className="font-semibold text-on-surface">{evaluation.evaluatorName}</span>
@@ -506,7 +506,7 @@ export function InterviewSection({
                               <span className="text-on-surface-variant">점수 {evaluation.score}/5</span>
                             ) : null}
                             <span
-                              className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${getEvaluationResultClassName(
+                              className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${getEvaluationResultClassName(
                                 evaluation.result,
                               )}`}
                             >
@@ -541,7 +541,7 @@ export function InterviewSection({
                 ) : null}
 
                 {evalFormOpen === interview.id ? (
-                  <form onSubmit={(event) => handleAddEvaluation(event, interview.id, interview.jobPostingStepId)} className="mt-6 space-y-4 rounded-2xl border border-outline-variant/70 bg-surface-container-lowest p-5">
+                  <form onSubmit={(event) => handleAddEvaluation(event, interview.id, interview.jobPostingStepId)} className="mt-6 space-y-4 rounded-xl border border-outline-variant/70 bg-surface-container-lowest p-5">
                     <fieldset className="space-y-3">
                       <legend className="text-sm font-semibold text-on-surface">구조화 평가 기준</legend>
                       {(scorecardsByStepId[interview.jobPostingStepId] ?? []).map((criterion) => (
@@ -556,7 +556,7 @@ export function InterviewSection({
                               onChange={(event) => setEvalCriterionComments((current) => ({ ...current, [criterion.id]: event.target.value }))}
                               maxLength={1000}
                               placeholder="항목별 근거 메모"
-                              className="mt-3 w-full border border-outline-variant px-3 py-2 text-sm"
+                              className="mt-3 w-full rounded-lg border border-outline-variant px-3 py-2 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-ring/25"
                             />
                           </div>
                           <label className="text-xs font-semibold text-on-surface-variant">
@@ -589,7 +589,7 @@ export function InterviewSection({
                     </label>
 
                     <div className="flex flex-wrap gap-2">
-                      <button type="submit" disabled={isAddingEval} className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/10 transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+                      <button type="submit" disabled={isAddingEval} className="inline-flex items-center justify-center rounded-xl bg-gradient-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-black/10 transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
                         {isAddingEval ? "저장 중..." : "평가 저장"}
                       </button>
                       <button type="button" onClick={() => setEvalFormOpen(null)} className="rounded-xl bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container-highest">
