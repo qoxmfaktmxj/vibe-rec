@@ -77,6 +77,7 @@ function JobPostingSection({
   emptyMessage,
   hideRecruitmentModeBadge = false,
   pageSize,
+  statusLabel,
 }: {
   title: string;
   description: string;
@@ -84,6 +85,7 @@ function JobPostingSection({
   emptyMessage: string;
   hideRecruitmentModeBadge?: boolean;
   pageSize: number;
+  statusLabel: string;
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const paged = paginateItems(jobPostings, currentPage, pageSize);
@@ -107,7 +109,7 @@ function JobPostingSection({
           {description}
         </p>
         <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-on-surface-variant">
-          모집 중
+          {statusLabel}
         </span>
       </div>
 
@@ -415,6 +417,7 @@ export function JobPostingBrowser({
                   emptyMessage={section.emptyMessage}
                   hideRecruitmentModeBadge={section.hideRecruitmentModeBadge}
                   pageSize={pageSize}
+                  statusLabel={availabilityFilter === "OPEN" ? "모집 중" : "전체 공고"}
                 />
               ))}
 
@@ -427,6 +430,7 @@ export function JobPostingBrowser({
                   emptyMessage={rollingEmptyMessage}
                   hideRecruitmentModeBadge
                   pageSize={pageSize}
+                  statusLabel={availabilityFilter === "OPEN" ? "모집 중" : "전체 공고"}
                 />
               ) : null}
             </div>

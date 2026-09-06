@@ -39,29 +39,48 @@ export default async function Home() {
               </p>
 
               <div className="animate-fade-in-up-delay-2 mt-10 flex flex-wrap items-center gap-5">
-                <a
-                  href="#positions"
-                  className="signal-primary-action group inline-flex min-h-12 items-center gap-4 rounded-full px-6 py-3 text-sm font-bold outline-none focus-visible:ring-2 focus-visible:ring-signal-foreground focus-visible:ring-offset-4 focus-visible:ring-offset-signal"
-                >
-                  열린 포지션 보기
-                  <span aria-hidden="true" className="motion-arrow transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </a>
+                {fetchError ? (
+                  <RetryPageButton className="signal-primary-action min-h-12 rounded-full px-6 py-3 text-sm font-bold outline-none focus-visible:ring-2 focus-visible:ring-signal-foreground focus-visible:ring-offset-4 focus-visible:ring-offset-signal" />
+                ) : (
+                  <a
+                    href="#positions"
+                    className="signal-primary-action group inline-flex min-h-12 items-center gap-4 rounded-full px-6 py-3 text-sm font-bold outline-none focus-visible:ring-2 focus-visible:ring-signal-foreground focus-visible:ring-offset-4 focus-visible:ring-offset-signal"
+                  >
+                    열린 포지션 보기
+                    <span aria-hidden="true" className="motion-arrow transition-transform group-hover:translate-x-1">
+                      →
+                    </span>
+                  </a>
+                )}
                 <p className="font-mono text-xs uppercase tracking-[0.14em] text-signal-muted">
-                  현재 {applicableJobPostings.length}개 포지션 모집 중
+                  {fetchError
+                    ? "현재 공고 정보를 확인할 수 없습니다"
+                    : `현재 ${applicableJobPostings.length}개 포지션 모집 중`}
                 </p>
               </div>
             </div>
 
             <div className="animate-fade-in-up-delay-2 lg:col-span-5">
-              <CareerSignalMap
-                jobPostings={applicableJobPostings.map(({ id, title, location }) => ({
-                  id,
-                  title,
-                  location,
-                }))}
-              />
+              {fetchError ? (
+                <div className="career-signal-map flex items-center justify-center" role="status">
+                  <div className="max-w-sm border-y border-signal-border py-8">
+                    <p className="font-headline text-2xl font-semibold text-signal-foreground">
+                      공고 연결을 확인하고 있습니다
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-signal-soft">
+                      공고 정보를 불러오지 못했습니다. 다시 시도하면 현재 모집 상태를 새로 확인합니다.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <CareerSignalMap
+                  jobPostings={applicableJobPostings.map(({ id, title, location }) => ({
+                    id,
+                    title,
+                    location,
+                  }))}
+                />
+              )}
             </div>
           </div>
         </section>
