@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-06T08:08:47.5465233Z",
+  "generatedAt": "2026-09-06T11:10:00.000Z",
   "title": "Design System: HireFlow",
   "extensions": {
     "colorMeta": {
       "signal-blue": {
         "role": "primary",
         "displayName": "Signal Blue",
-        "canonical": "#1746E8",
-        "tonalRamp": ["#07113A", "#0B216D", "#1032A5", "#1746E8", "#5678EF", "#91A8F5", "#CAD5FB", "#F2F5FF"]
+        "canonical": "#1B3FC4",
+        "tonalRamp": ["#040B23", "#0D2059", "#19389D", "#1B3FC4", "#6087E7", "#8EADF1", "#BFD1F9", "#E9EFFA"]
       },
       "signal-accent": {
         "role": "secondary",
