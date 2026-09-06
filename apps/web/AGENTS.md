@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-03-30 | Updated: 2026-03-30 -->
+<!-- Generated: 2026-03-30 | Updated: 2026-09-06 -->
 
 # web
 
@@ -30,7 +30,7 @@ Next.js 16 App Router frontend serving the public recruitment site (job listings
 
 - Read `DESIGN.md` (project root) before any UI work
 - Use design tokens from `src/app/globals.css` — never hardcode colors
-- Fonts: Sora (headline + body), IBM Plex Mono (metadata) — see `src/app/layout.tsx`
+- Fonts: Wanted Sans Variable (body), Sora (Latin display), Spline Sans Mono (metadata); see `src/app/layout.tsx`
 - The app uses a BFF pattern: browser -> Next.js route handlers -> Spring API
 - Session cookies are HTTP-only, managed in `src/shared/lib/session-cookie.ts`
 - Admin routes live under `src/app/admin/(protected)/` route group
@@ -59,6 +59,6 @@ No automated web test suite currently. Manual testing against a running API inst
 - Next.js 16 — Framework
 - React — UI library
 - Tailwind CSS — Styling
-- Sora, IBM Plex Mono — Google Fonts
+- Wanted Sans Variable, Sora, Spline Sans Mono
 
 <!-- MANUAL: -->

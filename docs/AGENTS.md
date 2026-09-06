@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-03-30 | Updated: 2026-03-30 -->
+<!-- Generated: 2026-03-30 | Updated: 2026-09-06 -->
 
 # docs
 
@@ -21,6 +21,7 @@ Project documentation including architecture overview, auth flow specs, developm
 | Directory | Purpose |
 |-----------|---------|
 | `demo/` | Executive demo recording scripts and guides |
+| `design-renewal/` | Design brief, review rubric, and scorecard |
 | `readme/` | Screenshots used in README.md |
 | `screenshots/` | UI screenshots for documentation |
 
