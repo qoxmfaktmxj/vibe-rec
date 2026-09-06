@@ -1,4 +1,4 @@
-<!-- Generated: 2026-03-30 | Updated: 2026-03-30 -->
+<!-- Generated: 2026-03-30 | Updated: 2026-09-06 -->
 
 # vibe-rec (HireFlow)
 
@@ -12,6 +12,9 @@ Recruitment operations product that connects job posting discovery, profile crea
 |------|-------------|
 | `compose.deploy.yaml` | Docker Compose for postgres, api, and web services |
 | `DESIGN.md` | Design system master document (colors, typography, spacing, components) |
+| `PRODUCT.md` | Product purpose, audience, constraints, and design principles |
+| `CHANGELOG.md` | User-visible release history |
+| `VERSION` | Current product release version |
 | `TODOS.md` | Design & UX improvement backlog from plan-design-review |
 | `README.md` | Project overview with local dev instructions |
 | `.editorconfig` | Editor formatting rules |
@@ -54,7 +57,7 @@ The browser talks to Next.js. Next.js either renders server components directly 
 
 - Read `DESIGN.md` before creating or modifying any UI component
 - Use design tokens from `globals.css`, never hardcode colors or use raw Tailwind colors
-- Font family: Sora (headline + body), IBM Plex Mono (metadata). Never use Inter or system defaults
+- Font family: Wanted Sans Variable (body), Sora (Latin display), Spline Sans Mono (metadata). Never use Inter or system defaults
 - Border radius: `rounded-lg` for containers/buttons, `rounded-full` for badges/avatars only
 - Admin is desktop-only (min 1024px). Public site supports mobile to desktop
 
