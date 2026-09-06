@@ -32,6 +32,15 @@
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
 
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+  --color-signal-soft: var(--signal-soft);
+  --color-signal-muted: var(--signal-muted);
+  --color-signal-accent: var(--signal-accent);
+  --color-signal-accent-strong: var(--signal-accent-strong);
+  --color-signal-ink: var(--signal-ink);
+  --color-signal-border: var(--signal-border);
+
   --color-surface-dark: var(--surface-dark);
   --color-surface-dark-elevated: var(--surface-dark-elevated);
   --color-on-dark: var(--on-dark);
@@ -115,6 +124,15 @@
 
   --brand: #0369A1;
   --brand-strong: #075985;
+
+  --signal: #1746E8;
+  --signal-foreground: #F7FAFF;
+  --signal-soft: rgba(247, 250, 255, 0.82);
+  --signal-muted: rgba(247, 250, 255, 0.8);
+  --signal-accent: #D8FF59;
+  --signal-accent-strong: #C7F43B;
+  --signal-ink: #0A1426;
+  --signal-border: rgba(247, 250, 255, 0.28);
 
   --secondary: #0EA5E9;
   --secondary-foreground: #ffffff;
@@ -280,6 +298,11 @@
     text-underline-offset: 3px;
   }
 
+  ::selection {
+    background: var(--signal-accent);
+    color: var(--signal-ink);
+  }
+
   h1,
   h2,
   h3,
@@ -357,12 +380,334 @@
 }
 
 /* ══════════════════════════════════════════════════
-   Hero Section — Quiet Blue Wash (Phase 2 rebuilds this)
+   Public recruitment signal world
    ══════════════════════════════════════════════════ */
-.hero-gradient {
-  background: linear-gradient(135deg, #F7F9FB 0%, #EDF3F9 45%, #E3EDF6 100%);
+.signal-nav {
+  color: var(--signal-foreground);
+}
+
+.signal-nav-links {
+  background: rgba(10, 20, 38, 0.18);
+  border: 1px solid var(--signal-border);
+}
+
+.signal-hero {
   position: relative;
   overflow: hidden;
+  background: var(--signal);
+  color: var(--signal-foreground);
+}
+
+.signal-hero::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--signal-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--signal-border) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent 84%);
+  opacity: 0.22;
+}
+
+.signal-hero::after {
+  position: absolute;
+  width: 38rem;
+  height: 38rem;
+  right: -18rem;
+  bottom: -21rem;
+  content: "";
+  border: 1px solid var(--signal-border);
+  border-radius: 999px;
+  box-shadow: 0 0 0 8rem rgba(247, 250, 255, 0.025), 0 0 0 16rem rgba(247, 250, 255, 0.02);
+}
+
+.signal-hero-title {
+  max-width: 11ch;
+  color: var(--signal-foreground);
+  text-wrap: balance;
+}
+
+.signal-primary-action {
+  background: var(--signal-accent);
+  color: var(--signal-ink);
+  box-shadow: 0 12px 32px -18px rgba(10, 20, 38, 0.75);
+  transition: background-color 180ms ease-out, box-shadow 180ms ease-out;
+}
+
+.signal-primary-action:hover {
+  background: var(--signal-accent-strong);
+  box-shadow: 0 16px 36px -18px rgba(10, 20, 38, 0.9);
+}
+
+.career-signal-map {
+  position: relative;
+  min-height: 34rem;
+  isolation: isolate;
+  color: var(--signal-foreground);
+}
+
+.career-signal-map::before {
+  position: absolute;
+  inset: 7% 2% 9% 3%;
+  z-index: -1;
+  content: "";
+  border: 1px solid var(--signal-border);
+  border-radius: 50%;
+  transform: rotate(-12deg);
+}
+
+.career-signal-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.career-signal-orbit {
+  position: absolute;
+  border: 1px dashed rgba(247, 250, 255, 0.2);
+  border-radius: 999px;
+  animation: signal-orbit 24s linear infinite;
+}
+
+.career-signal-orbit-outer {
+  inset: 5% 7% 13% 2%;
+  transform: rotate(14deg);
+}
+
+.career-signal-orbit-inner {
+  inset: 24% 19% 24% 22%;
+  animation-direction: reverse;
+  animation-duration: 16s;
+  transform: rotate(-18deg);
+}
+
+.career-signal-origin {
+  position: absolute;
+  left: 49%;
+  top: 58%;
+  z-index: 2;
+  width: 4.75rem;
+  height: 4.75rem;
+  border: 1px solid rgba(216, 255, 89, 0.7);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1rem rgba(216, 255, 89, 0.08), 0 0 0 2.25rem rgba(216, 255, 89, 0.035);
+}
+
+.career-signal-origin span {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--signal-accent);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.career-signal-node {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 14rem;
+}
+
+.career-signal-dot {
+  flex: 0 0 auto;
+  width: 0.65rem;
+  height: 0.65rem;
+  background: var(--signal-accent);
+  border: 2px solid var(--signal);
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px rgba(216, 255, 89, 0.26);
+}
+
+.career-signal-label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--signal-foreground);
+  color: var(--signal-ink);
+  border-radius: 0.65rem;
+  box-shadow: 0 10px 28px -18px rgba(10, 20, 38, 0.8);
+}
+
+.career-signal-label strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.career-signal-label small {
+  overflow: hidden;
+  color: rgba(10, 20, 38, 0.62);
+  font-size: 0.6875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.career-signal-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--signal-border);
+  color: var(--signal-muted);
+  font-family: var(--font-mono-spline), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+}
+
+.signal-journey {
+  background: var(--card);
+}
+
+.signal-journey-step {
+  min-height: 15rem;
+  padding: 3rem 1.5rem;
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.job-browser-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--signal-ink);
+}
+
+.job-browser-hero > div {
+  position: relative;
+  z-index: 1;
+}
+
+.job-browser-count {
+  display: flex;
+  min-height: 10rem;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 0 0 1.75rem;
+  border-left: 1px solid var(--signal-border);
+}
+
+.job-filter-shell {
+  background: color-mix(in srgb, var(--background) 72%, var(--card));
+}
+
+.job-index-row {
+  position: relative;
+  background: transparent;
+  transition: background-color 220ms ease-out;
+}
+
+.job-index-row:hover,
+.job-index-row:focus-within {
+  background: color-mix(in srgb, var(--brand) 6%, var(--background));
+}
+
+.job-index-arrow {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  align-self: start;
+  border: 1px solid var(--outline-variant);
+  border-radius: 999px;
+  color: var(--on-surface);
+  transition: background-color 220ms ease-out, color 220ms ease-out, transform 220ms ease-out;
+}
+
+.job-index-row:hover .job-index-arrow,
+.job-index-row:focus-within .job-index-arrow {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transform: translateX(0.25rem);
+}
+
+.footer-signal {
+  background: var(--signal-ink);
+}
+
+@keyframes signal-orbit {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (min-width: 768px) {
+  .signal-journey-step {
+    min-height: 18rem;
+    padding: 4rem;
+    border-right: 1px solid var(--outline-variant);
+    border-bottom: 0;
+  }
+
+  .signal-journey-step:last-child {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .signal-nav {
+    position: relative;
+    background: var(--signal);
+  }
+
+  .career-signal-map {
+    min-height: 22rem;
+  }
+
+  .career-signal-label {
+    max-width: 9.75rem;
+  }
+
+  .career-signal-node-1 {
+    left: 7% !important;
+    top: 14% !important;
+  }
+
+  .career-signal-node-2 {
+    left: 44% !important;
+    top: 34% !important;
+  }
+
+  .career-signal-node-3 {
+    left: 18% !important;
+    top: 62% !important;
+  }
+
+  .career-signal-node-4,
+  .career-signal-node-5 {
+    display: none;
+  }
+
+  .job-browser-count {
+    min-height: 7rem;
+    padding-left: 0;
+    border-top: 1px solid var(--signal-border);
+    border-left: 0;
+  }
+
+  .job-index-arrow {
+    position: absolute;
+    top: 1.75rem;
+    right: 0.25rem;
+  }
 }
 
 /* ══════════════════════════════════════════════════
@@ -475,5 +820,30 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .career-signal-orbit {
+    animation: none;
+  }
+
+  .signal-primary-action,
+  .job-index-row,
+  .job-index-arrow,
+  .job-index-row h3 {
+    transition: none;
+  }
+
+  .motion-arrow {
+    transition-property: none !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    transform: none !important;
+  }
+
+  .job-index-row:hover .job-index-arrow,
+  .job-index-row:focus-within .job-index-arrow,
+  .job-index-row:hover h3,
+  .job-index-row:focus-within h3 {
+    transform: none;
   }
 }

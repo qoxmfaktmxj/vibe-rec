@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-06T08:08:47.5465233Z",
+  "title": "Design System: HireFlow",
+  "extensions": {
+    "colorMeta": {
+      "signal-blue": {
+        "role": "primary",
+        "displayName": "Signal Blue",
+        "canonical": "#1746E8",
+        "tonalRamp": ["#07113A", "#0B216D", "#1032A5", "#1746E8", "#5678EF", "#91A8F5", "#CAD5FB", "#F2F5FF"]
+      },
+      "signal-accent": {
+        "role": "secondary",
+        "displayName": "Action Lime",
+        "canonical": "#D8FF59",
+        "tonalRamp": ["#263300", "#4B6600", "#769900", "#A9D51F", "#D8FF59", "#E5FF8A", "#F0FFB9", "#FAFFE8"]
+      },
+      "signal-ink": {
+        "role": "neutral",
+        "displayName": "Deep Signal Ink",
+        "canonical": "#0A1426",
+        "tonalRamp": ["#050A13", "#0A1426", "#18253B", "#344158", "#657086", "#9EA7B7", "#D5DAE2", "#F5F7FA"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#F7F9FB",
+        "tonalRamp": ["#1A2026", "#333D47", "#56626E", "#7D8995", "#A9B2BC", "#CFD6DC", "#E8ECEF", "#F7F9FB"]
+      },
+      "operational-blue": {
+        "role": "tertiary",
+        "displayName": "Operational Blue",
+        "canonical": "#0369A1",
+        "tonalRamp": ["#031923", "#06344D", "#075985", "#0369A1", "#0EA5E9", "#7DD3FC", "#BAE6FD", "#E0F2FE"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Signal Display",
+        "purpose": "Large Korean propositions on public discovery surfaces."
+      },
+      "body": {
+        "displayName": "Korean Reading Body",
+        "purpose": "Long-form descriptions, controls, and operational copy."
+      },
+      "label": {
+        "displayName": "Indexed Metadata",
+        "purpose": "Counts, dates, D-day labels, and aligned operational metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "elevation-1",
+        "value": "0 1px 2px rgba(18, 28, 40, 0.05)",
+        "purpose": "Minimal separation for a resting operational surface."
+      },
+      {
+        "name": "signal-action",
+        "value": "0 12px 32px -18px rgba(10, 20, 38, 0.75)",
+        "purpose": "Separates the single lime action from a signal-blue field."
+      },
+      {
+        "name": "signal-label",
+        "value": "0 10px 28px -18px rgba(10, 20, 38, 0.8)",
+        "purpose": "Lifts real job labels above the career signal map."
+      }
+    ],
+    "motion": [
+      {
+        "name": "signal-ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Path drawing, node entrance, and layout movement."
+      },
+      {
+        "name": "row-duration",
+        "value": "320ms",
+        "purpose": "Editorial job row position changes after filtering."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0ms",
+        "purpose": "Stops orbit, layout, hover, and child-arrow movement when requested."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Signal CTA",
+      "kind": "button",
+      "refersTo": "signal-action",
+      "description": "The single primary action on a signal-blue or deep-ink band.",
+      "html": "<button class=\"ds-signal-action\">열린 포지션 보기 <span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-signal-action { min-height: 48px; display: inline-flex; align-items: center; gap: 16px; border: 0; border-radius: 999px; padding: 12px 24px; background: var(--signal-accent); color: var(--signal-ink); font: 700 14px/1.5 sans-serif; box-shadow: 0 12px 32px -18px rgba(10,20,38,.75); transition: background-color 180ms ease-out; } .ds-signal-action:hover { background: var(--signal-accent-strong); } .ds-signal-action:focus-visible { outline: 2px solid var(--signal-foreground); outline-offset: 4px; }"
+    },
+    {
+      "name": "Operational Primary",
+      "kind": "button",
+      "refersTo": "operational-action",
+      "description": "The primary action for forms, candidate status, and admin workflows.",
+      "html": "<button class=\"ds-operational-action\">계속하기</button>",
+      "css": ".ds-operational-action { min-height: 44px; border: 0; border-radius: 8px; padding: 10px 20px; background: var(--primary); color: var(--primary-foreground); font: 600 14px/1.5 sans-serif; transition: background-color 180ms ease-out; } .ds-operational-action:hover { background: var(--primary-hover); } .ds-operational-action:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-selected",
+      "description": "A compact 44px filter control with clear selected and unselected states.",
+      "html": "<div class=\"ds-filter-set\"><button class=\"ds-filter is-active\">전체 20</button><button class=\"ds-filter\">신입 채용 3</button></div>",
+      "css": ".ds-filter-set { display: flex; gap: 8px; } .ds-filter { min-height: 44px; border: 1px solid var(--outline-variant); border-radius: 999px; padding: 10px 16px; background: var(--card); color: var(--on-surface); font: 600 14px/1.5 sans-serif; } .ds-filter.is-active { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); } .ds-filter:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "A pill search field used to narrow public job listings.",
+      "html": "<label class=\"ds-search-label\">키워드 검색<input class=\"ds-search\" placeholder=\"직무명, 소개, 근무지, 고용 형태로 검색\"></label>",
+      "css": ".ds-search-label { display: grid; gap: 8px; color: var(--on-surface-variant); font: 500 12px/1.5 sans-serif; } .ds-search { min-height: 48px; border: 1px solid var(--outline-variant); border-radius: 999px; padding: 14px 20px; background: var(--card); color: var(--on-surface); font: 400 14px/1.5 sans-serif; } .ds-search:focus { border-color: var(--brand); outline: 2px solid color-mix(in srgb, var(--ring) 25%, transparent); }"
+    },
+    {
+      "name": "Editorial Job Index Row",
+      "kind": "custom",
+      "refersTo": "job-index-row",
+      "description": "A non-card job row that aligns role, location, period, stages, and action.",
+      "html": "<a class=\"ds-job-row\" href=\"#\"><span class=\"ds-job-number\">01</span><span class=\"ds-job-copy\"><small>신입 채용  D-24</small><strong>People Ops 인턴</strong><span>면접 일정 조율과 입사 서류 운영을 꼼꼼하게 챙길 인턴을 찾습니다.</span></span><span class=\"ds-job-meta\">인턴<br>서울 중구<br>4단계 전형</span><span class=\"ds-job-arrow\">→</span></a>",
+      "css": ".ds-job-row { min-height: 176px; display: grid; grid-template-columns: 48px minmax(0,1.35fr) minmax(240px,.75fr) 44px; align-items: center; gap: 24px; border-top: 1px solid var(--outline-variant); padding: 28px 20px; color: var(--on-surface); text-decoration: none; transition: background-color 220ms ease-out; } .ds-job-row:hover, .ds-job-row:focus-visible { background: color-mix(in srgb, var(--brand) 6%, var(--background)); outline: 2px solid color-mix(in srgb, var(--ring) 40%, transparent); outline-offset: -2px; } .ds-job-number, .ds-job-meta, .ds-job-copy small { color: var(--on-surface-variant); font: 500 11px/1.5 monospace; } .ds-job-copy { display: grid; gap: 12px; } .ds-job-copy strong { font: 600 30px/1.2 sans-serif; } .ds-job-copy span { color: var(--on-surface-variant); font: 400 14px/1.7 sans-serif; } .ds-job-arrow { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--outline-variant); border-radius: 999px; }"
+    },
+    {
+      "name": "Career Signal Node",
+      "kind": "custom",
+      "description": "A real open role anchored to the career signal path.",
+      "html": "<div class=\"ds-signal-node\"><span></span><p><strong>프로덕트 디자이너</strong><small>서울 성수</small></p></div>",
+      "css": ".ds-signal-node { display: inline-flex; align-items: center; gap: 10px; color: var(--signal-ink); } .ds-signal-node > span { width: 10px; height: 10px; border: 2px solid var(--signal-blue); border-radius: 999px; background: var(--signal-accent); box-shadow: 0 0 0 4px rgba(216,255,89,.26); } .ds-signal-node p { display: grid; gap: 2px; max-width: 224px; margin: 0; border-radius: 10px; padding: 9px 11px; background: var(--signal-foreground); box-shadow: 0 10px 28px -18px rgba(10,20,38,.8); } .ds-signal-node strong { font: 700 12px/1.35 sans-serif; } .ds-signal-node small { color: rgba(10,20,38,.62); font: 400 11px/1.35 sans-serif; }"
+    },
+    {
+      "name": "Public Navigation",
+      "kind": "nav",
+      "description": "Route-mark navigation that adapts between the signal hero and paper surfaces.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-brand\" href=\"#\">HireFlow</a><a href=\"#\">채용 공고</a><a class=\"ds-login\" href=\"#\">로그인</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; gap: 24px; min-height: 72px; padding: 12px 24px; background: var(--card); color: var(--on-surface); font: 600 14px/1.5 sans-serif; } .ds-nav a { min-height: 44px; display: inline-flex; align-items: center; border-radius: 999px; padding: 0 12px; color: inherit; text-decoration: none; } .ds-brand { margin-right: auto; font-size: 20px; } .ds-login { background: var(--primary); color: var(--primary-foreground) !important; padding: 0 20px !important; } .ds-nav a:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Career Signal Atlas",
+    "overview": "HireFlow의 시각 세계는 지원의 전 과정을 하나의 커리어 시그널로 읽게 한다. 장식적인 SaaS 카드 모음 대신 강한 색면, 실제 공고 데이터, 궤도와 경로, 정렬된 인덱스를 사용해 발견부터 지원과 상태 확인까지 같은 방향 감각을 유지한다. 공개 탐색은 대담하게 설득하고 운영 화면은 차분한 근단색 위계를 유지한다.",
+    "keyCharacteristics": [
+      "실제 공고와 전형 흐름이 장식 이미지보다 먼저 보인다.",
+      "시그널 블루 색면과 액션 라임 하나가 공개 탐색의 방향을 만든다.",
+      "궤도형 경로와 편집형 공고 인덱스가 발견, 비교, 다음 단계의 이야기를 연결한다.",
+      "운영 화면은 근단색 표면과 촘촘한 정보 위계를 유지한다.",
+      "모든 상호작용은 키보드 포커스, 44px 터치 영역, 모션 감소 설정을 존중한다."
+    ],
+    "rules": [
+      {
+        "name": "The One Lime Action Rule",
+        "body": "하나의 블루 또는 깊은 잉크 밴드에는 라임 filled 행동을 하나만 둔다.",
+        "section": "colors"
+      },
+      {
+        "name": "The Real Data Geometry Rule",
+        "body": "궤도, 경로, 카운터는 실제 공고와 전형 데이터를 설명할 때만 사용한다.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat First Rule",
+        "body": "정지 상태의 구조는 색면과 hairline으로 설명하고 그림자는 깊이가 실제 의미를 가질 때만 쓴다.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Motion Contract Rule",
+        "body": "모션은 경로와 상태 변화를 설명하는 데만 사용하고 모션 감소 설정에서는 모두 정지한다.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do 실제 공고 제목, 근무지, 전형 단계를 공개 화면의 시각적 주인공으로 사용한다.",
+      "Do 블루 또는 깊은 잉크 밴드에서 라임 CTA를 하나만 강조한다.",
+      "Do 공고 비교에는 hairline으로 구획한 편집형 행과 정렬된 mono 메타데이터를 사용한다.",
+      "Do 공개 화면의 터치 영역과 키보드 focus를 44px 이상과 명시적 링으로 검증한다."
+    ],
+    "donts": [
+      "Don't 공개 첫 화면을 중앙 정렬한 제네릭 SaaS 카드 히어로로 되돌리지 않는다.",
+      "Don't 공고 탐색을 같은 크기의 둥근 카드 그리드로 바꾸지 않는다.",
+      "Don't 시그널 맵의 격자, 궤도, 노드를 기능과 무관한 장식으로 반복하지 않는다.",
+      "Don't 모션 감소 설정에서 경로, 레이아웃, hover 이동을 남겨두지 않는다."
+    ]
+  }
+}

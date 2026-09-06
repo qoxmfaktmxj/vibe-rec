@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
 
 import type { JobPostingSummary } from "@/entities/recruitment/model";
 import {
@@ -86,6 +90,8 @@ export function JobPostingList({
   emptyMessage = "현재 표시할 채용 공고가 없습니다.",
   hideRecruitmentModeBadge = false,
 }: JobPostingListProps) {
+  const reduceMotion = useReducedMotion();
+
   if (jobPostings.length === 0) {
     return (
       <section className="rounded-xl border border-outline-variant bg-card px-8 py-14 text-center">
@@ -102,7 +108,7 @@ export function JobPostingList({
           전체 공고 보기
           <span
             aria-hidden="true"
-            className="inline-block transition-transform duration-150 group-hover/link:translate-x-0.5"
+            className="motion-arrow inline-block transition-transform duration-150 group-hover/link:translate-x-0.5"
           >
             →
           </span>
@@ -112,70 +118,74 @@ export function JobPostingList({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {jobPostings.map((jobPosting) => {
+    <m.div layout className="border-y border-outline-variant">
+      {jobPostings.map((jobPosting, index) => {
         const isRolling = jobPosting.recruitmentMode === "ROLLING";
 
         return (
-          <article
+          <m.article
+            layout="position"
             key={jobPosting.id}
-            className="card-interactive flex h-full flex-col rounded-xl border border-outline-variant bg-card p-6 elevation-1"
+            className="job-index-row border-b border-outline-variant last:border-b-0"
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.32, ease: [0.16, 1, 0.3, 1] }
+            }
           >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-md bg-brand/8 px-2.5 py-1 text-xs font-medium text-brand">
-                  {getRecruitmentCategoryLabel(jobPosting.recruitmentCategory)}
-                </span>
-
-                {!hideRecruitmentModeBadge ? (
-                  <span
-                    className={`rounded-md px-2.5 py-1 text-xs font-medium ${
-                      isRolling
-                        ? "bg-success/10 text-success"
-                        : "bg-surface-container-low text-on-surface-variant"
-                    }`}
-                  >
-                    {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
-                  </span>
-                ) : null}
-              </div>
-
-              <JobPostingDdayMeta jobPosting={jobPosting} />
-            </div>
-
-            <div className="mt-4 space-y-3">
-              <h3 className="font-headline text-lg font-semibold tracking-[-0.02em] text-on-surface">
-                {jobPosting.title}
-              </h3>
-              <p className="text-sm leading-6 text-on-surface-variant">
-                {jobPosting.headline}
-              </p>
-            </div>
-
-            <div className="mt-6 space-y-2 text-sm text-on-surface-variant">
-              <p>{getEmploymentTypeLabel(jobPosting.employmentType)}</p>
-              <p>{jobPosting.location}</p>
-              <p className="tabular-nums">{formatRecruitmentPeriod(jobPosting)}</p>
-              <div className="pt-1">
-                <StepPreview jobPosting={jobPosting} />
-              </div>
-            </div>
-
             <Link
               href={`/job-postings/${jobPosting.id}`}
-              className="group/link mt-auto inline-flex w-fit items-center gap-1 self-start pt-6 text-sm font-semibold text-brand transition-colors hover:text-brand-strong"
+              className="group grid min-h-44 gap-6 px-1 py-7 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/40 md:grid-cols-[3rem_minmax(0,1.35fr)_minmax(15rem,0.75fr)_3rem] md:items-center md:px-5"
+              aria-label={`${jobPosting.title} 공고 보기`}
             >
-              {isRolling ? "상세 보기" : "공고 보기"}
-              <span
-                aria-hidden="true"
-                className="inline-block transition-transform duration-150 group-hover/link:translate-x-0.5"
-              >
-                →
+              <span className="font-mono text-xs tabular-nums text-on-surface-variant">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+
+              <div className="min-w-0">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brand">
+                    {getRecruitmentCategoryLabel(jobPosting.recruitmentCategory)}
+                  </span>
+                  {!hideRecruitmentModeBadge ? (
+                    <span
+                      className={`font-mono text-[11px] uppercase tracking-[0.12em] ${
+                        isRolling ? "text-success" : "text-on-surface-variant"
+                      }`}
+                    >
+                      {getRecruitmentModeLabel(jobPosting.recruitmentMode)}
+                    </span>
+                  ) : null}
+                  <JobPostingDdayMeta jobPosting={jobPosting} />
+                </div>
+                <h3 className="max-w-3xl font-headline text-[clamp(1.45rem,2.3vw,2.25rem)] font-semibold leading-tight tracking-[-0.025em] text-on-surface transition-transform duration-300 ease-out group-hover:translate-x-2 group-focus-visible:translate-x-2">
+                  {jobPosting.title}
+                </h3>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-on-surface-variant">
+                  {jobPosting.headline}
+                </p>
+              </div>
+
+              <div className="space-y-3 text-sm text-on-surface-variant">
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  <span>{getEmploymentTypeLabel(jobPosting.employmentType)}</span>
+                  <span>{jobPosting.location}</span>
+                </div>
+                <p className="font-mono text-xs tabular-nums">
+                  {formatRecruitmentPeriod(jobPosting)}
+                </p>
+                <StepPreview jobPosting={jobPosting} />
+              </div>
+
+              <span className="job-index-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+                  <path d="M5 12h14M14 7l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </span>
             </Link>
-          </article>
+          </m.article>
         );
       })}
-    </div>
+    </m.div>
   );
 }

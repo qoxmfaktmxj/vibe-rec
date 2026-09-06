@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 
 import type {
   JobPostingSummary,
@@ -92,18 +93,21 @@ function JobPostingSection({
       : `${paged.startIndex + 1}-${paged.startIndex + paged.items.length} / ${jobPostings.length}건`;
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-end justify-between gap-4 border-b border-outline-variant pb-4">
-        <div>
-          <h2 className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface">
+    <section className="job-index-section">
+      <div className="grid gap-5 border-t-2 border-on-surface py-6 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.55fr)_auto] md:items-start">
+        <div className="flex items-baseline gap-4">
+          <h2 className="font-headline text-3xl font-semibold tracking-[-0.025em] text-on-surface">
             {title}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-            {description}
-          </p>
+          <span className="font-mono text-xs tabular-nums text-brand">
+            {String(jobPostings.length).padStart(2, "0")}
+          </span>
         </div>
-        <span className="text-xs font-medium text-on-surface-variant">
-          총 {jobPostings.length}건
+        <p className="max-w-sm text-sm leading-7 text-on-surface-variant">
+          {description}
+        </p>
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-on-surface-variant">
+          OPEN ROLES
         </span>
       </div>
 
@@ -251,14 +255,16 @@ export function JobPostingBrowser({
   const sectionResetKey = `${categoryFilter}:${trimmedQuery}`;
 
   return (
-    <div className="space-y-10">
-      {searchable ? (
-        <section className="rounded-xl border border-outline-variant bg-card p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-3">
-              <p className="text-xs font-semibold text-brand">
-                채용 검색
-              </p>
+    <LazyMotion features={domAnimation} strict>
+      <MotionConfig reducedMotion="user">
+        <div className="space-y-16">
+        {searchable ? (
+          <section className="job-filter-shell border-y border-outline-variant py-6">
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+              <div className="space-y-4">
+                <h2 className="font-headline text-lg font-semibold text-on-surface">
+                  원하는 역할 좁혀보기
+                </h2>
               {showAvailabilityFilter ? (
                 <div
                   role="group"
@@ -274,10 +280,10 @@ export function JobPostingBrowser({
                         type="button"
                         onClick={() => setAvailabilityFilter(filter.value)}
                         aria-pressed={isActive}
-                        className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
+                        className={`min-h-11 rounded-full border px-4 py-2.5 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/40 ${
                           isActive
-                            ? "border-brand bg-brand text-primary-foreground"
-                            : "border-outline-variant bg-background text-on-surface hover:border-brand/40"
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-outline-variant bg-card text-on-surface hover:border-brand/40 hover:text-brand"
                         }`}
                       >
                         {filter.label}
@@ -298,10 +304,10 @@ export function JobPostingBrowser({
                       onClick={() => setCategoryFilter(filter.value)}
                       aria-pressed={isActive}
                       aria-describedby="job-posting-filter-description"
-                      className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
+                      className={`min-h-11 rounded-full border px-4 py-2.5 text-sm font-semibold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/40 ${
                         isActive
-                          ? "border-brand bg-brand text-primary-foreground"
-                          : "border-outline-variant bg-background text-on-surface hover:border-brand/40"
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-outline-variant bg-card text-on-surface hover:border-brand/40 hover:text-brand"
                       }`}
                     >
                       <span>{filter.label}</span>
@@ -320,7 +326,7 @@ export function JobPostingBrowser({
               </p>
             </div>
 
-            <label className="block min-w-0 lg:w-[360px]">
+              <label className="block min-w-0 lg:w-[380px]">
               <span className="mb-2 block text-xs font-medium text-on-surface-variant">
                 키워드 검색
               </span>
@@ -329,14 +335,14 @@ export function JobPostingBrowser({
                 onChange={(event) => setQuery(event.target.value)}
                 type="search"
                 placeholder={searchPlaceholder}
-                className="w-full rounded-lg border border-outline-variant bg-background px-4 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25"
+                  className="w-full rounded-full border border-outline-variant bg-card px-5 py-3.5 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25"
               />
             </label>
           </div>
         </section>
       ) : null}
 
-      <div className="space-y-10">
+        <div className="space-y-16">
         {regularSections.map((section) => (
           <JobPostingSection
             key={`${section.key}:${sectionResetKey}`}
@@ -360,7 +366,9 @@ export function JobPostingBrowser({
             pageSize={pageSize}
           />
         ) : null}
-      </div>
-    </div>
+        </div>
+        </div>
+      </MotionConfig>
+    </LazyMotion>
   );
 }
