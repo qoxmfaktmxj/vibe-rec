@@ -30,6 +30,9 @@ export async function PublicSiteHeader({
     <nav
       className={`${isSignal ? "signal-nav absolute" : "flat-nav sticky"} top-0 z-50 w-full px-6 py-4 md:px-16`}
     >
+      <a href="#main-content" className="public-skip-link">
+        본문으로 건너뛰기
+      </a>
       <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center justify-between gap-6">
           <Link
@@ -75,6 +78,7 @@ export async function PublicSiteHeader({
                     }`}
                   >
                     {item.label}
+                    <span className="sr-only">, 새 창에서 열림</span>
                   </a>
                 );
               }
@@ -110,13 +114,14 @@ export async function PublicSiteHeader({
                   href={item.href}
                   target="_blank"
                   rel="noreferrer"
-                  className={`inline-flex min-h-11 items-center rounded-md text-sm font-medium outline-none transition-colors focus-visible:ring-2 ${
+                  className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-sm font-medium outline-none transition-colors focus-visible:ring-2 ${
                     isSignal
                       ? "text-signal-soft hover:text-signal-foreground focus-visible:ring-signal-foreground"
                       : "text-on-surface hover:text-brand focus-visible:ring-ring/40"
                   }`}
                 >
                   {item.label}
+                  <span className="sr-only">, 새 창에서 열림</span>
                 </a>
               ) : (
                 <Link

@@ -133,6 +133,26 @@
   --signal-accent-strong: #C7F43B;
   --signal-ink: #0A1426;
   --signal-border: rgba(247, 250, 255, 0.28);
+  --signal-nav-surface: rgba(10, 20, 38, 0.18);
+  --signal-mask: rgba(0, 0, 0, 0.42);
+  --signal-halo-outer: rgba(247, 250, 255, 0.025);
+  --signal-halo-inner: rgba(247, 250, 255, 0.02);
+  --signal-orbit: rgba(247, 250, 255, 0.2);
+  --signal-origin-border: rgba(216, 255, 89, 0.7);
+  --signal-origin-halo: rgba(216, 255, 89, 0.08);
+  --signal-origin-halo-soft: rgba(216, 255, 89, 0.035);
+  --signal-node-halo: rgba(216, 255, 89, 0.26);
+  --signal-label-muted: rgba(10, 20, 38, 0.62);
+  --signal-action-shadow: 0 12px 32px -18px rgba(10, 20, 38, 0.75);
+  --signal-action-shadow-hover: 0 16px 36px -18px rgba(10, 20, 38, 0.9);
+  --signal-label-shadow: 0 10px 28px -18px rgba(10, 20, 38, 0.8);
+  --dark-hairline: rgba(247, 250, 255, 0.15);
+  --modal-scrim: rgba(10, 20, 38, 0.58);
+  --brand-hover-border: rgba(3, 105, 161, 0.2);
+  --scrollbar-thumb: rgba(18, 28, 40, 0.1);
+  --scrollbar-thumb-hover: rgba(18, 28, 40, 0.2);
+  --nav-surface-dark: rgba(11, 25, 41, 0.96);
+  --dark-outline-soft: rgba(224, 242, 254, 0.12);
 
   --secondary: #0EA5E9;
   --secondary-foreground: #ffffff;
@@ -370,13 +390,13 @@
 }
 
 .dark .flat-nav {
-  background: rgba(11, 25, 41, 0.96);
-  border-bottom-color: rgba(224, 242, 254, 0.12);
+  background: var(--nav-surface-dark);
+  border-bottom-color: var(--dark-outline-soft);
 }
 
 .dark .flat-panel {
   background: #0F2132;
-  border-color: rgba(224, 242, 254, 0.12);
+  border-color: var(--dark-outline-soft);
 }
 
 /* ══════════════════════════════════════════════════
@@ -386,8 +406,30 @@
   color: var(--signal-foreground);
 }
 
+.public-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  background: var(--signal-accent);
+  color: var(--signal-ink);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform 160ms ease-out;
+}
+
+.public-skip-link:focus {
+  outline: 2px solid var(--signal-ink);
+  outline-offset: 2px;
+  transform: translateY(0);
+}
+
 .signal-nav-links {
-  background: rgba(10, 20, 38, 0.18);
+  background: var(--signal-nav-surface);
   border: 1px solid var(--signal-border);
 }
 
@@ -407,7 +449,7 @@
     linear-gradient(var(--signal-border) 1px, transparent 1px),
     linear-gradient(90deg, var(--signal-border) 1px, transparent 1px);
   background-size: 72px 72px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent 84%);
+  mask-image: linear-gradient(to bottom, var(--signal-mask), transparent 84%);
   opacity: 0.22;
 }
 
@@ -420,7 +462,7 @@
   content: "";
   border: 1px solid var(--signal-border);
   border-radius: 999px;
-  box-shadow: 0 0 0 8rem rgba(247, 250, 255, 0.025), 0 0 0 16rem rgba(247, 250, 255, 0.02);
+  box-shadow: 0 0 0 8rem var(--signal-halo-outer), 0 0 0 16rem var(--signal-halo-inner);
 }
 
 .signal-hero-title {
@@ -432,13 +474,19 @@
 .signal-primary-action {
   background: var(--signal-accent);
   color: var(--signal-ink);
-  box-shadow: 0 12px 32px -18px rgba(10, 20, 38, 0.75);
+  box-shadow: var(--signal-action-shadow);
   transition: background-color 180ms ease-out, box-shadow 180ms ease-out;
 }
 
 .signal-primary-action:hover {
   background: var(--signal-accent-strong);
-  box-shadow: 0 16px 36px -18px rgba(10, 20, 38, 0.9);
+  box-shadow: var(--signal-action-shadow-hover);
+}
+
+.signal-primary-action:focus-visible {
+  outline: 2px solid var(--signal-foreground);
+  outline-offset: 4px;
+  box-shadow: var(--signal-action-shadow);
 }
 
 .career-signal-map {
@@ -467,7 +515,7 @@
 
 .career-signal-orbit {
   position: absolute;
-  border: 1px dashed rgba(247, 250, 255, 0.2);
+  border: 1px dashed var(--signal-orbit);
   border-radius: 999px;
   animation: signal-orbit 24s linear infinite;
 }
@@ -491,10 +539,10 @@
   z-index: 2;
   width: 4.75rem;
   height: 4.75rem;
-  border: 1px solid rgba(216, 255, 89, 0.7);
+  border: 1px solid var(--signal-origin-border);
   border-radius: 999px;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 1rem rgba(216, 255, 89, 0.08), 0 0 0 2.25rem rgba(216, 255, 89, 0.035);
+  box-shadow: 0 0 0 1rem var(--signal-origin-halo), 0 0 0 2.25rem var(--signal-origin-halo-soft);
 }
 
 .career-signal-origin span {
@@ -523,7 +571,7 @@
   background: var(--signal-accent);
   border: 2px solid var(--signal);
   border-radius: 999px;
-  box-shadow: 0 0 0 4px rgba(216, 255, 89, 0.26);
+  box-shadow: 0 0 0 4px var(--signal-node-halo);
 }
 
 .career-signal-label {
@@ -535,7 +583,7 @@
   background: var(--signal-foreground);
   color: var(--signal-ink);
   border-radius: 0.65rem;
-  box-shadow: 0 10px 28px -18px rgba(10, 20, 38, 0.8);
+  box-shadow: var(--signal-label-shadow);
 }
 
 .career-signal-label strong {
@@ -550,7 +598,7 @@
 
 .career-signal-label small {
   overflow: hidden;
-  color: rgba(10, 20, 38, 0.62);
+  color: var(--signal-label-muted);
   font-size: 0.6875rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -605,6 +653,33 @@
   background: color-mix(in srgb, var(--background) 72%, var(--card));
 }
 
+.job-category-summary {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.job-category-summary::-webkit-details-marker {
+  display: none;
+}
+
+.job-category-summary-icon {
+  font-size: 1.25rem;
+  font-weight: 400;
+  transition: transform 180ms ease-out;
+}
+
+.job-category-disclosure[open] .job-category-summary-icon {
+  transform: rotate(45deg);
+}
+
+.job-category-options {
+  margin-top: 0.75rem;
+}
+
 .job-index-row {
   position: relative;
   background: transparent;
@@ -650,6 +725,18 @@
 }
 
 @media (min-width: 768px) {
+  .job-category-summary {
+    display: none;
+  }
+
+  .job-category-disclosure:not([open]) > .job-category-options {
+    display: flex;
+  }
+
+  .job-category-options {
+    margin-top: 0;
+  }
+
   .signal-journey-step {
     min-height: 18rem;
     padding: 4rem;
@@ -720,7 +807,7 @@
 .card-interactive:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-2);
-  border-color: rgba(3, 105, 161, 0.20);
+  border-color: var(--brand-hover-border);
 }
 
 /* ══════════════════════════════════════════════════
@@ -792,12 +879,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(18, 28, 40, 0.10);
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(18, 28, 40, 0.20);
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* ══════════════════════════════════════════════════
@@ -838,6 +925,11 @@
     transition-duration: 0s !important;
     transition-delay: 0s !important;
     transform: none !important;
+  }
+
+  .public-skip-link,
+  .job-category-summary-icon {
+    transition: none;
   }
 
   .job-index-row:hover .job-index-arrow,

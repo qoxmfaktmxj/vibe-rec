@@ -337,7 +337,7 @@ export default async function JobPostingDetailPage({
     <div className="min-h-screen bg-background text-on-surface">
       <PublicSiteHeader activePath={`/job-postings/${jobPosting.id}`} />
 
-      <main className="mx-auto max-w-7xl px-6 py-10 md:px-16">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-7xl px-6 py-10 md:px-16">
         <JobPostingDetailView
           jobPosting={jobPosting}
           applicationSlot={

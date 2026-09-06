@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-import { JobPostingBrowser } from "@/features/recruitment/job-postings/JobPostingBrowser";
 import { CareerSignalMap } from "@/features/recruitment/landing/CareerSignalMap";
+import { HomeJobPostingPreview } from "@/features/recruitment/landing/HomeJobPostingPreview";
 import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
-import { ScrollReveal } from "@/features/recruitment/shared/ScrollReveal";
+import { RetryPageButton } from "@/features/recruitment/shared/RetryPageButton";
 import { getJobPostings } from "@/shared/api/recruitment";
 import { isJobPostingOpenForApplications } from "@/shared/lib/recruitment";
 
@@ -24,7 +24,7 @@ export default async function Home() {
     <div className="min-h-screen bg-background text-on-surface">
       <PublicSiteHeader activePath="/" tone="signal" />
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="signal-hero px-6 pb-12 pt-12 md:px-16 md:pb-20 md:pt-40">
           <div className="mx-auto grid max-w-7xl gap-6 lg:min-h-[620px] lg:grid-cols-12 lg:items-center lg:gap-6">
             <div className="relative z-10 flex flex-col items-start lg:col-span-7">
@@ -88,11 +88,12 @@ export default async function Home() {
 
         <section id="positions" className="mx-auto max-w-7xl px-6 py-20 md:px-16 md:py-28">
           {fetchError ? (
-            <div className="mb-8 rounded-lg border border-destructive/20 bg-error-container px-5 py-4 text-sm text-destructive">
-              채용 공고를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+            <div className="flex flex-col items-start justify-between gap-4 border-y border-destructive/25 bg-error-container px-5 py-5 text-sm text-destructive sm:flex-row sm:items-center" role="alert">
+              <p>채용 공고를 불러오지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.</p>
+              <RetryPageButton className="min-h-11 shrink-0 rounded-full border border-destructive/35 px-4 py-2 font-semibold outline-none hover:bg-destructive/5 focus-visible:ring-2 focus-visible:ring-destructive/40" />
             </div>
-          ) : null}
-          <ScrollReveal>
+          ) : (
+            <>
             <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
               <div>
                 <h2 className="max-w-2xl font-headline text-[clamp(2.5rem,5vw,4.5rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-on-surface">
@@ -112,12 +113,9 @@ export default async function Home() {
                 </span>
               </Link>
             </div>
-            <JobPostingBrowser
-              jobPostings={applicableJobPostings}
-              emptyMessage="현재 모집 중인 포지션이 없습니다. 문의를 남겨보세요."
-              pageSize={9}
-            />
-          </ScrollReveal>
+            <HomeJobPostingPreview jobPostings={applicableJobPostings} />
+            </>
+          )}
         </section>
       </main>
 

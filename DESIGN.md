@@ -200,7 +200,7 @@ HireFlow의 시각 세계는 지원의 전 과정을 하나의 커리어 시그�
 
 지원 위저드는 최대 896px, 인증 폼은 최대 448px를 기준으로 한다. 관리자 화면은 `AdminRailNav`와 전폭 메인 영역으로 구성하며 `AdminMobileGuard`가 1024px 미만을 차단한다. 관리자 테이블은 sticky header, 16px 행 패딩, 정렬된 숫자와 날짜를 사용한다.
 
-모바일에서 공개 첫 화면은 문장과 지도를 세로로 쌓고 지도 높이를 352px로 줄인다. 지도는 읽을 수 있는 세 개 노드만 남기며, 공고 행은 단일 열이 되고 원형 화살표는 오른쪽 위에 고정된다. 공개 내비게이션은 같은 링크와 인증 행동을 더 짧은 배열로 재배치한다.
+모바일에서 공개 첫 화면은 문장과 지도를 세로로 쌓고 지도 높이를 352px로 줄인다. 지도는 읽을 수 있는 세 개 노드만 남기며, 공고 행은 단일 열이 되고 원형 화살표는 오른쪽 위에 고정된다. 공개 내비게이션은 같은 링크와 인증 행동을 더 짧은 배열로 재배치한다. 채용 유형은 native disclosure 안에서 필요할 때만 펼치고, 홈은 최대 다섯 개의 실제 공고만 서버 렌더링해 탐색 화면보다 가볍게 유지한다.
 
 **The Real Data Geometry Rule.** 궤도, 경로, 카운터는 실제 공고와 전형 데이터를 설명할 때만 사용한다. 비어 있는 장식 배경으로 반복하지 않는다.
 
@@ -241,7 +241,7 @@ HireFlow는 색면, 표면 톤, 1px 경계를 먼저 사용하고 그림자를 �
 
 ### Chips
 
-- **Filter:** 44px 높이의 pill이다. 선택 상태는 운영 잉크 filled, 미선택 상태는 순백과 hairline이며 hover에서 운영 블루로 경계를 강조한다.
+- **Filter:** 44px 높이의 pill이다. 선택 상태는 운영 잉크 filled, 미선택 상태는 순백과 hairline이며 hover에서 운영 블루로 경계를 강조한다. 모바일에서는 채용 유형을 접힌 disclosure로 시작하고 결과 수를 live region으로 알린다. 초기화 뒤에는 검색 필드로 포커스를 돌려준다.
 - **Status:** 상태 배지는 pill, 작은 현재색 점, 얇은 inset ring으로 구성한다. 성공, 진행, 대기, 실패 색의 결정은 공유 recruitment 유틸리티에서만 한다.
 
 ### Cards / Containers
@@ -277,6 +277,10 @@ HireFlow는 색면, 표면 톤, 1px 경계를 먼저 사용하고 그림자를 �
 ### Footer and Brand Mark
 
 모든 공개 흐름은 깊은 푸터 잉크 색면으로 닫는다. 대형 HireFlow 워드마크, 지원 여정 설명, 채용과 지원자와 법적 링크, 단 하나의 라임 CTA를 포함한다. favicon과 route mark의 경로 비율이나 세 개 노드 구조를 임의로 바꾸지 않는다.
+
+### Feedback, Legal, and Help
+
+공고 로딩 화면은 실제 히어로, 필터, 인덱스 행의 형태를 유지하며 `aria-busy`와 polite live region으로 상태를 알린다. 조회 실패에는 안전한 설명과 다시 시도 행동을 제공하고, 검색 결과가 없으면 필터 초기화를 같은 영역에서 제공한다. 법적 고지는 focus trap, Escape 닫기, trigger focus 복원을 지원하는 Base UI dialog를 사용한다. 지원 도움말은 공고 목록 아래의 접힌 native disclosure로 제공해 기본 탐색을 방해하지 않는다.
 
 **The Motion Contract Rule.** 모션은 경로와 상태 변화를 설명하는 데만 사용한다. `LazyMotion`과 `MotionConfig`의 사용자 모션 감소 설정을 유지하고, `prefers-reduced-motion`에서는 궤도, entrance, layout, hover transform, 자식 화살표 이동을 모두 정지한다.
 

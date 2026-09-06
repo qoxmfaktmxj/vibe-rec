@@ -92,9 +92,9 @@ export function CareerSignalMap({ jobPostings }: CareerSignalMapProps) {
         ))}
 
         <div className="career-signal-caption" aria-hidden="true">
-          <span>FIND</span>
-          <span>APPLY</span>
-          <span>TRACK</span>
+          <span>찾기</span>
+          <span>지원</span>
+          <span>확인</span>
         </div>
         </div>
       </MotionConfig>

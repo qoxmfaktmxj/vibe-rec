@@ -17,7 +17,7 @@ export function PublicSiteFooter() {
   return (
     <footer className="footer-signal text-on-dark-soft">
       <div className="mx-auto max-w-7xl px-6 py-16 md:px-16 md:py-24">
-        <div className="border-b border-white/15 pb-12 md:pb-16">
+        <div className="border-b border-[color:var(--dark-hairline)] pb-12 md:pb-16">
           <p className="font-headline text-[clamp(4rem,12vw,9rem)] font-semibold leading-none tracking-[-0.045em] text-on-dark">
             HireFlow
           </p>
@@ -59,14 +59,15 @@ export function PublicSiteFooter() {
                       href={link.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="transition-colors hover:text-on-dark"
+                      className="inline-flex min-h-11 min-w-11 items-center transition-colors hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-accent"
                     >
                       {link.label}
+                      <span className="sr-only">, 새 창에서 열림</span>
                     </a>
                   </li>
                 ) : (
                   <li key={link.href}>
-                    <Link href={link.href} className="transition-colors hover:text-on-dark">
+                    <Link href={link.href} className="inline-flex min-h-11 min-w-11 items-center transition-colors hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-accent">
                       {link.label}
                     </Link>
                   </li>
@@ -82,7 +83,7 @@ export function PublicSiteFooter() {
             <ul className="mt-4 space-y-3 text-sm">
               {candidateLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-on-dark">
+                  <Link href={link.href} className="inline-flex min-h-11 min-w-11 items-center transition-colors hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-accent">
                     {link.label}
                   </Link>
                 </li>
@@ -95,20 +96,21 @@ export function PublicSiteFooter() {
               법적 고지
             </p>
             <div className="mt-4 flex flex-col items-start gap-3 text-sm">
-              <LegalLayerLinks linkClassName="text-on-dark-soft transition-colors hover:text-on-dark" />
+              <LegalLayerLinks linkClassName="inline-flex min-h-11 min-w-11 items-center text-on-dark-soft outline-none transition-colors hover:text-on-dark focus-visible:ring-2 focus-visible:ring-signal-accent" />
             </div>
           </nav>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-white/15 pt-6 font-mono text-[11px] text-on-dark-soft md:flex-row md:items-center md:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-[color:var(--dark-hairline)] pt-6 font-mono text-[11px] text-on-dark-soft md:flex-row md:items-center md:justify-between">
           <p>© 2026 HireFlow. 모든 권리 보유.</p>
           <a
             href="https://www.minseok91.cloud"
             target="_blank"
             rel="noreferrer"
-            className="transition-colors hover:text-on-dark"
+            className="inline-flex min-h-11 min-w-11 items-center transition-colors hover:text-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-accent"
           >
             운영 문의
+            <span className="sr-only">, 새 창에서 열림</span>
           </a>
         </div>
       </div>
