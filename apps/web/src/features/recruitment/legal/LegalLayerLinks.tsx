@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type MouseEvent } from "react";
+import { Dialog } from "@base-ui/react/dialog";
 
 type LegalType = "privacy" | "terms" | null;
 
@@ -82,6 +83,7 @@ export function LegalLayerLinks({
   linkClassName = "transition-colors hover:text-brand",
 }: LegalLayerLinksProps = {}) {
   const [activeModal, setActiveModal] = useState<LegalType>(null);
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const content = useMemo(() => {
     if (!activeModal) {
@@ -94,54 +96,58 @@ export function LegalLayerLinks({
     setActiveModal(null);
   }
 
+  function openModal(type: Exclude<LegalType, null>, event: MouseEvent<HTMLButtonElement>) {
+    lastTriggerRef.current = event.currentTarget;
+    setActiveModal(type);
+  }
+
   return (
-    <>
-      <button type="button" className={linkClassName} onClick={() => setActiveModal("privacy")}>
+    <Dialog.Root open={activeModal !== null} onOpenChange={(open) => !open && closeModal()}>
+      <button type="button" className={linkClassName} onClick={(event) => openModal("privacy", event)}>
         개인정보처리방침
       </button>
-      <button type="button" className={linkClassName} onClick={() => setActiveModal("terms")}>
+      <button type="button" className={linkClassName} onClick={(event) => openModal("terms", event)}>
         이용약관
       </button>
       {content ? (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="legal-modal-title"
-          onClick={closeModal}
-        >
-          <div
-            className="max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-outline-variant bg-background p-6 shadow-2xl md:p-8"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-6 flex items-center justify-between gap-4 border-b border-outline-variant pb-4">
-              <h3
-                id="legal-modal-title"
-                className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface"
-              >
-                {content.title}
-              </h3>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-lg border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface transition-colors hover:border-brand hover:text-brand"
-              >
-                닫기
-              </button>
-            </div>
-            <div className="space-y-5">
-              {content.sections.map((section) => (
-                <section key={section.heading} className="space-y-2">
-                  <h4 className="font-medium text-on-surface">{section.heading}</h4>
-                  <p className="text-sm leading-7 text-on-surface-variant">
-                    {section.body}
-                  </p>
-                </section>
-              ))}
-            </div>
-          </div>
-        </div>
+        <Dialog.Portal>
+          <Dialog.Backdrop className="fixed inset-0 z-[100] bg-[color:var(--modal-scrim)]" />
+          <Dialog.Viewport className="fixed inset-0 z-[101] flex items-center justify-center px-4 py-8">
+            <Dialog.Popup
+              initialFocus
+              finalFocus={() => lastTriggerRef.current}
+              className="max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-outline-variant bg-background p-6 shadow-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:p-8"
+            >
+              <div className="mb-6 flex items-center justify-between gap-4 border-b border-outline-variant pb-4">
+                <Dialog.Title
+                  id="legal-modal-title"
+                  className="font-headline text-2xl font-medium tracking-[-0.02em] text-on-surface"
+                >
+                  {content.title}
+                </Dialog.Title>
+                <Dialog.Close
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-outline-variant px-3 py-2 text-xs font-medium text-on-surface outline-none transition-colors hover:border-brand hover:text-brand focus-visible:ring-2 focus-visible:ring-ring/40"
+                >
+                  닫기
+                </Dialog.Close>
+              </div>
+              <Dialog.Description className="sr-only">
+                {content.title}의 상세 내용을 확인합니다.
+              </Dialog.Description>
+              <div className="space-y-5">
+                {content.sections.map((section) => (
+                  <section key={section.heading} className="space-y-2">
+                    <h3 className="font-medium text-on-surface">{section.heading}</h3>
+                    <p className="text-sm leading-7 text-on-surface-variant">
+                      {section.body}
+                    </p>
+                  </section>
+                ))}
+              </div>
+            </Dialog.Popup>
+          </Dialog.Viewport>
+        </Dialog.Portal>
       ) : null}
-    </>
+    </Dialog.Root>
   );
 }

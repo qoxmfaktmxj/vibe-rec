@@ -1,237 +1,309 @@
-# DESIGN.md — HireFlow 디자인 시스템 v2 "차분한 확신"
-
-> 새 컴포넌트를 만들기 전에 이 파일을 먼저 읽으세요. shadcn 기본값(Inter, 큰 radius)을 그대로 쓰지 마세요.
-> 방향·근거는 `docs/design-renewal/BRIEF.md`, 품질 기준은 `docs/design-renewal/RUBRIC.md` 참조.
-> 마지막 업데이트: 2026-07-12 (Cal.com 레퍼런스 기반 리뉴얼)
-
 ---
-
-## 0. 스펙 (기계 판독용)
-
-```yaml
-concept: "잉크가 행동하고, 블루는 신호한다 — near-monochrome 신뢰 시스템 + 채용 파이프라인 시각화"
-
+name: HireFlow
+description: "지원의 전 과정을 하나의 커리어 시그널로 연결하는 채용 경험"
 colors:
-  background: "#F7F9FB"        # 캔버스 (블루 틴트 근백색)
-  card: "#FFFFFF"              # 카드 표면 (유일한 순백)
-  surface-container-low: "#F2F5F8"   # 연회색 피처 카드·패널
-  surface-container: "#EAEEF3"
-  surface-container-high: "#DEE4EB"
-  surface-container-highest: "#CDD6E0"
-  on-surface: "#121C28"        # 잉크 텍스트
-  on-surface-variant: "rgba(18,28,40,0.62)"
-  outline: "rgba(18,28,40,0.28)"
-  outline-variant: "rgba(18,28,40,0.10)"
-  primary: "#16283C"           # 행동 잉크 — filled CTA 전용
-  primary-hover: "#22344A"
-  primary-foreground: "#FFFFFF"
-  primary-container: "#E3EDF6"
-  brand: "#0369A1"             # 신호 블루 — 링크·활성·포커스·라이브 dot
-  brand-strong: "#075985"
-  secondary: "#0EA5E9"
-  ring: "#0369A1"
-  surface-dark: "#0C1826"      # 다크 푸터 (시스템 유일의 다크 표면)
-  surface-dark-elevated: "#14243A"
-  on-dark: "#E9EFF6"
-  on-dark-soft: "#93A5B8"
+  signal-blue: "#1746E8"
+  signal-foreground: "#F7FAFF"
+  signal-accent: "#D8FF59"
+  signal-accent-hover: "#C7F43B"
+  signal-ink: "#0A1426"
+  paper: "#F7F9FB"
+  surface: "#FFFFFF"
+  surface-low: "#F2F5F8"
+  surface-mid: "#EAEEF3"
+  surface-high: "#DEE4EB"
+  ink: "#121C28"
+  ink-soft: "rgba(18, 28, 40, 0.68)"
+  outline: "rgba(18, 28, 40, 0.28)"
+  hairline: "rgba(18, 28, 40, 0.10)"
+  action-ink: "#16283C"
+  action-hover: "#22344A"
+  action-foreground: "#FFFFFF"
+  operational-blue: "#0369A1"
+  operational-blue-strong: "#075985"
+  footer-ink: "#0C1826"
+  footer-foreground: "#E9EFF6"
+  footer-soft: "#93A5B8"
   success: "#16A34A"
   destructive: "#DC2626"
-
+  error-surface: "#FEE2E2"
 typography:
-  display:  { size: "clamp(2.5rem,5vw,4rem)", weight: 700, lineHeight: 1.12, tracking: "-0.02em", family: headline }
-  h1:       { size: "2rem",      weight: 700, lineHeight: 1.25, tracking: "-0.02em",  family: headline }
-  h2:       { size: "1.5rem",    weight: 600, lineHeight: 1.3,  tracking: "-0.015em", family: headline }
-  h3:       { size: "1.125rem",  weight: 600, lineHeight: 1.4,  tracking: "-0.01em",  family: headline }
-  body:     { size: "0.9375rem", weight: 400, lineHeight: 1.7,  tracking: "-0.005em", family: body }
-  caption:  { size: "0.8125rem", weight: 400, lineHeight: 1.5,  tracking: "0",        family: body }
-  meta:     { size: "11px",      weight: 500, lineHeight: 1.2,  tracking: "0.14em",   family: mono, transform: uppercase }
-
-fonts:
-  body: "Wanted Sans Variable"     # npm wanted-sans, 한글 동적 서브셋, 본문·UI 전부
-  headline: "Sora"                 # 라틴 디스플레이·로고 전용, 한글 글리프는 Wanted Sans fallback
-  mono: "Spline Sans Mono"         # 메타 라벨·카운터·날짜·테이블 숫자
-
+  display:
+    fontFamily: "Sora, Wanted Sans Variable, sans-serif"
+    fontSize: "clamp(3.25rem, 7vw, 6rem)"
+    fontWeight: 600
+    lineHeight: 0.98
+    letterSpacing: "-0.02em"
+  headline:
+    fontFamily: "Sora, Wanted Sans Variable, sans-serif"
+    fontSize: "clamp(2.5rem, 5vw, 4.5rem)"
+    fontWeight: 600
+    lineHeight: 1.03
+    letterSpacing: "-0.02em"
+  title:
+    fontFamily: "Sora, Wanted Sans Variable, sans-serif"
+    fontSize: "clamp(1.45rem, 2.3vw, 2.25rem)"
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: "-0.025em"
+  body:
+    fontFamily: "Wanted Sans Variable, Apple SD Gothic Neo, Malgun Gothic, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.75
+    letterSpacing: "-0.005em"
+  label:
+    fontFamily: "Spline Sans Mono, Wanted Sans Variable, monospace"
+    fontSize: "0.6875rem"
+    fontWeight: 500
+    lineHeight: 1.2
+    letterSpacing: "0.14em"
 rounded:
-  button: "rounded-lg"      # 8px — 버튼·입력
-  card: "rounded-xl"        # ≈11px — 카드·패널·모달
-  badge: "rounded-full"     # 뱃지·nav pill·아바타
-  banned: ["rounded-2xl", "rounded-3xl"]
-
-elevation:
-  shadow-1: "0 1px 2px rgba(18,28,40,0.05)"                                  # 정지 카드
-  shadow-2: "0 2px 8px rgba(18,28,40,0.07), 0 1px 2px rgba(18,28,40,0.04)"   # hover·드롭다운
-  shadow-3: "0 16px 40px -16px rgba(18,28,40,0.18)"                          # 모달·히어로 프레임
-
+  none: "0px"
+  compact: "6.4px"
+  control: "8px"
+  container: "11.2px"
+  pill: "999px"
 spacing:
-  section: "py-20 md:py-24"        # 공개 사이트 밴드 간
-  page-x: "px-6 md:px-16"
-  card: "p-6"  # 대형 p-8
-  group-tight: "gap-2~3"           # 라벨↔값
-  group-loose: "gap-10~12"         # 그룹 간
-```
-
+  tight: "8px"
+  related: "12px"
+  control: "20px"
+  container: "24px"
+  cluster: "40px"
+  section-mobile: "64px"
+  section-desktop: "96px"
+components:
+  signal-action:
+    backgroundColor: "{colors.signal-accent}"
+    textColor: "{colors.signal-ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: "12px 24px"
+    height: "48px"
+  operational-action:
+    backgroundColor: "{colors.action-ink}"
+    textColor: "{colors.action-foreground}"
+    typography: "{typography.body}"
+    rounded: "{rounded.control}"
+    padding: "10px 20px"
+    height: "44px"
+  button-outline:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.control}"
+    padding: "10px 20px"
+    height: "44px"
+  filter-selected:
+    backgroundColor: "{colors.action-ink}"
+    textColor: "{colors.action-foreground}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: "10px 16px"
+    height: "44px"
+  search-field:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: "14px 20px"
+    height: "48px"
+  job-index-row:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    padding: "28px 20px"
+    height: "176px"
 ---
 
-## 1. Overview
+# Design System: HireFlow
 
-HireFlow는 공개 채용 사이트(마케팅)와 어드민 도구(앱 UI)의 하이브리드다. 디자인 언어는 Cal.com을 주 레퍼런스로
-한 **근-단색(near-monochrome) 신뢰 시스템**: 블루 틴트 캔버스(`--background`) 위에 순백 카드, 행동은 잉크
-CTA(`--primary` #16283C) 하나, 브랜드 블루(`--brand` #0369A1)는 링크·활성 상태·포커스 링·라이브 신호에만 나타난다.
-모든 공개 페이지는 다크 네이비 푸터(`--surface-dark`)로 닫힌다 — 시스템에서 유일한 다크 표면.
+## Overview
 
-시그니처는 **채용 파이프라인 시각화**: `RecruitmentStepper`가 공고 상세·지원자 대시보드·어드민에서 동일한
-시각 언어(완료=잉크, 현재=블루, 예정=hairline)로 진행 상태를 답한다. 마케팅 일러스트 대신 실제 제품 UI의
-미니어처를 카드에 임베드한다(Cal 방식).
+**Creative North Star: "Career Signal Atlas"**
 
-## 2. 색상 사용 규칙
+HireFlow의 시각 세계는 지원의 전 과정을 하나의 커리어 시그널로 읽게 한다. 장식적인 SaaS 카드 모음 대신 강한 색면, 실제 공고 데이터, 궤도와 경로, 정렬된 인덱스를 사용해 발견부터 지원과 상태 확인까지 같은 방향 감각을 유지한다.
 
-- **filled CTA는 밴드당 1개.** `bg-primary`(잉크)는 섹션에서 가장 중요한 행동 하나에만. 보조 행동은 outline/ghost.
-- **`--brand` 블루는 신호 전용**: 텍스트 링크, 활성 탭/네비, 포커스 링, 라이브 dot, 인라인 강조. 대면적 배경 금지.
-- **뉴트럴 위계**: `bg-background`(캔버스) → `bg-card`(순백 카드) → `bg-surface-container-low`(연회색 패널).
-  중첩 카드 금지 — 카드 안 정보 그룹은 `surface-container-low` 틴트나 hairline(`border-outline-variant`)으로.
-- **시맨틱 상태 색 예외 (유지)**: emerald=합격/제출, rose=불합격, amber=대기/임시저장, sky=진행중.
-  상태 뱃지는 반드시 `shared/lib/recruitment.ts`의 `get*ClassName()` 사용.
-- **금지**: `bg-white`(→`bg-card`), `text-gray-*`, `bg-blue-*` 직접 사용, hex 하드코딩, 보라/인디고 그라디언트.
+공개 탐색 화면은 시그널 블루, 액션 라임, 깊은 잉크, 차가운 종이의 대비로 대담하게 설득한다. 첫 화면은 왼쪽의 큰 한국어 명제와 오른쪽의 실제 공고 시그널 맵을 짝지으며, 단 하나의 라임 행동이 다음 단계로 이끈다. 공고 탐색은 카드 그리드가 아니라 메타데이터가 정렬된 편집형 인덱스 행으로 이어진다.
 
-## 3. 타이포그래피 — 한글 우선
+지원서 작성과 진행 상태, 공유 컴포넌트, 관리자 워크스페이스는 기존의 차분한 운영 언어를 유지한다. 이 영역은 종이와 순백 표면, 잉크 행동색, 제한적인 운영 블루를 사용한다. 관리자는 1024px 이상의 데스크톱 작업 공간이며, 공개 화면의 표현적인 색면을 그대로 가져오지 않는다.
 
-**한글이 1급 시민이다.** 본문·UI 폰트는 Wanted Sans Variable(원티드랩, OFL). Sora는 라틴 디스플레이·로고·
-숫자 헤드라인 전용이며 한글 글리프는 자동으로 Wanted Sans로 fallback된다. IBM Plex Mono는 폐기,
-mono 슬롯은 Spline Sans Mono.
+**Key Characteristics:**
 
-### 한글 조판 규칙 (base layer 적용, 위반 금지)
-- 제목·문단 `word-break: keep-all` — 단어 중간 줄바꿈 금지
-- `h1~h3`에 `text-wrap: balance`
-- 본문 행간 ≥1.7 (`leading-7` 이상). 한글은 라틴보다 시각 밀도가 높다 — 좁은 행간 금지
-- 헤드라인 트래킹 하한 **-0.02em** (기존 -0.04em은 한글에서 뭉개짐 — 회귀 금지)
-- 본문 최대 측정폭 `max-w-[65ch]` 수준 유지
-- 날짜·카운터·통계 숫자: `font-mono` 또는 `tabular-nums` — 열이 정렬되어야 한다
+- 실제 공고와 전형 흐름이 장식 이미지보다 먼저 보인다.
+- 시그널 블루 색면과 액션 라임 하나가 공개 탐색의 방향을 만든다.
+- 궤도형 경로와 편집형 공고 인덱스가 발견, 비교, 다음 단계의 이야기를 연결한다.
+- 운영 화면은 근단색 표면과 촘촘한 정보 위계를 유지한다.
+- 모든 상호작용은 키보드 포커스, 44px 터치 영역, 모션 감소 설정을 존중한다.
 
-### 슬롯
-| 클래스 | 폰트 | 사용처 |
-|--------|------|--------|
-| `font-headline` | Sora → Wanted Sans | 히어로, 페이지/섹션 제목, 로고 |
-| `font-sans` (기본) | Wanted Sans Variable | 본문, UI 라벨, 폼 |
-| `font-mono` | Spline Sans Mono | 메타 라벨(11px uppercase tracking-[0.14em]), D-day, 날짜, 테이블 숫자 |
+## Colors
 
-## 4. Layout
+공개 탐색은 선명한 시그널 팔레트를, 운영 화면은 차분한 잉크와 종이 팔레트를 사용한다. 색상 값의 단일 기준은 이 문서의 frontmatter와 `apps/web/src/app/globals.css`다.
 
-- 공개 사이트 `max-w-7xl`, 지원 위저드 `max-w-4xl`, 인증 폼 `max-w-md`, 페이지 좌우 `px-6 md:px-16`
-- 섹션 밴드 간 `py-20 md:py-24`. **균일 padding 반복 금지** — 관련 요소는 tight(8~12px), 그룹 간은 generous(40px+)
-- 히어로는 비대칭 12-col 그리드(텍스트 7 : 제품 프래그먼트 5). 본문 섹션은 좌측 정렬 기본, 중앙 정렬은 히어로 배지 등 최소한만
-- 어드민: `AdminRailNav` 레일 + 전폭 메인. 데스크탑 전용(`min-width: 1024px`, `AdminMobileGuard`)
+### Primary
 
-## 5. Elevation & Depth
+- **Signal Blue:** 공개 홈의 주 색면과 커리어 시그널 세계를 소유한다. 일반 링크나 작은 상태 표시에 분산 사용하지 않는다.
+- **Signal White:** 블루 위 제목, 경로, 지도 라벨 표면에 사용해 정보가 색면에서 또렷하게 읽히게 한다.
 
-3단계 잉크-틴트 그림자만 사용한다. 임의 `shadow-[...]` 금지.
+### Secondary
 
-| 토큰 | 용도 |
-|------|------|
-| `--shadow-1` (`.elevation-1`) | 정지 상태 카드 |
-| `--shadow-2` (`.elevation-2`) | hover 카드, 드롭다운, sticky 헤더 |
-| `--shadow-3` (`.elevation-3`) | 모달, 히어로 제품 프레임 |
+- **Action Lime:** 블루 또는 깊은 잉크 색면에서 가장 중요한 행동 하나와 시그널 노드를 표시한다.
+- **Pressed Lime:** 라임 행동의 hover 상태에만 사용한다.
 
-깊이는 그림자보다 **표면 틴트 대비**(캔버스↔카드)가 우선. 글래스모피즘(장식용 blur) 금지.
+### Tertiary
 
-## 6. Components
+- **Operational Ink:** 지원서, 상태 화면, 관리자 도구의 기본 filled 행동색이다.
+- **Operational Blue:** 링크, 활성 상태, 포커스 링, 라이브 상태처럼 운영 의미를 전달하는 작은 신호에만 사용한다.
+- **Success Green, Destructive Red:** 성공과 위험 상태에만 사용한다. 상태 배지는 `shared/lib/recruitment.ts`의 클래스 생성 함수를 단일 소스로 삼는다.
 
-### 버튼 (`components/ui/button.tsx` variants)
-```tsx
-// Primary (잉크 CTA — 밴드당 1개)
-<Button>지원하기</Button>
-// → bg-primary text-primary-foreground hover:bg-primary-hover, rounded-lg, h-11+ (44px 터치 타깃)
+### Neutral
 
-// Outline (보조)
-<Button variant="outline">공고 보기</Button>
-// → border-outline-variant bg-card hover:bg-surface-container-low text-on-surface
+- **Cool Paper:** 공개 목록과 운영 화면의 기본 캔버스다.
+- **Pure Surface:** 카드, 입력, 활성 내비게이션의 명확한 표면이다.
+- **Low, Mid, High Surface:** 중첩 카드 대신 정보 그룹과 표면 위계를 만든다.
+- **Reading Ink, Soft Ink:** 본문 위계를 담당한다. Soft Ink는 보조 설명과 메타데이터에만 사용한다.
+- **Structural Outline, Quiet Hairline:** 선택 가능한 경계와 인덱스 구획을 구분한다.
+- **Deep Signal Ink, Footer Ink:** 공고 인덱스의 큰 색면과 공개 푸터를 닫는 깊은 배경이다.
+- **Footer White, Footer Soft:** 어두운 푸터의 제목과 보조 문장을 분리한다.
 
-// Ghost / Link — 3차 행동, 텍스트 링크는 text-brand
-```
-press 상태: `active:translate-y-px`. hover 시 `-translate-y-0.5` 남용 금지(CTA 1곳 정도).
+**The One Lime Action Rule.** 하나의 블루 또는 깊은 잉크 밴드에는 라임 filled 행동을 하나만 둔다. 라임의 희소성이 우선순위를 만든다.
 
-### 입력
-```tsx
-<input className="w-full rounded-lg border border-outline-variant bg-card px-3.5 py-3 text-sm text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-brand focus:ring-2 focus:ring-ring/25" />
-```
-`outline-none`에는 반드시 `focus:ring-2` 동반 (WCAG 2.1 AA).
+**The Operational Separation Rule.** 공개 탐색의 시그널 블루와 라임을 관리자 표면의 장식색으로 가져오지 않는다. 관리자는 잉크 행동과 운영 블루 신호를 유지한다.
 
-### 카드
-```tsx
-<div className="rounded-xl border border-outline-variant bg-card p-6 elevation-1">
-```
-인터랙티브 카드: `.card-interactive` (hover: elevation-2 + border-brand/20, translateY(-2px)).
+## Typography
 
-### 상태 뱃지
-```tsx
-<span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ring-inset ${getApplicationStatusClassName(status)}`}>
-  <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
-  {getApplicationStatusLabel(status)}
-</span>
-```
-색 조합은 `recruitment.ts` 함수가 유일한 소스. 배경 100단계 + ring 200단계 + 텍스트 800/900.
+**Display Font:** Sora, 한글은 Wanted Sans Variable로 대체
 
-### RecruitmentStepper (`features/recruitment/shared/RecruitmentStepper.tsx`)
-채용 단계 시각화의 단일 소스. 완료=잉크 채움+체크, 현재=브랜드 블루 ring+dot, 예정=hairline 원.
-수평(`orientation="horizontal"`, 카드·대시보드)과 수직(`vertical`, 공고 상세) 지원. 텍스트 나열로 단계를 표현하지 말 것.
+**Body Font:** Wanted Sans Variable, Apple SD Gothic Neo와 Malgun Gothic 대체
 
-### 다크 푸터 (`PublicSiteFooter`)
-`bg-[color:var(--surface-dark)]` + `text-[color:var(--on-dark-soft)]`, 링크 hover `text-[color:var(--on-dark)]`.
-회사 정보·법적 링크·문의를 갖춘 4열(모바일 1열). 모든 공개 페이지의 마지막 밴드.
+**Label/Mono Font:** Spline Sans Mono, 한글은 Wanted Sans Variable로 대체
 
-### 테이블 (어드민)
-- `thead`: `sticky top-0 bg-surface-container-low` + `text-[11px] uppercase tracking-[0.14em] font-mono`
-- 행 hover: `hover:bg-surface-container-low/60`, 숫자·날짜 셀 `tabular-nums`
-- 행 높이는 콘텐츠 밀도 우선(`py-4`), 초대형 `py-5+` 금지
+**Character:** Sora의 기하학적 구조가 큰 문장을 포스터처럼 세우고, Wanted Sans가 긴 한국어 설명과 조작 문구를 안정적으로 읽게 한다. Spline Sans Mono는 공고 수, 날짜, 단계 수, 운영 메타데이터를 인덱스처럼 정렬한다.
 
-## 7. Do's and Don'ts
+### Hierarchy
 
-### Do
-- 잉크 CTA는 밴드당 하나 — 그래서 눈에 띈다
-- 진행 상태는 `RecruitmentStepper`로 시각화
-- 실제 제품 UI 미니어처를 마케팅 카드에 임베드 (장식 일러스트 대신)
-- 숫자 열은 mono/tabular로 정렬
-- 한글 제목에 `keep-all` + `balance`
-- 모든 공개 페이지를 다크 푸터로 닫기
+- **Display** (600, `clamp(3.25rem, 7vw, 6rem)`, 0.98): 공개 홈과 공고 탐색의 첫 명제다. 한 문장의 폭은 약 11자 수준으로 제한해 왼쪽 질량을 만든다.
+- **Headline** (600, `clamp(2.5rem, 5vw, 4.5rem)`, 1.03): 공개 섹션 제목과 주요 전환점에 사용한다.
+- **Title** (600, `clamp(1.45rem, 2.3vw, 2.25rem)`, 1.25): 편집형 공고 행의 역할명과 중요한 콘텐츠 제목이다.
+- **Body** (400, 1rem, 1.75): 설명과 조작 문구의 기본이다. 긴 본문은 약 65ch 이내로 유지하고 한국어 단어 중간 줄바꿈을 막는다.
+- **Label** (500, 0.6875rem, 0.14em, uppercase): 영문 카운터, 날짜, D-day, 단계 수, 테이블 메타데이터에 사용한다. 숫자는 tabular 설정으로 열을 맞춘다.
 
-### Don't
-- `border-l-4` 류 색상 side-stripe (1px hairline만 허용)
-- gradient text (`background-clip: text`)
-- 보라/인디고 그라디언트, 네온, 글래스모피즘
-- 카드 속 카드 중첩
-- 균일 아이콘 카드 3열 그리드, 히어로 전체 중앙 정렬 회귀
-- 헤드라인 트래킹 -0.02em 미만(한글 뭉개짐)
-- bounce/elastic easing, width/height 애니메이션
-- 이모지 장식, "한 곳에서 모두" 류 제네릭 카피
+**The Korean Rhythm Rule.** 한국어 제목은 `word-break: keep-all`과 균형 줄바꿈을 유지한다. 일반 display와 headline은 조밀하지만 뭉치지 않는 자간을 사용하고, 더 촘촘한 자간은 구현된 공고 제목이나 대형 영문 로고처럼 검증된 역할에만 허용한다.
 
-## 8. Responsive Behavior
+## Layout
 
-| 구간 | 폭 | 주요 변화 |
-|------|-----|----------|
-| Desktop | ≥1280px | 히어로 7:5 비대칭, 공고 3열, 어드민 전체 |
-| Laptop | 1024–1279px | 공고 2~3열, 어드민 최소 지원 폭 |
-| Tablet | 768–1023px | 히어로 세로 스택(텍스트→프래그먼트), 공고 2열, 어드민 차단 |
-| Mobile | <768px | 공고 1열, 푸터 1열, display 폰트 clamp 하한(40px), nav 축약 |
+공개 화면의 기본 컨테이너는 최대 1280px이며 좌우 여백은 모바일 24px, 중형 이상 64px이다. 주요 섹션의 수직 여백은 모바일 64px 이상, 데스크톱 96px 이상으로 두되 실제 콘텐츠 밀도에 맞춰 80px과 112px 단계를 사용할 수 있다. 관련 요소는 8px에서 12px, 그룹 사이는 40px 이상으로 대비를 만든다.
 
-- 터치 타깃 ≥44px (`min-h-[44px]` 또는 `py-2.5`+)
-- 모바일에서 기능 숨김 금지 — 재배치할 것
-- 모션: `prefers-reduced-motion: reduce`에서 entrance/hover transform 전부 무효화(기존 블록 유지·확장)
+홈 첫 화면은 12열 비대칭 그리드다. 데스크톱에서 문장 영역은 7열, 실제 공고 시그널 맵은 5열을 사용한다. 큰 한국어 명제 아래에 설명과 단일 행동을 두고, 오른쪽 지도는 실제 공고 제목과 근무지를 노드로 사용한다. 격자 텍스처는 이 시그널 맵이 있는 색면에서만 허용한다.
 
-## 9. 접근성 체크리스트
+공고 탐색은 섹션 제목, 설명, 수량을 상단 규칙선에 맞추고, 각 공고를 최소 높이 176px의 가로 인덱스 행으로 배열한다. 행은 순번, 역할 정보, 고용 조건과 기간, 전형 미리보기, 원형 화살표 순서로 정렬한다. 카드 그리드로 되돌리지 않는다.
 
-- [ ] `outline-none` → `focus:ring-2 focus:ring-ring/25` 동반
-- [ ] 본문 대비 4.5:1, 대형 텍스트 3:1 (on-dark-soft는 다크 푸터 본문에만)
-- [ ] 동적 메시지 `aria-live="polite" aria-atomic="true"`
-- [ ] 네비 활성 `aria-current="page"`, 모달 `aria-modal` + `aria-labelledby`
-- [ ] 스텝퍼는 `<ol>` + 상태를 텍스트로도 제공(`sr-only` 포함)
+지원 위저드는 최대 896px, 인증 폼은 최대 448px를 기준으로 한다. 관리자 화면은 `AdminRailNav`와 전폭 메인 영역으로 구성하며 `AdminMobileGuard`가 1024px 미만을 차단한다. 관리자 테이블은 sticky header, 16px 행 패딩, 정렬된 숫자와 날짜를 사용한다.
 
-## 10. Favicon
+모바일에서 공개 첫 화면은 문장과 지도를 세로로 쌓고 지도 높이를 352px로 줄인다. 지도는 읽을 수 있는 세 개 노드만 남기며, 공고 행은 단일 열이 되고 원형 화살표는 오른쪽 위에 고정된다. 공개 내비게이션은 같은 링크와 인증 행동을 더 짧은 배열로 재배치한다. 채용 유형은 native disclosure 안에서 필요할 때만 펼치고, 홈은 최대 다섯 개의 실제 공고만 서버 렌더링해 탐색 화면보다 가볍게 유지한다.
 
-`apps/web/src/app/icon.svg` — 잉크(`#16283C`) 배경 + 흰 "H". 토큰 변경 시 favicon 동기화 필수.
+**The Real Data Geometry Rule.** 궤도, 경로, 카운터는 실제 공고와 전형 데이터를 설명할 때만 사용한다. 비어 있는 장식 배경으로 반복하지 않는다.
 
-## 11. Iteration Guide
+## Elevation & Depth
 
-1. 한 번에 한 컴포넌트만 수정하고, 토큰 이름으로 참조하라 (`--primary`, `elevation-2`)
-2. UI 변경 후 `/design-check`, 커밋 전 `npx tsc --noEmit && npm run lint`
-3. 새 색이 필요하면 globals.css에 토큰부터 등록 — 컴포넌트에 raw 값 금지
-4. 상태 색은 `recruitment.ts` 함수에만 추가
-5. 품질 게이트: `docs/design-renewal/RUBRIC.md` 평균 9.0 미만이면 머지 금지
+HireFlow는 색면, 표면 톤, 1px 경계를 먼저 사용하고 그림자를 상태나 중요한 부유 요소에만 더한다. 공개 히어로와 공고 인덱스는 기본적으로 평평하며, 지도 라벨과 핵심 행동만 주변 잉크를 머금은 짧은 그림자를 사용한다. 관리자 카드와 팝오버는 기존 3단계 잉크 틴트 그림자를 유지한다.
+
+### Shadow Vocabulary
+
+- **Elevation 1** (`0 1px 2px rgba(18, 28, 40, 0.05)`): 정지 카드와 활성 내비게이션의 최소 분리다.
+- **Elevation 2** (`0 2px 8px rgba(18, 28, 40, 0.07), 0 1px 2px rgba(18, 28, 40, 0.04)`): hover 카드, 드롭다운, 툴팁이다.
+- **Elevation 3** (`0 16px 40px -16px rgba(18, 28, 40, 0.18)`): 모달과 중요한 상위 표면이다.
+- **Signal Action** (`0 12px 32px -18px rgba(10, 20, 38, 0.75)`): 라임 CTA를 블루 색면에서 분리한다.
+- **Signal Label** (`0 10px 28px -18px rgba(10, 20, 38, 0.8)`): 지도 역할 라벨만 가볍게 띄운다.
+
+기본 공개 내비게이션은 읽기 안정성을 위해 제한된 8px backdrop blur를 사용할 수 있다. 장식 목적의 글래스모피즘, 광택, 대형 glow는 사용하지 않는다.
+
+**The Flat First Rule.** 정지 상태의 구조는 색면과 hairline으로 설명한다. 그림자는 hover, 오버레이, 신호 라벨처럼 깊이가 실제 의미를 가질 때만 나타난다.
+
+## Shapes
+
+운영 컨트롤과 카드에는 절제된 곡률을 사용하고, 공개 신호 세계에는 원과 궤도를 명확한 문법으로 사용한다. 기본 버튼과 입력은 8px, 큰 카드와 패널은 약 11px이다. `rounded-2xl`과 `rounded-3xl` 같은 부풀린 컨테이너는 사용하지 않는다.
+
+완전한 pill은 행동, 필터, 활성 내비게이션, 배지에만 쓴다. 원은 시그널 노드, 상태 점, 전형 단계, 44px 방향 화살표에 사용한다. 공고 목록 자체는 둥근 카드가 아니라 상하 hairline으로 나뉜 평평한 행이다.
+
+브랜드 route mark는 하나의 흐름이 여러 접점을 통과하는 경로를 그린다. 헤더에서는 currentColor 단색 선형 마크로 주변 톤에 적응하고, favicon은 시그널 블루의 22px 곡률 타일 위에 흰 경로와 라임 노드 세 개를 사용한다.
+
+**The Orbit and Index Rule.** 원형 기하는 진행과 연결을, 직선형 인덱스는 비교를 표현한다. 두 형태의 역할을 바꾸거나 모든 컨테이너를 pill로 만들지 않는다.
+
+## Components
+
+### Buttons
+
+- **Signal CTA:** 라임 배경, 깊은 시그널 잉크, 완전한 pill, 48px 높이다. 블루 또는 푸터 잉크 밴드에서 가장 중요한 행동 하나에만 사용한다.
+- **Operational Primary:** 잉크 배경, 흰 텍스트, 8px 곡률이다. 지원서와 관리자 작업의 주 행동이며 공개 탐색의 라임 CTA와 경쟁하지 않는다.
+- **Outline and Ghost:** 순백 표면과 hairline 또는 투명 배경을 사용한다. hover에서 운영 블루나 낮은 표면 톤으로 반응한다.
+- **States:** 모든 사용자 행동은 최소 44px 터치 영역과 명시적 `focus-visible` 2px 링을 갖는다. press는 1px 아래 이동만 허용하며 disabled는 상호작용을 막고 불투명도를 낮춘다.
+
+### Chips
+
+- **Filter:** 44px 높이의 pill이다. 선택 상태는 운영 잉크 filled, 미선택 상태는 순백과 hairline이며 hover에서 운영 블루로 경계를 강조한다. 모바일에서는 채용 유형을 접힌 disclosure로 시작하고 결과 수를 live region으로 알린다. 초기화 뒤에는 검색 필드로 포커스를 돌려준다.
+- **Status:** 상태 배지는 pill, 작은 현재색 점, 얇은 inset ring으로 구성한다. 성공, 진행, 대기, 실패 색의 결정은 공유 recruitment 유틸리티에서만 한다.
+
+### Cards / Containers
+
+- **Public Discovery:** 공고는 카드가 아니라 편집형 인덱스 행이다. hover와 키보드 focus에서 배경에 운영 블루를 6% 섞고 제목과 원형 화살표를 오른쪽으로 이동한다.
+- **Operational Surface:** 카드와 패널은 순백, 약 11px 곡률, hairline, 24px 내부 여백을 기본으로 한다. 중첩 카드 대신 낮은 표면 톤이나 구분선을 사용한다.
+- **Empty State:** 실제 빈 목록은 절제된 카드 또는 상하 규칙선 영역으로 표시하고, 설명과 다음 행동을 함께 제공한다.
+
+### Inputs / Fields
+
+- **Search Field:** 순백 배경, hairline, 완전한 pill, 좌우 20px 여백을 사용한다. focus에서 운영 블루 경계와 낮은 강도의 2px 링을 함께 표시한다.
+- **Operational Field:** 긴 폼의 입력은 8px 곡률을 유지한다. `outline: none`을 사용할 때 focus ring을 반드시 동반한다.
+- **Error and Disabled:** 오류는 destructive 텍스트와 error surface를 사용하고, disabled는 의미가 사라지지 않는 범위에서 불투명도를 낮춘다.
+
+### Navigation
+
+- **Public Signal Header:** 홈 히어로 위에서는 absolute로 놓이며 흰 route mark와 텍스트를 사용한다. 로그인이나 대시보드 행동은 라임이고, 활성 링크는 밝은 pill 표면이다.
+- **Public Default Header:** 다른 공개 화면에서는 sticky 순백 계열 표면, 1px 하단 경계, 제한된 blur를 사용한다. 모바일은 링크와 인증 행동을 같은 정보 순서로 재배치한다.
+- **Admin Rail:** 40px 정사각형 아이콘 버튼, 8px 곡률, 활성 왼쪽 선, hover 툴팁을 유지한다. 공개 신호 팔레트로 재설계하지 않는다.
+
+### Career Signal Map
+
+실제 열린 공고를 최대 다섯 개 노드로 배치하고 곡선 경로, 두 개의 회전 궤도, 중심 신호, FIND/APPLY/TRACK 캡션으로 연결한다. 경로는 1.4초 동안 그려지고 노드는 차례로 등장한다. 궤도는 24초와 16초 주기로 서로 반대 방향으로 회전한다.
+
+### Editorial Job Index
+
+각 행은 역할명보다 작은 mono 메타데이터, 정렬된 근무 조건과 기간, 점과 선으로 압축한 실제 전형 미리보기, 44px 원형 화살표를 사용한다. hover와 focus는 같은 결과를 내며 레이아웃 변경은 Motion 13의 위치 애니메이션으로 이어진다.
+
+### RecruitmentStepper
+
+지원 진행 언어의 단일 소스다. 완료는 잉크 채움과 체크, 현재는 순백 중심과 운영 블루 링, 예정은 hairline 원과 번호를 사용한다. 수평과 수직 방향을 지원하며 `<ol>` 구조와 화면 읽기용 상태 텍스트를 유지한다.
+
+### Footer and Brand Mark
+
+모든 공개 흐름은 깊은 푸터 잉크 색면으로 닫는다. 대형 HireFlow 워드마크, 지원 여정 설명, 채용과 지원자와 법적 링크, 단 하나의 라임 CTA를 포함한다. favicon과 route mark의 경로 비율이나 세 개 노드 구조를 임의로 바꾸지 않는다.
+
+### Feedback, Legal, and Help
+
+공고 로딩 화면은 실제 히어로, 필터, 인덱스 행의 형태를 유지하며 `aria-busy`와 polite live region으로 상태를 알린다. 조회 실패에는 안전한 설명과 다시 시도 행동을 제공하고, 검색 결과가 없으면 필터 초기화를 같은 영역에서 제공한다. 법적 고지는 focus trap, Escape 닫기, trigger focus 복원을 지원하는 Base UI dialog를 사용한다. 지원 도움말은 공고 목록 아래의 접힌 native disclosure로 제공해 기본 탐색을 방해하지 않는다.
+
+**The Motion Contract Rule.** 모션은 경로와 상태 변화를 설명하는 데만 사용한다. `LazyMotion`과 `MotionConfig`의 사용자 모션 감소 설정을 유지하고, `prefers-reduced-motion`에서는 궤도, entrance, layout, hover transform, 자식 화살표 이동을 모두 정지한다.
+
+## Do's and Don'ts
+
+### Do:
+
+- **Do** 실제 공고 제목, 근무지, 전형 단계를 공개 화면의 시각적 주인공으로 사용한다.
+- **Do** 블루 또는 깊은 잉크 밴드에서 라임 CTA를 하나만 강조한다.
+- **Do** 공고 비교에는 hairline으로 구획한 편집형 행과 정렬된 mono 메타데이터를 사용한다.
+- **Do** 지원 진행 상태를 `RecruitmentStepper`로 표현하고 텍스트 상태도 함께 제공한다.
+- **Do** 한국어 제목에 단어 보존 줄바꿈을 적용하고 본문 행간을 넉넉하게 유지한다.
+- **Do** 공개 화면의 터치 영역과 키보드 focus를 44px 이상과 명시적 링으로 검증한다.
+- **Do** 관리자 테이블, 상태 배지, 레일 내비게이션의 기존 운영 규칙을 유지한다.
+- **Do** route mark와 favicon에서 경로와 세 개 노드의 식별 구조를 유지한다.
+
+### Don't:
+
+- **Don't** 공개 첫 화면을 중앙 정렬한 제네릭 SaaS 카드 히어로로 되돌리지 않는다.
+- **Don't** 공고 탐색을 같은 크기의 둥근 카드 그리드로 바꾸지 않는다.
+- **Don't** 시그널 맵의 격자, 궤도, 노드를 기능과 무관한 장식으로 반복하지 않는다.
+- **Don't** 관리자 화면에 대면적 시그널 블루나 라임을 장식적으로 사용하지 않는다.
+- **Don't** 카드 안에 카드를 겹치거나 큰 radius, gradient text, 네온, 장식용 glass 효과를 사용하지 않는다.
+- **Don't** 이모지 장식, 과장된 bounce, elastic easing, width 또는 height 애니메이션을 사용하지 않는다.
+- **Don't** 모션 감소 설정에서 경로, 레이아웃, hover 이동을 남겨두지 않는다.
+- **Don't** 컴포넌트에서 raw 색을 새로 만들지 않는다. 먼저 공유 토큰을 추가하고 의미에 맞게 사용한다.

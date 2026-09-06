@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 export default function Error({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -35,8 +34,7 @@ export default function Error({
             문제가 발생했습니다
           </h1>
           <p className="max-w-xl text-sm leading-7 text-on-surface-variant">
-            {error.message ||
-              "예상하지 못한 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}
+            요청을 처리하지 못했습니다. 잠시 후 다시 시도하거나 홈으로 이동해 주세요.
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">

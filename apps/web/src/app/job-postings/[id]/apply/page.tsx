@@ -56,7 +56,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
     return (
       <div className="min-h-screen bg-background text-on-surface">
         <PublicSiteHeader activePath={`/job-postings/${jobPostingId}/apply`} />
-        <main className="mx-auto max-w-4xl px-6 py-16 md:px-16">
+        <main id="main-content" tabIndex={-1} className="mx-auto max-w-4xl px-6 py-16 md:px-16">
           <div className="rounded-xl border border-destructive/30 bg-error-container px-8 py-10 text-center">
             <p className="font-headline text-xl font-medium text-destructive">지원서 양식을 불러오지 못했습니다</p>
             <p className="mt-3 text-sm leading-7 text-on-surface-variant">
@@ -99,7 +99,7 @@ export default async function ApplyPage({ params }: ApplyPageProps) {
     <div className="min-h-screen bg-background text-on-surface">
       <PublicSiteHeader activePath={`/job-postings/${jobPostingId}/apply`} />
 
-      <main className="mx-auto max-w-4xl px-6 py-10 md:px-16">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-4xl px-6 py-10 md:px-16">
         <ApplicationWizard
           candidateSession={candidateSession}
           jobPostingId={jobPostingId}
