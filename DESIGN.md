@@ -2,7 +2,7 @@
 name: HireFlow
 description: "지원의 전 과정을 하나의 커리어 시그널로 연결하는 채용 경험"
 colors:
-  signal-blue: "#1746E8"
+  signal-blue: "#1B3FC4"
   signal-foreground: "#F7FAFF"
   signal-accent: "#D8FF59"
   signal-accent-hover: "#C7F43B"
@@ -138,7 +138,7 @@ HireFlow의 시각 세계는 지원의 전 과정을 하나의 커리어 시그�
 
 ## Colors
 
-공개 탐색은 선명한 시그널 팔레트를, 운영 화면은 차분한 잉크와 종이 팔레트를 사용한다. 색상 값의 단일 기준은 이 문서의 frontmatter와 `apps/web/src/app/globals.css`다.
+공개 탐색은 절제된 시그널 팔레트를, 운영 화면은 차분한 잉크와 종이 팔레트를 사용한다. 색상 값의 단일 기준은 이 문서의 frontmatter와 `apps/web/src/app/globals.css`다.
 
 ### Primary
 
