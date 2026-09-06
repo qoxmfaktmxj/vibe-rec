@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { CareerSignalMap } from "@/features/recruitment/landing/CareerSignalMap";
+import { ApplicationStagePreview } from "@/features/recruitment/landing/ApplicationStagePreview";
 import { HomeJobPostingPreview } from "@/features/recruitment/landing/HomeJobPostingPreview";
 import { PublicSiteFooter } from "@/features/recruitment/layout/PublicSiteFooter";
 import { PublicSiteHeader } from "@/features/recruitment/layout/PublicSiteHeader";
@@ -61,26 +61,7 @@ export default async function Home() {
             </div>
 
             <div className="animate-fade-in-up-delay-2 lg:col-span-5">
-              {fetchError ? (
-                <div className="career-signal-map flex items-center justify-center" role="status">
-                  <div className="max-w-sm border-y border-signal-border py-8">
-                    <p className="font-headline text-2xl font-semibold text-signal-foreground">
-                      공고 연결을 확인하고 있습니다
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-signal-soft">
-                      공고 정보를 불러오지 못했습니다. 다시 시도하면 현재 모집 상태를 새로 확인합니다.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <CareerSignalMap
-                  jobPostings={applicableJobPostings.map(({ id, title, location }) => ({
-                    id,
-                    title,
-                    location,
-                  }))}
-                />
-              )}
+              <ApplicationStagePreview />
             </div>
           </div>
         </section>
